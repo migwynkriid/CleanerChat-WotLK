@@ -140,3 +140,11 @@ out.roll_result_need = "*yellow*%d** *white*%s** %s"
 out.roll_result_greed = "*green*%d** *white*%s** %s"
 out.roll_result_de = "*darkorange*%d** *white*%s** %s"
 out.roll_all_passed = "*gray*All Passed:** %s"
+
+-- Level up outputs (3.3.5)
+out.levelup_ding = "*offwhite*!***yellow*Level %d***offwhite*!**"
+out.levelup_hp = "*gray*+** *white*%d** *green*HP**"
+out.levelup_talent = "*gray*+** *white*%d** *yellow*Talent Point**"
+out.levelup_talents = "*gray*+** *white*%d** *yellow*Talent Points**"
+out.levelup_stat = "*gray*+** *white*%d** *green*%s**"
+out.levelup_essence = "*offwhite*!***darkorange*Unspent Talent Essence***offwhite*!**"

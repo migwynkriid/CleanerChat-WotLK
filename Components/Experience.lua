@@ -71,7 +71,15 @@ local G = {
 	-- COMBATLOG_XPGAIN_QUEST 								-- "You gain %d experience. (%s exp %s bonus)"
 
 	-- "Congratulations, you have reached |cffFF4E00|Hlevelup:%d:LEVEL_UP_TYPE_CHARACTER|h[Level %d]|h|r!"
-	LEVEL_UP = LEVEL_UP
+	LEVEL_UP = LEVEL_UP,
+
+	-- 3.3.5 level up messages (plain text format)
+	LEVEL_UP_335 = "Congratulations, you have reached level %d!",
+	GAINED_HP = "You have gained %d hit points.",
+	GAINED_TALENT = "You have gained %d talent point.",
+	GAINED_TALENTS = "You have gained %d talent points.",
+	STAT_INCREASE = "Your %s increases by %d.",
+	UNSPENT_TALENT_ESSENCE = "You have unspent Talent Essence!"
 }
 
 
@@ -90,6 +98,12 @@ local P = setmetatable({}, { __index = function(t,k)
 	rawset(t,k,makePattern(k))
 	return rawget(t,k)
 end })
+
+-- Safe pattern match that handles nil patterns
+local safeMatch = function(msg, pattern)
+	if (not pattern) then return nil end
+	return string_match(msg, pattern)
+end
 
 -- Special handling for LEVEL_UP. We capture the entire colored, clickable level link.
 if (G.LEVEL_UP) then
@@ -127,20 +141,54 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 	elseif (event == "CHAT_MSG_SYSTEM") then
 
 		-- Area discovery
-		value,source = fix(string_match(message, P[G.ERR_ZONE_EXPLORED_XP]))
+		value,source = fix(safeMatch(message, P[G.ERR_ZONE_EXPLORED_XP]))
 		if (value) then
 			return false, string_format(ns.out.xp_named, value, G.XP, source), author, ...
 		end
 
-		-- Level up
-		value = string_match(message, P[G.LEVEL_UP])
+		-- Level up (retail format with clickable link)
+		value = safeMatch(message, P[G.LEVEL_UP])
 		if (value) then
 			value = string_gsub(value, "[%[/%]]", "")
 			return false, string_format(ns.out.xp_levelup, value), author, ...
 		end
 
+		-- Level up (3.3.5 plain text format)
+		value = safeMatch(message, P[G.LEVEL_UP_335])
+		if (value) then
+			return false, string_format(ns.out.levelup_ding, tonumber(value)), author, ...
+		end
+
+		-- Hit points gained on level up
+		value = safeMatch(message, P[G.GAINED_HP])
+		if (value) then
+			return false, string_format(ns.out.levelup_hp, tonumber(value)), author, ...
+		end
+
+		-- Talent point(s) gained on level up
+		value = safeMatch(message, P[G.GAINED_TALENTS])
+		if (value) then
+			return false, string_format(ns.out.levelup_talents, tonumber(value)), author, ...
+		end
+
+		value = safeMatch(message, P[G.GAINED_TALENT])
+		if (value) then
+			return false, string_format(ns.out.levelup_talent, tonumber(value)), author, ...
+		end
+
+		-- Stat increases on level up
+		local stat, amount = safeMatch(message, P[G.STAT_INCREASE])
+		if (stat and amount) then
+			return false, string_format(ns.out.levelup_stat, tonumber(amount), stat), author, ...
+		end
+
+		-- Unspent Talent Essence (Ascension-specific)
+		if (message == G.UNSPENT_TALENT_ESSENCE) then
+			return false, ns.out.levelup_essence, author, ...
+		end
+
 		-- Quest Completed (also reported in the XP channel)
-		if (string_match(message, P[G.ERR_QUEST_REWARD_EXP_I])) then
+		if (safeMatch(message, P[G.ERR_QUEST_REWARD_EXP_I])) then
 			return true
 		end
 	end
