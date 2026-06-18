@@ -30,16 +30,11 @@ local Module = ns:NewModule("Blacklist")
 -- Addon Localization
 local L = LibStub("AceLocale-3.0"):GetLocale((...))
 
-local B = {
-	[ERR_NOT_IN_INSTANCE_GROUP] = true, -- "You aren't in an instancegroup."
-	[ERR_NOT_IN_RAID] = true, -- "You are not in a raid group"
-	[ERR_QUEST_ALREADY_ON] = true -- "You are already on that quest"
-}
-
-local onChatEventProxy = function(...)
-	return Module:OnChatEvent(...)
-end
-
+-- Build blacklist table safely (some globals may be nil in 3.3.5)
+local B = {}
+if ERR_NOT_IN_INSTANCE_GROUP then B[ERR_NOT_IN_INSTANCE_GROUP] = true end
+if ERR_NOT_IN_RAID then B[ERR_NOT_IN_RAID] = true end
+if ERR_QUEST_ALREADY_ON then B[ERR_QUEST_ALREADY_ON] = true end
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 	if (B[message]) then
 		-- These problems mostly occur in battlegrounds and other PvP.

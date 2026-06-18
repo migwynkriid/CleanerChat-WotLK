@@ -50,6 +50,7 @@ local G = {
 
 -- Convert a WoW global string to a search pattern
 local makePattern = function(msg)
+	if (not msg) or (msg == "") then return nil end
 	msg = string_gsub(msg, "%%([%d%$]-)d", "(%%d+)")
 	msg = string_gsub(msg, "%%([%d%$]-)s", "(.+)")
 	return msg
@@ -58,13 +59,20 @@ end
 -- Search Pattern Cache.
 -- This will generate the pattern on the first lookup.
 local P = setmetatable({}, { __index = function(t,k)
+	if (k == nil) or (k == "") then return nil end
 	rawset(t,k,makePattern(k))
 	return rawget(t,k)
 end })
 
+-- Safe pattern match that handles nil patterns
+local safeMatch = function(msg, pattern)
+	if (not pattern) then return nil end
+	return string_match(msg, pattern)
+end
+
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 
-	local skill, gain = string_match(message, P[G.SKILL_RANK_UP])
+	local skill, gain = safeMatch(message, P[G.SKILL_RANK_UP])
 	if (skill and gain) then
 		gain = tonumber(gain)
 		if (gain) then
@@ -72,7 +80,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		end
 	end
 
-	local craft = string_match(message, P[G.LEARN_RECIPE])
+	local craft = safeMatch(message, P[G.LEARN_RECIPE])
 	if (craft) then
 		return false, string_format(ns.out.objective_status, G.LEARNED, craft), author, ...
 	end

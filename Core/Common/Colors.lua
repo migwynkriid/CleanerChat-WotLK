@@ -128,8 +128,15 @@ Colors.anchor.actionbars = createColor(64/255, 192/255, 255/255)
 Colors.anchor.unitframes = createColor(255/255, 160/255, 64/255)
 Colors.anchor.floaters = createColor(255/255, 192/255, 128/255)
 
--- Item Rarity
-Colors.blizzquality = createColorGroup(ITEM_QUALITY_COLORS)
+-- Item Rarity (safely handle potentially nil entries)
+Colors.blizzquality = {}
+if (ITEM_QUALITY_COLORS) then
+	for i, color in pairs(ITEM_QUALITY_COLORS) do
+		if (color) then
+			Colors.blizzquality[i] = createColor(color)
+		end
+	end
+end
 Colors.quality = {}
 Colors.quality[0] = createColor(157/255, 157/255, 157/255) -- Poor
 Colors.quality[1] = createColor(240/255, 240/255, 240/255) -- Common
@@ -179,7 +186,15 @@ Colors.quest.gray = createColor(120/255, 120/255, 120/255)
 -- Unit Class
 -- Original colors at https://wow.gamepedia.com/Class#Class_colors
 -- *Note that for classic, SHAMAN and PALADIN are the same.
-Colors.blizzclass = createColorGroup(RAID_CLASS_COLORS)
+-- Create safely - RAID_CLASS_COLORS might be incomplete in 3.3.5
+Colors.blizzclass = {}
+if (RAID_CLASS_COLORS) then
+	for class, color in pairs(RAID_CLASS_COLORS) do
+		if (color) then
+			Colors.blizzclass[class] = createColor(color)
+		end
+	end
+end
 Colors.class = {}
 Colors.class.DEATHKNIGHT = createColor(176/255, 31/255, 79/255)
 Colors.class.DEMONHUNTER = createColor(163/255, 48/255, 201/255)
@@ -270,9 +285,12 @@ for id,colorID in next,{
 	["Insanity"] = "INSANITY",
 	["Essence"] = "ESSENCE"
 } do
-	local enum = Enum.PowerType[id]
-	if (enum) then
-		Colors.power[enum] = Colors.power[colorID]
+	-- Enum.PowerType doesn't exist in 3.3.5
+	if (Enum and Enum.PowerType) then
+		local enum = Enum.PowerType[id]
+		if (enum) then
+			Colors.power[enum] = Colors.power[colorID]
+		end
 	end
 end
 

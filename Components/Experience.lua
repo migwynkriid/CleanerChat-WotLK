@@ -77,6 +77,7 @@ local G = {
 
 -- Convert a WoW global string to a search pattern
 local makePattern = function(msg)
+	if (not msg) or (msg == "") then return nil end
 	msg = string_gsub(msg, "%%([%d%$]-)d", "(%%d+)")
 	msg = string_gsub(msg, "%%([%d%$]-)s", "(.+)")
 	return msg
@@ -84,13 +85,16 @@ end
 
 -- Search Pattern Cache.
 -- This will generate the pattern on the first lookup.
-local P = setmetatable({
-	-- Special handling. We capture the entire colored, clickable level link.
-	[G.LEVEL_UP] = string_gsub(G.LEVEL_UP, "(|.+|r)", "(.+)")
-}, { __index = function(t,k)
+local P = setmetatable({}, { __index = function(t,k)
+	if (k == nil) or (k == "") then return nil end
 	rawset(t,k,makePattern(k))
 	return rawget(t,k)
 end })
+
+-- Special handling for LEVEL_UP. We capture the entire colored, clickable level link.
+if (G.LEVEL_UP) then
+	P[G.LEVEL_UP] = string_gsub(G.LEVEL_UP, "(|.+|r)", "(.+)")
+end
 
 local fix = function(...)
 	local string,number,n

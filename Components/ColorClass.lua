@@ -44,7 +44,7 @@ Module.OnInitialize = function(self)
 
 	local Colors = ns.Colors
 	for class,color in pairs(Colors.blizzclass) do
-		if (class ~= ignored) then
+		if (class ~= ignored) and color and color.colorCode and Colors.class[class] and Colors.class[class].colorCode then
 			table_insert(self.replacements, { color.colorCode, Colors.class[class].colorCode })
 		end
 	end

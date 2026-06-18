@@ -36,7 +36,9 @@ Module.OnInitialize = function(self)
 
 	local Colors = ns.Colors
 	for i,color in pairs(Colors.blizzquality) do
-		table_insert(self.replacements, { color.colorCode, Colors.quality[i].colorCode })
+		if color and color.colorCode and Colors.quality[i] and Colors.quality[i].colorCode then
+			table_insert(self.replacements, { color.colorCode, Colors.quality[i].colorCode })
+		end
 	end
 end
 

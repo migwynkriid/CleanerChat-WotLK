@@ -43,13 +43,22 @@ local COMPLETE = _G.COMPLETE -- "Complete"
 local RESTED = _G.TUTORIAL_TITLE26 -- "Rested"
 
 -- Private API
-local Colors = ns.Private.Colors
+-- Note: Colors should exist after Common/Colors.lua loads
+local Colors = ns.Private and ns.Private.Colors
 
 -- Output patterns.
 -- *uses a simple color tag system for new strings.
 ns.out = setmetatable(ns.out or {}, { __newindex = function(t,k,msg)
 
-	local colors = Colors or ns.Colors
+	-- Get colors safely (Colors may be nil if loaded out of order)
+	local colors = Colors or (ns.Private and ns.Private.Colors)
+	if (not colors) then
+		-- Fallback: just strip color tags if no colors available
+		msg = string_gsub(msg, "%*%w+%*", "")
+		msg = string_gsub(msg, "%*%*", "")
+		rawset(t,k,msg)
+		return
+	end
 
 	-- Have to do this with an indexed table,
 	-- as the order of the entires matters.

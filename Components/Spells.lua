@@ -41,17 +41,18 @@ local string_format = string.format
 local string_gsub = string.gsub
 local string_match = string.match
 
--- WoW Globals
+-- WoW Globals (with 3.3.5 fallbacks)
 local G = {
-	LEARN_ABILITY = ERR_LEARN_ABILITY_S, -- "You have learned a new ability: %s."
-	LEARN_PASSIVE = ERR_LEARN_PASSIVE_S, -- "You have learned a new passive effect: %s."
-	LEARN_SPELL = ERR_LEARN_SPELL_S, -- "You have learned a new spell: %s."
-	SPELL_UNLEARNED = ERR_SPELL_UNLEARNED_S, -- "You have unlearned %s."
-	SPELLS = SPELLS
+	LEARN_ABILITY = ERR_LEARN_ABILITY_S or "You have learned a new ability: %s.",
+	LEARN_PASSIVE = ERR_LEARN_PASSIVE_S or "You have learned a new passive effect: %s.",
+	LEARN_SPELL = ERR_LEARN_SPELL_S or "You have learned a new spell: %s.",
+	SPELL_UNLEARNED = ERR_SPELL_UNLEARNED_S or "You have unlearned %s.",
+	SPELLS = SPELLS or "Spells"
 }
 
 -- Convert a WoW global string to a search pattern
 local makePattern = function(msg)
+	if (not msg) or (msg == "") then return nil end
 	msg = string_gsub(msg, "%%([%d%$]-)d", "(%%d+)")
 	msg = string_gsub(msg, "%%([%d%$]-)s", "(.+)")
 	return msg
@@ -60,28 +61,35 @@ end
 -- Search Pattern Cache.
 -- This will generate the pattern on the first lookup.
 local P = setmetatable({}, { __index = function(t,k)
+	if (k == nil) or (k == "") then return nil end
 	rawset(t,k,makePattern(k))
 	return rawget(t,k)
 end })
 
+-- Safe pattern match that handles nil patterns
+local safeMatch = function(msg, pattern)
+	if (not pattern) then return nil end
+	return string_match(msg, pattern)
+end
+
 Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
 
-	local ability = string_match(msg,P[G.LEARN_ABILITY])
+	local ability = safeMatch(msg,P[G.LEARN_ABILITY])
 	if (ability) then
 		return true
 	end
 
-	local passive = string_match(msg,P[G.LEARN_PASSIVE])
+	local passive = safeMatch(msg,P[G.LEARN_PASSIVE])
 	if (passive) then
 		return true
 	end
 
-	local spell = string_match(msg,P[G.LEARN_SPELL])
+	local spell = safeMatch(msg,P[G.LEARN_SPELL])
 	if (spell) then
 		return true
 	end
 
-	local unlearned = string_match(msg,P[G.SPELL_UNLEARNED])
+	local unlearned = safeMatch(msg,P[G.SPELL_UNLEARNED])
 	if (unlearned) then
 		return true
 	end
@@ -91,25 +99,25 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 
 	local now = GetTime()
 
-	local ability = string_match(message,P[G.LEARN_ABILITY])
+	local ability = safeMatch(message,P[G.LEARN_ABILITY])
 	if (ability) then
 		self.abilities = self.abilities + 1
 		self.latest = now
 	end
 
-	local passive = string_match(message,P[G.LEARN_PASSIVE])
+	local passive = safeMatch(message,P[G.LEARN_PASSIVE])
 	if (passive) then
 		self.passives = self.passives + 1
 		self.latest = now
 	end
 
-	local spell = string_match(message,P[G.LEARN_SPELL])
+	local spell = safeMatch(message,P[G.LEARN_SPELL])
 	if (spell) then
 		self.spells = self.spells + 1
 		self.latest = now
 	end
 
-	local unlearned = string_match(message,P[G.SPELL_UNLEARNED])
+	local unlearned = safeMatch(message,P[G.SPELL_UNLEARNED])
 	if (unlearned) then
 		self.unlearned = self.unlearned + 1
 		self.latest = now

@@ -13,6 +13,9 @@
 ## SavedVariables: ChatCleaner_DB
 ## OptionalDeps: TaintLess, Ace3, LibMoreEvents-1.0
 
+# Compatibility (must load before libraries for 3.3.5)
+Core\Common\Compatibility.lua
+
 # Libraries
 Embeds.xml
 

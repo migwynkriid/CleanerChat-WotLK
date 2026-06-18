@@ -89,7 +89,10 @@ if (BackdropTemplateMixin) then
 	if (CreateFromMixins) then
 		_G[MixinGlobal] = CreateFromMixins(BackdropTemplateMixin) -- Usable in XML
 	end
-	ns.Private.BackdropTemplate = "BackdropTemplate" -- Usable in Lua
+	-- ns.Private may not exist yet if loaded early from .toc
+	if (ns.Private) then
+		ns.Private.BackdropTemplate = "BackdropTemplate" -- Usable in Lua
+	end
 end
 
 -- Create an alias for the classics.

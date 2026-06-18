@@ -98,6 +98,7 @@ end })
 
 -- Convert a WoW global string to a search pattern
 local makePattern = function(msg)
+	if (not msg) or (msg == "") then return nil end
 	msg = string_gsub(msg, "%%([%d%$]-)d", "(%%d+)")
 	msg = string_gsub(msg, "%%([%d%$]-)s", "(.+)")
 	return msg
@@ -105,13 +106,15 @@ end
 
 -- Search Pattern Cache.
 -- This will generate the pattern on the first lookup.
-local P = setmetatable({
-	[G.ANIMA] = "^(%d+) "..G.ANIMA,
-	[G.ANIMA_V2] = "^(%d+) "..G.ANIMA_V2,
-}, { __index = function(t,k)
+local P = setmetatable({}, { __index = function(t,k)
+	if (k == nil) or (k == "") then return nil end
 	rawset(t,k,makePattern(k))
 	return rawget(t,k)
 end })
+
+-- Add ANIMA patterns if they exist (Shadowlands+)
+if (G.ANIMA) then P[G.ANIMA] = "^(%d+) "..G.ANIMA end
+if (G.ANIMA_V2) then P[G.ANIMA_V2] = "^(%d+) "..G.ANIMA_V2 end
 
 -- Remove large number formatting
 local simplifyNumbers = function(message)
