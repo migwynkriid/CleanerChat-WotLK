@@ -71,7 +71,29 @@ local G = {
 
 	-- 3.3.5 Quest reward items (no trailing period in Ascension client)
 	QUEST_LOG_RECEIVED_ITEM = "Received item: %s", -- Quest reward item message
-	QUEST_LOG_RECEIVED_ITEM_MULTIPLE = "Received item: %sx%d" -- Quest reward item message with count
+	QUEST_LOG_RECEIVED_ITEM_MULTIPLE = "Received item: %sx%d", -- Quest reward item message with count
+
+	-- Loot roll messages (3.3.5)
+	LOOT_ROLL_YOU_WON = LOOT_ROLL_YOU_WON, -- "You won: %s"
+	LOOT_ROLL_WON = LOOT_ROLL_WON, -- "%s won: %s"
+	LOOT_ROLL_PASSED_SELF = LOOT_ROLL_PASSED_SELF, -- "You passed on: %s"
+	LOOT_ROLL_PASSED = LOOT_ROLL_PASSED, -- "%s passed on: %s"
+	LOOT_ROLL_PASSED_AUTO = LOOT_ROLL_PASSED_AUTO, -- "%s automatically passed on: %s"
+	LOOT_ROLL_PASSED_SELF_AUTO = LOOT_ROLL_PASSED_SELF_AUTO, -- "You automatically passed on: %s because you cannot loot that item."
+	LOOT_ROLL_GREED_SELF = LOOT_ROLL_GREED_SELF, -- "You have selected Greed for: %s"
+	LOOT_ROLL_GREED = LOOT_ROLL_GREED, -- "%s has selected Greed for: %s"
+	LOOT_ROLL_NEED_SELF = LOOT_ROLL_NEED_SELF, -- "You have selected Need for: %s"
+	LOOT_ROLL_NEED = LOOT_ROLL_NEED, -- "%s has selected Need for: %s"
+	LOOT_ROLL_DISENCHANT_SELF = LOOT_ROLL_DISENCHANT_SELF, -- "You have selected Disenchant for: %s"
+	LOOT_ROLL_DISENCHANT = LOOT_ROLL_DISENCHANT, -- "%s has selected Disenchant for: %s"
+	LOOT_ROLL_ROLLED_NEED = LOOT_ROLL_ROLLED_NEED, -- "Need Roll - %d for %s by %s"
+	LOOT_ROLL_ROLLED_GREED = LOOT_ROLL_ROLLED_GREED, -- "Greed Roll - %d for %s by %s"
+	LOOT_ROLL_ROLLED_DE = LOOT_ROLL_ROLLED_DE, -- "Disenchant Roll - %d for %s by %s"
+	LOOT_ROLL_ALL_PASSED = LOOT_ROLL_ALL_PASSED, -- "Everyone passed on: %s"
+	NEED = NEED or "Need",
+	GREED = GREED or "Greed",
+	PASS = PASS or "Pass",
+	ROLL_DISENCHANT = ROLL_DISENCHANT or "Disenchant"
 
 }
 
@@ -173,6 +195,133 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		end
 
 	elseif (event == "CHAT_MSG_LOOT") then
+
+		-- Handle loot roll messages first
+		local item, name, roll
+
+		-- Extract item from message (colored item link)
+		local extractItem = function(msg)
+			local first, last = string_find(msg, "|c%x%x%x%x%x%x%x%x|Hitem.-%]|h|r")
+			if (first and last) then
+				local itemLink = string_sub(msg, first, last)
+				return string_gsub(itemLink, "[%[/%]]", "") -- kill brackets
+			end
+			return nil
+		end
+
+		-- "You won: %s"
+		item = safeMatch(message, P[G.LOOT_ROLL_YOU_WON])
+		if (item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_won_self, item), author, ...
+		end
+
+		-- "%s won: %s"
+		name, item = safeMatch(message, P[G.LOOT_ROLL_WON])
+		if (name and item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_won_other, name, item), author, ...
+		end
+
+		-- "You have selected Need for: %s"
+		item = safeMatch(message, P[G.LOOT_ROLL_NEED_SELF])
+		if (item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_need_self, item), author, ...
+		end
+
+		-- "%s has selected Need for: %s"
+		name, item = safeMatch(message, P[G.LOOT_ROLL_NEED])
+		if (name and item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_need_other, name, item), author, ...
+		end
+
+		-- "You have selected Greed for: %s"
+		item = safeMatch(message, P[G.LOOT_ROLL_GREED_SELF])
+		if (item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_greed_self, item), author, ...
+		end
+
+		-- "%s has selected Greed for: %s"
+		name, item = safeMatch(message, P[G.LOOT_ROLL_GREED])
+		if (name and item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_greed_other, name, item), author, ...
+		end
+
+		-- "You have selected Disenchant for: %s"
+		item = safeMatch(message, P[G.LOOT_ROLL_DISENCHANT_SELF])
+		if (item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_de_self, item), author, ...
+		end
+
+		-- "%s has selected Disenchant for: %s"
+		name, item = safeMatch(message, P[G.LOOT_ROLL_DISENCHANT])
+		if (name and item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_de_other, name, item), author, ...
+		end
+
+		-- "You passed on: %s"
+		item = safeMatch(message, P[G.LOOT_ROLL_PASSED_SELF])
+		if (item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_pass_self, item), author, ...
+		end
+
+		-- "%s passed on: %s"
+		name, item = safeMatch(message, P[G.LOOT_ROLL_PASSED])
+		if (name and item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_pass_other, name, item), author, ...
+		end
+
+		-- "You automatically passed on: %s"
+		item = safeMatch(message, P[G.LOOT_ROLL_PASSED_SELF_AUTO])
+		if (item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_pass_self, item), author, ...
+		end
+
+		-- "%s automatically passed on: %s"
+		name, item = safeMatch(message, P[G.LOOT_ROLL_PASSED_AUTO])
+		if (name and item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_pass_other, name, item), author, ...
+		end
+
+		-- "Need Roll - %d for %s by %s"
+		roll, item, name = safeMatch(message, P[G.LOOT_ROLL_ROLLED_NEED])
+		if (roll and item and name) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_result_need, tonumber(roll), name, item), author, ...
+		end
+
+		-- "Greed Roll - %d for %s by %s"
+		roll, item, name = safeMatch(message, P[G.LOOT_ROLL_ROLLED_GREED])
+		if (roll and item and name) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_result_greed, tonumber(roll), name, item), author, ...
+		end
+
+		-- "Disenchant Roll - %d for %s by %s"
+		roll, item, name = safeMatch(message, P[G.LOOT_ROLL_ROLLED_DE])
+		if (roll and item and name) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_result_de, tonumber(roll), name, item), author, ...
+		end
+
+		-- "Everyone passed on: %s"
+		item = safeMatch(message, P[G.LOOT_ROLL_ALL_PASSED])
+		if (item) then
+			item = string_gsub(item, "[%[/%]]", "")
+			return false, string_format(ns.out.roll_all_passed, item), author, ...
+		end
+
+		-- Handle regular loot patterns
 		for i,pattern in ipairs(self.patterns) do
 
 			-- We use the pattern only as an identifier, not for information.
