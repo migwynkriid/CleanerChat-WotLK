@@ -74,7 +74,7 @@ local G = {
 	QUEST_LOG_RECEIVED_ITEM_MULTIPLE = "Received item: %sx%d", -- Quest reward item message with count
 	QUEST_LOG_RECEIVED_COUNT_OF_ITEM = "Received %d of item: %s", -- "Received 125 of item: [Rune of Ascension]"
 
-	-- Loot roll messages (3.3.5)
+	-- Loot roll messages (3.3.5) - use globals if available, otherwise hardcode
 	LOOT_ROLL_YOU_WON = LOOT_ROLL_YOU_WON, -- "You won: %s"
 	LOOT_ROLL_WON = LOOT_ROLL_WON, -- "%s won: %s"
 	LOOT_ROLL_PASSED_SELF = LOOT_ROLL_PASSED_SELF, -- "You passed on: %s"
@@ -87,9 +87,10 @@ local G = {
 	LOOT_ROLL_NEED = LOOT_ROLL_NEED, -- "%s has selected Need for: %s"
 	LOOT_ROLL_DISENCHANT_SELF = LOOT_ROLL_DISENCHANT_SELF, -- "You have selected Disenchant for: %s"
 	LOOT_ROLL_DISENCHANT = LOOT_ROLL_DISENCHANT, -- "%s has selected Disenchant for: %s"
-	LOOT_ROLL_ROLLED_NEED = LOOT_ROLL_ROLLED_NEED, -- "Need Roll - %d for %s by %s"
-	LOOT_ROLL_ROLLED_GREED = LOOT_ROLL_ROLLED_GREED, -- "Greed Roll - %d for %s by %s"
-	LOOT_ROLL_ROLLED_DE = LOOT_ROLL_ROLLED_DE, -- "Disenchant Roll - %d for %s by %s"
+	-- Hardcode roll result patterns (globals may not exist in 3.3.5)
+	LOOT_ROLL_ROLLED_NEED = LOOT_ROLL_ROLLED_NEED or "Need Roll - %d for %s by %s",
+	LOOT_ROLL_ROLLED_GREED = LOOT_ROLL_ROLLED_GREED or "Greed Roll - %d for %s by %s",
+	LOOT_ROLL_ROLLED_DE = LOOT_ROLL_ROLLED_DE or "Disenchant Roll - %d for %s by %s",
 	LOOT_ROLL_ALL_PASSED = LOOT_ROLL_ALL_PASSED, -- "Everyone passed on: %s"
 	NEED = NEED or "Need",
 	GREED = GREED or "Greed",
