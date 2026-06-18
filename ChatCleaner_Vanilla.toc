@@ -1,0 +1,26 @@
+## Interface: 11503
+
+## Title: Cleaner: |cffffffffChat|r
+## Notes: |cff666666By Lars Norberg|r|n|nCleans up the chat, makes it prettier and easier on the eye.|n|n|cff4488ffPayPal|r|cffffffff:|r |n|cffffffffwww.paypal.me/GoldpawsStuff|r|n|n|cff4488ffPatreon|r|cffffffff:|r |n|cffffffffwww.patreon.com/GoldpawsStuff|r
+## Version: 2.0.59-Release
+## Author: Lars Norberg
+
+## X-Category: Interface Enhancements
+## X-Curse-Project-ID: 531109
+## X-Wago-ID: baNDwAGo
+## X-License: Custom
+
+## SavedVariables: ChatCleaner_DB
+## OptionalDeps: TaintLess, Ace3, LibMoreEvents-1.0
+
+# Libraries
+Embeds.xml
+
+# Addon localization
+Locale\Locale.xml
+
+# Addon core
+Core\Core.xml
+
+# Filters & Modules
+Components\Components.xml
