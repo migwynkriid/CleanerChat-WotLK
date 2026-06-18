@@ -136,9 +136,9 @@ out.roll_de_self = "*darkorange*DE:** %s"
 out.roll_de_other = "*offwhite*!**%s *darkorange*DE:** %s"
 out.roll_pass_self = "*gray*Pass:** %s"
 out.roll_pass_other = "*offwhite*!**%s *gray*Pass:** %s"
-out.roll_result_need = "*yellow*%d** *white*%s** %s"
-out.roll_result_greed = "*green*%d** *white*%s** %s"
-out.roll_result_de = "*darkorange*%d** *white*%s** %s"
+out.roll_result_need = "*yellow*%d** *yellow*Need** *white*%s** %s"
+out.roll_result_greed = "*green*%d** *green*Greed** *white*%s** %s"
+out.roll_result_de = "*darkorange*%d** *darkorange*DE** *white*%s** %s"
 out.roll_all_passed = "*gray*All Passed:** %s"
 
 -- Level up outputs (3.3.5)

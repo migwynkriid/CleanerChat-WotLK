@@ -87,10 +87,6 @@ local G = {
 	LOOT_ROLL_NEED = LOOT_ROLL_NEED, -- "%s has selected Need for: %s"
 	LOOT_ROLL_DISENCHANT_SELF = LOOT_ROLL_DISENCHANT_SELF, -- "You have selected Disenchant for: %s"
 	LOOT_ROLL_DISENCHANT = LOOT_ROLL_DISENCHANT, -- "%s has selected Disenchant for: %s"
-	-- Hardcode roll result patterns (globals may not exist in 3.3.5)
-	LOOT_ROLL_ROLLED_NEED = LOOT_ROLL_ROLLED_NEED or "Need Roll - %d for %s by %s",
-	LOOT_ROLL_ROLLED_GREED = LOOT_ROLL_ROLLED_GREED or "Greed Roll - %d for %s by %s",
-	LOOT_ROLL_ROLLED_DE = LOOT_ROLL_ROLLED_DE or "Disenchant Roll - %d for %s by %s",
 	LOOT_ROLL_ALL_PASSED = LOOT_ROLL_ALL_PASSED, -- "Everyone passed on: %s"
 	NEED = NEED or "Need",
 	GREED = GREED or "Greed",
@@ -295,22 +291,22 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 			return false, string_format(ns.out.roll_pass_other, name, item), author, ...
 		end
 
-		-- "Need Roll - %d for %s by %s"
-		roll, item, name = safeMatch(message, P[G.LOOT_ROLL_ROLLED_NEED])
+		-- "Need Roll - %d for %s by %s" (hyphen must be escaped in Lua patterns)
+		roll, item, name = string_match(message, "Need Roll %- (%d+) for (.+) by (.+)")
 		if (roll and item and name) then
 			item = string_gsub(item, "[%[/%]]", "")
 			return false, string_format(ns.out.roll_result_need, tonumber(roll), name, item), author, ...
 		end
 
 		-- "Greed Roll - %d for %s by %s"
-		roll, item, name = safeMatch(message, P[G.LOOT_ROLL_ROLLED_GREED])
+		roll, item, name = string_match(message, "Greed Roll %- (%d+) for (.+) by (.+)")
 		if (roll and item and name) then
 			item = string_gsub(item, "[%[/%]]", "")
 			return false, string_format(ns.out.roll_result_greed, tonumber(roll), name, item), author, ...
 		end
 
 		-- "Disenchant Roll - %d for %s by %s"
-		roll, item, name = safeMatch(message, P[G.LOOT_ROLL_ROLLED_DE])
+		roll, item, name = string_match(message, "Disenchant Roll %- (%d+) for (.+) by (.+)")
 		if (roll and item and name) then
 			item = string_gsub(item, "[%[/%]]", "")
 			return false, string_format(ns.out.roll_result_de, tonumber(roll), name, item), author, ...
