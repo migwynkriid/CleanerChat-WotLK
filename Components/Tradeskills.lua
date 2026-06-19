@@ -64,6 +64,15 @@ local safeMatch = function(msg, pattern)
 	return string_match(msg, pattern)
 end
 
+-- Anchored patterns for "<player> creates <item>." craft broadcasts.
+-- On Ascension these are printed DIRECTLY to the chat frame (no CHAT_MSG_*
+-- event fires), so they are matched at the AddMessage-replacement layer in
+-- OnReplacementSet below. The name is %S+ (character names have no spaces),
+-- the colon is optional ("creates" or "creates:"), and the whole line is
+-- anchored to limit false positives on normal chat.
+local CREATE_MULTIPLE_PATTERN = "^(%S+) creates:? (.+)x(%d+)%.$"
+local CREATE_SINGLE_PATTERN = "^(%S+) creates:? (.+)%.$"
+
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 
 	local skill, gain = safeMatch(message, P[G.SKILL_RANK_UP])
@@ -88,6 +97,18 @@ Module.OnReplacementSet = function(self, msg, r, g, b, chatID, ...)
 	local craft = string_match(msg, P[G.LEARN_RECIPE])
 	if (craft) then
 		return string_format(ns.out.objective_status, G.LEARNED, craft)
+	end
+
+	-- "<player> creates <item>." craft broadcasts (direct-printed, no event).
+	-- Reformat them like other players' loot: "<player>: <item>".
+	local who, item, count = string_match(msg, CREATE_MULTIPLE_PATTERN)
+	if (who and item and count) then
+		return string_format(ns.out.item_multiple_other, who, item, tonumber(count))
+	end
+
+	who, item = string_match(msg, CREATE_SINGLE_PATTERN)
+	if (who and item) then
+		return string_format(ns.out.item_single_other, who, item)
 	end
 end
 
