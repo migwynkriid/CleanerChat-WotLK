@@ -13,6 +13,15 @@
 	<Include file="Libs\AceLocale-3.0\AceLocale-3.0.xml"/>
 	<Include file="Libs\AceGUI-3.0\AceGUI-3.0.xml"/>
 	<Include file="Libs\AceConfig-3.0\AceConfig-3.0.xml"/>
+
+	<!-- Libraries required by the Glass chat UI -->
+	<Include file="Libs\LibSharedMedia-3.0\lib.xml"/>
+	<Include file="Libs\AceDB-3.0\AceDB-3.0.xml"/>
+	<Include file="Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml"/>
+	<Include file="Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml"/>
+	<Script file="Libs\LibEasing\LibEasing.lua"/>
+	<Include file="Libs\lodash.wow\lodash.wow.xml"/>
+
 	<Script file="Libs\LibMoreEvents-1.0\LibMoreEvents-1.0.lua"/>
 	<!--@end-non-debug@-->
 

@@ -1,0 +1,30 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+
+	<!-- Glass core -->
+	<Script file="init.lua"/>
+	<Script file="constants.lua"/>
+	<Script file="utils.lua"/>
+
+	<!-- Components -->
+	<Script file="Components\ChatDock.lua"/>
+	<Script file="Components\ChatTab.lua"/>
+	<Script file="Components\EditBox.lua"/>
+	<Script file="Components\FadingFrame.lua"/>
+	<Script file="Components\GradientBackground.lua"/>
+	<Script file="Components\MainContainerFrame.lua"/>
+	<Script file="Components\MessageLine.lua"/>
+	<Script file="Components\MoverDialog.lua"/>
+	<Script file="Components\MoverFrame.lua"/>
+	<Script file="Components\NewMessageAlertFrame.lua"/>
+	<Script file="Components\ScrollOverlayFrame.lua"/>
+	<Script file="Components\SlidingMessageFrame.lua"/>
+
+	<!-- Modules -->
+	<Script file="Modules\Config.lua"/>
+	<Script file="Modules\Fonts.lua"/>
+	<Script file="Modules\Hyperlinks.lua"/>
+	<Script file="Modules\News.lua"/>
+	<Script file="Modules\TextProcessing.lua"/>
+	<Script file="Modules\UIManager.lua"/>
+
+</Ui>

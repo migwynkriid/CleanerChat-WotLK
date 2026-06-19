@@ -8,11 +8,12 @@
 ## X-Category: Interface Enhancements
 ## X-License: Custom
 
-## SavedVariables: CleanerChat_DB
+## SavedVariables: CleanerChat_DB, GlassDB
 ## OptionalDeps: TaintLess, Ace3, LibMoreEvents-1.0
 
 # Compatibility (must load before libraries for 3.3.5)
 Core\Common\Compatibility.lua
+GlassUI\compat.lua
 
 # Libraries
 Embeds.xml
@@ -25,3 +26,6 @@ Core\Core.xml
 
 # Filters & Modules
 Components\Components.xml
+
+# Glass chat UI overhaul
+GlassUI\GlassUI.xml
