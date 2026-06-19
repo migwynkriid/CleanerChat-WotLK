@@ -214,17 +214,13 @@ Core.Components.CreateChatTab = function (slidingMessageFrame)
   local frame = _G[tabName]
   
   if not frame then
-    print("|cFFFF0000Glass: Tab frame '" .. tabName .. "' not found!|r")
     return nil  -- Tab doesn't exist
   end
   
   -- If already initialized, just return it
   if frame._glassInitialized then
-    print("|cFF00FFFF Glass: Tab " .. tabName .. " already initialized, reusing|r")
     return frame
   end
-  
-  print("|cFF00FF00Glass: Creating tab for " .. frameName .. "|r")
   
   local object = Mixin(frame, ChatTabMixin)
   AceHook:Embed(object)
@@ -234,7 +230,6 @@ Core.Components.CreateChatTab = function (slidingMessageFrame)
   end)
   
   if not success then
-    print("|cFFFF0000Glass: Error initializing tab: " .. tostring(err) .. "|r")
     return nil
   end
   
@@ -251,12 +246,8 @@ end
 Core.Components.UpdateTabPositions = function(tabs)
   local glassDock = _G["GlassChatDock"]
   if not glassDock then 
-    print("|cFFFF0000Glass: GlassChatDock not found!|r")
     return 
   end
-  
-  print("|cFF00FF00Glass: Setting up " .. #tabs .. " tabs|r")
-  print("|cFF00FF00Glass: Dock visible: " .. tostring(glassDock:IsVisible()) .. ", alpha: " .. glassDock:GetAlpha() .. "|r")
   
   local xOffset = 5  -- Small padding from left edge
   for i, tab in ipairs(tabs) do
@@ -276,10 +267,6 @@ Core.Components.UpdateTabPositions = function(tabs)
       end
       tab:Show()  -- Ensure tab is visible
       
-      local isVisible = tab:IsVisible()
-      local alpha = tab:GetAlpha()
-      print("|cFF00FF00Glass: Tab " .. i .. " - " .. (tab:GetName() or "unnamed") .. " positioned at " .. xOffset .. ", visible: " .. tostring(isVisible) .. ", alpha: " .. alpha .. "|r")
-      
       -- Use GetWidth but ensure minimum width
       local tabWidth = tab:GetWidth()
       if tabWidth < 30 then
@@ -297,7 +284,6 @@ Core.Components.selectedTab = nil
 Core.Components.SelectChatTab = function(selectedTab)
   local UIManager = Core:GetModule("UIManager")
   if not UIManager or not UIManager.state then 
-    print("|cFFFF0000Glass: UIManager not ready|r")
     return 
   end
   
@@ -309,8 +295,6 @@ Core.Components.SelectChatTab = function(selectedTab)
   
   -- Get the chatFrame for the selected tab
   local selectedChatFrame = selectedTab.chatFrame
-  
-  print("|cFF00FF00Glass: Selecting tab for " .. (selectedChatFrame and selectedChatFrame:GetName() or "unknown") .. "|r")
   
   -- Show/hide SlidingMessageFrames based on selection
   for i, smf in pairs(frames) do

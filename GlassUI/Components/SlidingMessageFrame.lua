@@ -288,18 +288,6 @@ function SlidingMessageFrameMixin:AddMessage(...)
   -- Enqueue messages to be displayed
   local args = {...}
   table.insert(self.state.incomingMessages, args)
-  
-  -- Debug: show we're receiving messages
-  if self.chatFrame then
-    -- args[1] is chatFrame, args[2] is text
-    local text = args[2] or "(no text)"
-    if type(text) == "string" then
-      local preview = string.sub(text, 1, 50)
-      print("|cFF00FFFF Glass AddMsg: " .. self.chatFrame:GetName() .. " - " .. preview .. "|r")
-    else
-      print("|cFF00FFFF Glass AddMsg: " .. self.chatFrame:GetName() .. " (type: " .. type(text) .. ")|r")
-    end
-  end
 end
 
 function SlidingMessageFrameMixin:BackFillMessage(...)
@@ -309,7 +297,6 @@ end
 
 function SlidingMessageFrameMixin:OnFrame()
   if #self.state.incomingMessages > 0 then
-    print("|cFFFF00FFGlass OnFrame: Processing " .. #self.state.incomingMessages .. " messages for " .. (self.chatFrame and self.chatFrame:GetName() or "unknown") .. "|r")
     local incoming = {}
     for _, message in ipairs(self.state.incomingMessages) do
       table.insert(incoming, message)

@@ -434,7 +434,3 @@ if not _G.IsCombatLog then
     return chatFrame == _G.ChatFrame2
   end
 end
-
----
--- Print compatibility notice
-print("|c00DFBA69Glass|r: WotLK 3.3.5 compatibility layer loaded")

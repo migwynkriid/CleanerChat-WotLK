@@ -98,15 +98,12 @@ Core.Components.CreateChatDock = function (parent)
   -- In WotLK 3.3.5, GeneralDockManager doesn't exist
   -- We create our own frame instead
   local frame = CreateFrame("Frame", "GlassChatDock", parent)
-  print("|cFF00FF00Glass: Created GlassChatDock frame|r")
   
   local object = Mixin(frame, FadingFrameMixin, GradientBackgroundMixin, ChatDockMixin)
   AceHook:Embed(object)
   FadingFrameMixin.Init(object)
   GradientBackgroundMixin.Init(object)
   ChatDockMixin.Init(object, parent)
-  
-  print("|cFF00FF00Glass: GlassChatDock initialized, size: " .. frame:GetWidth() .. "x" .. frame:GetHeight() .. "|r")
   
   return object
 end

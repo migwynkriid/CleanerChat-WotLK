@@ -59,23 +59,19 @@ function UIManager:OnEnable()
     local chatTab = _G["ChatFrame"..index.."Tab"]
     
     if not chatFrame or not chatTab then 
-      print("|cFFFF0000Glass: ChatFrame" .. index .. " or tab not found|r")
       return false 
     end
     
     -- ChatFrame1 (General) and ChatFrame2 (Combat Log) are always active
     if index <= 2 then 
-      print("|cFF00FF00Glass: ChatFrame" .. index .. " is active (default)|r")
       return true 
     end
     
     -- For frames 3+, check if they're docked
     if chatFrame.isDocked then
-      print("|cFF00FF00Glass: ChatFrame" .. index .. " is active (docked)|r")
       return true
     end
     
-    print("|cFFFFFF00Glass: ChatFrame" .. index .. " is NOT active|r")
     return false
   end
 
