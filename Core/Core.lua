@@ -283,8 +283,13 @@ ns.IsProtectedMessage = function(self, msg)
 	end
 end
 
-ns.AddMessageFiltered = function(self, chatFrame, msg, r, g, b, chatID, ...)
-	if (not msg or msg == "") then return end
+-- Run a message through CleanerChat's special replacements, blacklists and
+-- replacements. Returns the cleaned message, or nil if the message was
+-- blacklisted and should be dropped entirely.
+-- This is pure (it doesn't render anything), so other display layers such as
+-- the Glass chat UI can reuse it to show identically formatted messages.
+ns.FilterMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
+	if (not msg or msg == "") then return msg end
 
 	-- TODO:
 	-- *Encode Questie links, parse encoded string, decode Questie link.
@@ -302,7 +307,7 @@ ns.AddMessageFiltered = function(self, chatFrame, msg, r, g, b, chatID, ...)
 			-- Completely filter out matches.
 			if (next(blacklist)) then
 				if (blacklist(chatFrame, msg, r, g, b, chatID, ...)) then
-					return
+					return nil
 				end
 			end
 
@@ -313,7 +318,17 @@ ns.AddMessageFiltered = function(self, chatFrame, msg, r, g, b, chatID, ...)
 		end
 	end
 
-	return self.MethodCache[chatFrame](chatFrame, msg, r, g, b)
+	return msg
+end
+
+ns.AddMessageFiltered = function(self, chatFrame, msg, r, g, b, chatID, ...)
+	if (not msg or msg == "") then return end
+
+	-- Blacklisted messages return nil and are dropped entirely.
+	local filtered = self:FilterMessage(chatFrame, msg, r, g, b, chatID, ...)
+	if (filtered == nil) then return end
+
+	return self.MethodCache[chatFrame](chatFrame, filtered, r, g, b)
 end
 
 ns.CacheMessageMethod = function(self, chatFrame)

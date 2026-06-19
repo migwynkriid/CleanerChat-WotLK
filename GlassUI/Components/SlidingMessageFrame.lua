@@ -3,6 +3,18 @@ local TP = Core:GetModule("TextProcessing")
 
 local AceHook = Core.Libs.AceHook
 
+-- CleanerChat integration: resolve its addon object lazily so incoming chat
+-- text can be run through the same string filters CleanerChat applies to the
+-- default chat frame. Returns nil until CleanerChat is available.
+local AceAddon = _G.LibStub("AceAddon-3.0")
+local cleanerChat
+local function GetCleanerChat()
+  if (not cleanerChat) then
+    cleanerChat = AceAddon:GetAddon("CleanerChat", true)
+  end
+  return cleanerChat
+end
+
 local LibEasing = Core.Libs.LibEasing
 local lodash = Core.Libs.lodash
 local drop, reduce, take = lodash.drop, lodash.reduce, lodash.take
@@ -177,8 +189,16 @@ function SlidingMessageFrameMixin:Init(chatFrame)
     self.messageFramePool = CreateMessageLinePool(self.slider)
   end
 
-  self:Hook(chatFrame, "AddMessage", function (...)
-    self:AddMessage(...)
+  self:Hook(chatFrame, "AddMessage", function (frame, text, ...)
+    -- Run incoming text through CleanerChat's filters so the Glass display
+    -- matches CleanerChat's formatting and drops blacklisted messages.
+    local CleanerChat = GetCleanerChat()
+    if (CleanerChat and text ~= nil) then
+      local filtered = CleanerChat:FilterMessage(frame, text, ...)
+      if (filtered == nil) then return end
+      text = filtered
+    end
+    self:AddMessage(frame, text, ...)
   end, true)
 
   -- Note: historyBuffer doesn't exist in WotLK 3.3.5
