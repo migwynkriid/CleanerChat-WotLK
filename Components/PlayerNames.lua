@@ -51,6 +51,7 @@ end
 -- Function replacement that capitalizes the first initial of player names.
 local capitalizeNames = function(msg)
 	if (not msg) then return end
+	if (ns.db and not ns.db.capitalizeNames) then return msg end
 	msg = string_gsub(msg, "(|Hplayer:.-|h)(.-)(|h)", capitalizeDisplay)
 	msg = string_gsub(msg, "(|HBNplayer:.-|h)(.-)(|h)", capitalizeDisplay)
 	return msg

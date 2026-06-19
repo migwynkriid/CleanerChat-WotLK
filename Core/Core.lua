@@ -254,6 +254,8 @@ ns:SetDefaultModulePrototype(modulePrototype)
 -- Addon default settings.
 local defaults = {
 	styling = true, -- will be ignored when conflicting addons are detected
+	channelInitials = true, -- show the channel's first letter, e.g. "1. [G]"
+	capitalizeNames = true, -- capitalize the first letter of player names
 	filters = {
 		achievements = true,
 		auctions = true,
@@ -432,6 +434,21 @@ ns.UpgradeSettings = function(self)
 		-- Store the new settings version
 		-- so we never have to do this again.
 		ChatCleaner_DB.configversion = 2
+	end
+
+	-- Always backfill any newly added default settings,
+	-- so existing users get sane values for new options.
+	for setting,value in next,defaults do
+		if (type(value) ~= "table" and ChatCleaner_DB[setting] == nil) then
+			ChatCleaner_DB[setting] = value
+		end
+	end
+	if (ChatCleaner_DB.filters) then
+		for setting,value in next,defaults.filters do
+			if (ChatCleaner_DB.filters[setting] == nil) then
+				ChatCleaner_DB.filters[setting] = value
+			end
+		end
 	end
 
 	-- Return a more sane db.

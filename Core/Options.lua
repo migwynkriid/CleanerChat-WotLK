@@ -102,6 +102,26 @@ local optionDB = {
 		--	end,
 		--	get = function(info) return ns.db.styling end,
 		--},
+		channelInitials = {
+			order = 10,
+			name = L["Channel Initials"],
+			desc = L["Show the channel's first letter in brackets, e.g. \"1. [G]\". Requires the Chat Channel Names filter."],
+			width = "full",
+			type = "toggle",
+			disabled = function(info) return not ns.db.filters.channels end,
+			set = function(info,value) ns.db.channelInitials = value end,
+			get = function(info) return ns.db.channelInitials end,
+		},
+		capitalizeNames = {
+			order = 20,
+			name = L["Capitalize Player Names"],
+			desc = L["Capitalize the first letter of player names shown in chat. Requires the Player Names filter."],
+			width = "full",
+			type = "toggle",
+			disabled = function(info) return not ns.db.filters.names end,
+			set = function(info,value) ns.db.capitalizeNames = value end,
+			get = function(info) return ns.db.capitalizeNames end,
+		},
 		filterHeader = {
 			order = 100,
 			type = "header",
@@ -231,12 +251,32 @@ Options.GenerateOptionsMenu = function(self)
 	end
 
 	AceConfigRegistry:RegisterOptionsTable(Addon, options)
-	AceConfigDialog:SetDefaultSize(Addon, 400, 180 + count*24)
+	-- Account for the two extra toggles shown above the filter header.
+	AceConfigDialog:SetDefaultSize(Addon, 400, 180 + (count + 2)*24)
 end
 
 Options.OpenOptionsMenu = function(self)
+
+	-- Build the menu on demand if it hasn't been generated yet.
+	-- (It's normally generated on PLAYER_ENTERING_WORLD, but if that
+	--  didn't run or errored, the command would otherwise do nothing.)
+	if (not AceConfigRegistry:GetOptionsTable(Addon)) then
+		local ok, err = pcall(self.GenerateOptionsMenu, self)
+		if (not ok) then
+			print("|cffff7d0aChatCleaner|r: failed to build the options menu.")
+			print("|cffff0000"..tostring(err).."|r")
+			return
+		end
+	end
+
 	if (AceConfigRegistry:GetOptionsTable(Addon)) then
-		AceConfigDialog:Open(Addon)
+		local ok, err = pcall(AceConfigDialog.Open, AceConfigDialog, Addon)
+		if (not ok) then
+			print("|cffff7d0aChatCleaner|r: failed to open the options window.")
+			print("|cffff0000"..tostring(err).."|r")
+		end
+	else
+		print("|cffff7d0aChatCleaner|r: the options table is missing after generation.")
 	end
 end
 
@@ -244,7 +284,11 @@ Options.OnEvent = function(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
 		local isInitialLogin, isReloadingUi = ...
 		if (isInitialLogin or isReloadingUi) then
-			self:GenerateOptionsMenu()
+			local ok, err = pcall(self.GenerateOptionsMenu, self)
+			if (not ok) then
+				print("|cffff7d0aChatCleaner|r: failed to build the options menu.")
+				print("|cffff0000"..tostring(err).."|r")
+			end
 			self:UnregisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
 		end
 	end
@@ -253,6 +297,8 @@ end
 Options.OnInitialize = function(self)
 	self:RegisterChatCommand("cc", "OpenOptionsMenu")
 	self:RegisterChatCommand("chatcleaner", "OpenOptionsMenu")
+	-- DEBUG: confirm the options module initialized and commands registered.
+	print("|cffff7d0aChatCleaner|r: commands |cff00ff00/cc|r and |cff00ff00/chatcleaner|r registered.")
 end
 
 Options.OnEnable = function(self)

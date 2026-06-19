@@ -43,8 +43,12 @@ local table_insert = table.insert
 -- Rebuilds a channel link as "N. [X]" where N is the channel number
 -- and X is the uppercased first letter of the channel name.
 -- e.g. "|Hchannel:CHANNEL:1|h[1. General - The Barrens]|h" -> "1. [G]"
+-- When the option is disabled it falls back to just the number, e.g. "1.".
 local formatChannelTag = function(channel, number, displaynum, name)
-	return "|Hchannel:"..channel..":"..number.."|h"..displaynum..". ["..string_upper(string_sub(name, 1, 1)).."]|h"
+	if (ns.db and ns.db.channelInitials) then
+		return "|Hchannel:"..channel..":"..number.."|h"..displaynum..". ["..string_upper(string_sub(name, 1, 1)).."]|h"
+	end
+	return "|Hchannel:"..channel..":"..number.."|h"..displaynum..".|h"
 end
 
 -- WoW Globals (some may be nil in older clients like 3.3.5)

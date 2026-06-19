@@ -17,6 +17,12 @@ L["O"] = true 		-- Officer
 L["Style Chat Windows"] = true
 L["Will apply a clean, minimalistic styling to the chat windows."] = true
 
+L["Channel Initials"] = true
+L["Show the channel's first letter in brackets, e.g. \"1. [G]\". Requires the Chat Channel Names filter."] = true
+
+L["Capitalize Player Names"] = true
+L["Capitalize the first letter of player names shown in chat. Requires the Player Names filter."] = true
+
 L["Filter Selection"] = true
 L["Choose which chat filters should be activated. Setting changes require a reload to take effect."] = true
 L["Apply the current settings and reload the UI. Settings will still be stored if you don't do this, but won't be applied until you reload the user interface, relog or exit the game."] = true
