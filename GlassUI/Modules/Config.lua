@@ -1,8 +1,6 @@
 local Core, Constants = unpack(select(2, ...))
 local C = Core:GetModule("Config")
 
-local AceConfig = Core.Libs.AceConfig
-local AceConfigDialog = Core.Libs.AceConfigDialog
 local AceDBOptions = Core.Libs.AceDBOptions
 local LSM = Core.Libs.LSM
 
@@ -649,12 +647,9 @@ function C:OnEnable()
       }
   }
 
-  AceConfig:RegisterOptionsTable("Glass", options)
-  AceConfigDialog:SetDefaultSize("Glass", 780, 500)
-
-  -- Glass no longer owns a slash command -- its settings are embedded as
-  -- categories in CleanerChat's /cc window. Expose the config groups for that,
-  -- plus a helper so "/cc lock" can still unlock the Glass frame.
+  -- Glass no longer owns its own options window or slash command -- its
+  -- settings are embedded as categories in CleanerChat's /cc window. Expose the
+  -- config groups for that, plus a helper so "/cc lock" can unlock the frame.
   Core.configGroups = options.args
   function Core.UnlockFrame()
     Core:Dispatch(UnlockMover())
@@ -667,14 +662,6 @@ function C:OnEnable()
   Core:Subscribe(SAVE_FRAME_POSITION, function (position)
     Core.db.profile.positionAnchor = position
   end)
-end
-
-function C:OnSlashCommand(input)
-  if input == "lock" then
-    Core:Dispatch(UnlockMover())
-  else
-    AceConfigDialog:Open("Glass")
-  end
 end
 
 function C:RefreshConfig()
