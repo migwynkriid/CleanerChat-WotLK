@@ -147,6 +147,16 @@ local optionDB = {
 			set = function(info,value) ns.db.capitalizeNames = value; Options:UpdateReloadStatus() end,
 			get = function(info) return ns.db.capitalizeNames end,
 		},
+		hideOtherCrafts = {
+			order = 30,
+			name = L["Hide Crafting Broadcasts"],
+			desc = L["Hide the \"<name> created: <item>\" messages shown when other players craft items nearby. Requires the Learning (Crafting) filter."],
+			width = "full",
+			type = "toggle",
+			disabled = function(info) return not ns.db.filters.tradeskills end,
+			set = function(info,value) ns.db.hideOtherCrafts = value; Options:UpdateReloadStatus() end,
+			get = function(info) return ns.db.hideOtherCrafts end,
+		},
 		filterHeader = {
 			order = 100,
 			type = "header",

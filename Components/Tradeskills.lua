@@ -146,6 +146,23 @@ Module.OnReplacementSet = function(self, msg, r, g, b, chatID, ...)
 	end
 end
 
+-- Blacklist filter: when the option is enabled, hide other players'
+-- "<player> creates <item>" craft broadcasts entirely instead of letting
+-- OnReplacementSet reformat them. Blacklists run BEFORE replacements, so a
+-- dropped line is never reformatted.
+Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
+	if (not ns.db) or (not ns.db.hideOtherCrafts) then return end
+	if (not msg) then return end
+
+	if (string_match(msg, CREATE_MULTIPLE_PATTERN)) or (string_match(msg, CREATE_SINGLE_PATTERN)) then
+		return true
+	end
+end
+
+local onAddMessageProxy = function(...)
+	return Module:OnAddMessage(...)
+end
+
 local onChatEventProxy = function(...)
 	return Module:OnChatEvent(...)
 end
@@ -155,11 +172,13 @@ local onReplacementSetProxy = function(...)
 end
 
 Module.OnEnable = function(self)
+	self:RegisterBlacklistFilter(onAddMessageProxy)
 	self:RegisterMessageReplacement(onReplacementSetProxy)
 	self:RegisterMessageEventFilter("CHAT_MSG_SKILL", onChatEventProxy)
 end
 
 Module.OnDisable = function(self)
+	self:UnregisterBlacklistFilter(onAddMessageProxy)
 	self:UnregisterMessageReplacement(onReplacementSetProxy)
 	self:UnregisterMessageEventFilter("CHAT_MSG_SKILL", onChatEventProxy)
 end

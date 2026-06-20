@@ -258,6 +258,7 @@ local defaults = {
 	channelNumber = true, -- prefix the channel display with its number, e.g. "1. "
 	channelCapitalize = true, -- capitalize the channel name/initial
 	capitalizeNames = true, -- capitalize the first letter of player names
+	hideOtherCrafts = false, -- hide other players' "<name> creates <item>" craft broadcasts
 	filters = {
 		achievements = true,
 		auctions = true,

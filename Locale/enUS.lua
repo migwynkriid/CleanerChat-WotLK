@@ -31,6 +31,9 @@ L["Capitalize the first letter of the channel name or initial. Requires the Chat
 L["Capitalize Player Names"] = true
 L["Capitalize the first letter of player names shown in chat. Requires the Player Names filter."] = true
 
+L["Hide Crafting Broadcasts"] = true
+L["Hide the \"<name> created: <item>\" messages shown when other players craft items nearby. Requires the Learning (Crafting) filter."] = true
+
 L["Settings changed - the UI will reload when you close this window."] = true
 
 L["Filter Selection"] = true
