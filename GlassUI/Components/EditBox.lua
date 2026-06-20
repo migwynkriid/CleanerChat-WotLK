@@ -24,6 +24,20 @@ function EditBoxMixin:Init(parent)
 
   -- Note: Focus textures don't exist in WotLK 3.3.5, so we skip them
 
+  -- Reparent the edit box out of the native chat frame.
+  -- In FrameXML, ChatFrame1EditBox is defined as a child of ChatFrame1 (it is
+  -- the template's "$parentEditBox"). The SlidingMessageFrame hides ChatFrame1
+  -- to suppress the native message display (and its leaking embedded icons),
+  -- but a child of a hidden frame cannot render -- so the edit box ended up
+  -- focused and functional (chat still sent) yet invisible, flickering as
+  -- Blizzard toggled the parent's visibility. Anchoring already targets the
+  -- Glass container, so reparent to it as well to fully decouple from
+  -- ChatFrame1's forced-hidden state. The fields chat code relies on
+  -- (editBox.chatFrame, ChatFrame1.editBox) are set once at load and are not
+  -- affected by SetParent, and ChatEdit_ChooseBoxForSend (classic style)
+  -- returns DEFAULT_CHAT_FRAME.editBox, so sending is unaffected.
+  self:SetParent(parent)
+
   -- New styling
   self:ClearAllPoints()
 
