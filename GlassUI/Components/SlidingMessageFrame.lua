@@ -316,8 +316,7 @@ function SlidingMessageFrameMixin:CreateMessageFrame(frame, text, red, green, bl
 
   message.text:SetTextColor(red, green, blue, 1)
   local processed = TP:ProcessText(text)
-  message.processedText = processed
-  message.text:SetText(processed)
+  message:SetMessageText(processed)
 
   -- Adjust height to contain text
   message:UpdateFrame()

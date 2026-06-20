@@ -50,6 +50,65 @@ local function getMeasureFontString()
   return measureFontString
 end
 
+-- Split simple embedded |T...|t icons (coins, currency, etc.) out of a single
+-- line of text so they can be FADED. Embedded FontString textures ignore alpha
+-- on 3.3.5 -- only the text fades, the icon stays fully opaque and then pops
+-- out when the line is finally hidden. We replace each simple icon with a run
+-- of spaces of roughly the same width (so the surrounding text keeps its
+-- layout) and return a list of the icons + the text that precedes each, so
+-- UpdateIcons can draw the real icon as a separate Texture overlay that DOES
+-- fade with the line. Icons that carry texture coordinates (class icons,
+-- sprite-sheet icons) are left embedded untouched -- redrawing them without
+-- their texcoords would show the wrong art, and they're rarely what fades.
+-- `fs` must already have the line's font set.
+local function buildDisplayText(text, fs)
+  fs:SetWidth(0)
+  fs:SetText(" ")
+  local spaceW = fs:GetStringWidth() or 0
+  if spaceW <= 0 then spaceW = 3 end
+
+  local out, icons = {}, {}
+  local pos = 1
+  while true do
+    local s, e, inner = string.find(text, "|T(.-)|t", pos)
+    if not s then
+      out[#out + 1] = string.sub(text, pos)
+      break
+    end
+    out[#out + 1] = string.sub(text, pos, s - 1)
+
+    local path = inner
+    local params = nil
+    local colon = string.find(inner, ":", 1, true)
+    if colon then
+      path = string.sub(inner, 1, colon - 1)
+      params = string.sub(inner, colon + 1)
+    end
+
+    local nums = {}
+    if params then
+      for token in string.gmatch(params, "[^:]+") do
+        nums[#nums + 1] = tonumber(token)
+      end
+    end
+
+    local h, w = nums[1], nums[2]
+    -- Simple icon = path + up to height:width:offsetX:offsetY (no texcoords).
+    if path ~= "" and h and h > 0 and #nums <= 4 then
+      w = (w and w > 0) and w or h
+      local n = math.max(1, math.floor(w / spaceW + 0.5))
+      icons[#icons + 1] = { path = path, w = w, h = h, before = table.concat(out) }
+      out[#out + 1] = string.rep(" ", n)
+    else
+      -- Keep the original icon embedded (correct art, just won't fade).
+      out[#out + 1] = string.sub(text, s, e)
+    end
+    pos = e + 1
+  end
+
+  return table.concat(out), icons
+end
+
 local MessageLineMixin = {}
 
 function MessageLineMixin:Init()
@@ -75,6 +134,7 @@ function MessageLineMixin:Init()
   -- of each |H...|h link in UpdateHyperlinks(), which works on any client. The
   -- line itself stays mouse-transparent so non-link chat still clicks through.
   self.linkButtons = self.linkButtons or {}
+  self.iconTextures = self.iconTextures or {}
 
   if self.subscriptions == nil then
     self.subscriptions = {
@@ -89,6 +149,44 @@ function MessageLineMixin:Init()
       end)
     }
   end
+end
+
+---
+-- Set the message text, splitting fadeable icons out for single-line messages.
+function MessageLineMixin:SetMessageText(processed)
+  self.processedText = processed
+
+  if not processed or not string.find(processed, "|T", 1, true) then
+    -- No icons: nothing to split.
+    self.displayText = processed
+    self.iconList = nil
+    self.text:SetText(processed or "")
+    return
+  end
+
+  local fs = getMeasureFontString()
+  local fontPath, fontSize, fontFlags = self.text:GetFont()
+  if fontPath then
+    fs:SetFont(fontPath, fontSize, fontFlags)
+  end
+
+  -- Only split icons for single-line messages -- positioning overlays across
+  -- wrapped lines isn't reliable, so wrapped messages keep their embedded icons
+  -- (unchanged behaviour).
+  local textWidth = Core.db.profile.frameWidth - Constants.TEXT_XPADDING * 2
+  fs:SetWidth(0)
+  fs:SetText(processed)
+  if (fs:GetStringWidth() or 0) > textWidth then
+    self.displayText = processed
+    self.iconList = nil
+    self.text:SetText(processed)
+    return
+  end
+
+  local displayText, icons = buildDisplayText(processed, fs)
+  self.displayText = displayText
+  self.iconList = (icons and #icons > 0) and icons or nil
+  self.text:SetText(displayText)
 end
 
 ---
@@ -114,8 +212,56 @@ function MessageLineMixin:UpdateFrame()
   local rightBgWidth = math.min(250, Core.db.profile.frameWidth - 50)
   self:SetGradientBackground(50, rightBgWidth, Colors.codGray, Core.db.profile.chatBackgroundOpacity)
 
-  -- Reposition the clickable hyperlink overlays for the current wrapping.
+  -- Reposition the faded icon overlays, then the clickable hyperlink overlays.
+  self:UpdateIcons()
   self:UpdateHyperlinks()
+end
+
+---
+-- Draw each split-out simple icon (see buildDisplayText) as a real Texture
+-- parented to the line, positioned over the spaces that reserve its slot.
+-- Unlike an embedded FontString icon, a Texture fades with the line's alpha,
+-- so the icon now fades out with the text instead of popping.
+function MessageLineMixin:UpdateIcons()
+  local pool = self.iconTextures
+  if not pool then
+    pool = {}
+    self.iconTextures = pool
+  end
+
+  for i = 1, #pool do
+    pool[i]:Hide()
+  end
+
+  local icons = self.iconList
+  if not icons or #icons == 0 then
+    return
+  end
+
+  local fs = getMeasureFontString()
+  local fontPath, fontSize, fontFlags = self.text:GetFont()
+  if fontPath then
+    fs:SetFont(fontPath, fontSize, fontFlags)
+  end
+  fs:SetWidth(0)
+
+  for i = 1, #icons do
+    local icon = icons[i]
+    local t = pool[i]
+    if not t then
+      t = self:CreateTexture(nil, "OVERLAY")
+      pool[i] = t
+    end
+
+    fs:SetText(icon.before or "")
+    local x = fs:GetStringWidth() or 0
+
+    t:SetTexture(icon.path)
+    t:SetSize(icon.w, icon.h)
+    t:ClearAllPoints()
+    t:SetPoint("LEFT", self.text, "LEFT", x, 0)
+    t:Show()
+  end
 end
 
 ---
@@ -137,7 +283,7 @@ function MessageLineMixin:UpdateHyperlinks()
     buttons[i]:Hide()
   end
 
-  local text = self.processedText
+  local text = self.displayText or self.processedText
   if not text or not string.find(text, "|H", 1, true) then
     return
   end
