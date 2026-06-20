@@ -85,63 +85,24 @@ function EditBoxMixin:Init(parent)
 
   self:SetTextInsets()
 
-  -- Helper function to safely set animation alpha
-  local function SafeSetAlphaAnimation(anim, fromAlpha, toAlpha)
-    if anim.SetFromAlpha and anim.SetToAlpha then
-      anim:SetFromAlpha(fromAlpha)
-      anim:SetToAlpha(toAlpha)
-    elseif anim.SetChange then
-      anim:SetChange(toAlpha - fromAlpha)
-    end
-    if anim.SetSmoothing then
-      anim:SetSmoothing("OUT")
-    end
-  end
-
-  -- Animations
-  -- Intro animations
-  local introAg = self:CreateAnimationGroup()
-  local fadeIn = introAg:CreateAnimation("Alpha")
-  SafeSetAlphaAnimation(fadeIn, 0, 1)
-  fadeIn:SetDuration(0.2)
-  
-  -- Ensure alpha is 1 after fade-in completes
-  introAg:SetScript("OnFinished", function()
-    self:SetAlpha(1)
-  end)
-
-  -- Outro animations
-  local outroAg = self:CreateAnimationGroup()
-  local fadeOut = outroAg:CreateAnimation("Alpha")
-  SafeSetAlphaAnimation(fadeOut, 1, 0)
-  fadeOut:SetDuration(0.05)
-
-  -- Workaround for editbox being open on login
-  self.glassInitialized = false
-
+  -- Show/hide the edit box instantly.
+  --
+  -- This previously used intro/outro Alpha animations, but they caused a string
+  -- of bugs on 3.3.5:
+  --   1. The intro fade left the box invisible on the first open after a
+  --      /reload. A 3.3.5 Alpha animation is a transient offset that reverts to
+  --      the frame's base alpha when it finishes, and the first Play() could
+  --      silently no-op -- so the box stayed shown but stuck at alpha 0.
+  --   2. The outro fade deferred the real Hide() to the animation's OnFinished.
+  --      Reopening right after sending a message let that still-pending hide
+  --      tear the freshly reopened box back down ("pops up and closes", and the
+  --      box deactivates so you cannot type/send).
+  -- A chat input should appear and disappear instantly anyway, so we just drive
+  -- alpha directly on show and let Hide() run natively (immediate). No
+  -- animations means no deferred hide and no show/hide race.
   self:SetScript("OnShow", function ()
-    if self.glassInitialized then
-      -- Set alpha to 0 before fade-in so SetChange(1) works in WotLK
-      self:SetAlpha(0)
-      introAg:Play()
-    else
-      self.glassInitialized = true
-      self:SetAlpha(1)
-    end
-  end)
-
-  outroAg:SetScript("OnFinished", function ()
-    if not introAg:IsPlaying() then
-      self:SetAlpha(1)  -- Reset alpha before hiding
-      self.hooks[self].Hide(self)
-    end
-  end)
-
-  self:RawHook(self, "Hide", function ()
-    -- Set alpha to 1 before fade-out so SetChange(-1) works in WotLK
     self:SetAlpha(1)
-    outroAg:Play()
-  end, true)
+  end)
 
   Core:Subscribe(UPDATE_CONFIG, function (key)
     if key == "font" or key == "editBoxFontSize" then
