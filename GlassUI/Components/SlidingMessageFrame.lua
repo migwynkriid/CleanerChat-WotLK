@@ -334,7 +334,40 @@ function SlidingMessageFrameMixin:BackFillMessage(...)
   table.insert(self.state.incomingScrollbackMessages, args)
 end
 
+-- Recompute the scroll-child height from the current message heights, keeping
+-- the view pinned to the bottom when appropriate.
+function SlidingMessageFrameMixin:RecomputeContentHeight()
+  local contentHeight = reduce(self.state.messages, function (acc, message)
+    return acc + (message:GetHeight() or 0)
+  end, 0)
+  self.slider:SetHeight(self.config.height + self.config.overflowHeight + contentHeight)
+  self:UpdateScrollChildRect()
+  if self.state.scrollAtBottom then
+    self:SetVerticalScroll(self:GetVerticalScrollRange() + self.config.overflowHeight)
+  end
+end
+
 function SlidingMessageFrameMixin:OnFrame()
+  -- Messages created on the previous frame have now been laid out by the engine,
+  -- so their text height is finally reliable. GetStringHeight() can be stale on
+  -- the same frame SetText() runs (especially for wrapped quest/loot rewards),
+  -- which makes message frames too short and overlap. Re-measure them now and
+  -- fix the layout if any height changed.
+  if self.state.pendingMeasure and #self.state.pendingMeasure > 0 then
+    local changed = false
+    for _, message in ipairs(self.state.pendingMeasure) do
+      local before = message:GetHeight() or 0
+      message:UpdateFrame()
+      if math.abs((message:GetHeight() or 0) - before) > 0.5 then
+        changed = true
+      end
+    end
+    self.state.pendingMeasure = {}
+    if changed then
+      self:RecomputeContentHeight()
+    end
+  end
+
   if #self.state.incomingMessages > 0 then
     local incoming = {}
     for _, message in ipairs(self.state.incomingMessages) do
@@ -441,6 +474,11 @@ function SlidingMessageFrameMixin:Update(incoming, reverse)
     else
       table.insert(self.state.messages, message)
     end
+
+    -- Queue for a next-frame re-measure so the layout is corrected once the
+    -- engine has laid the text out (fixes overlapping messages).
+    self.state.pendingMeasure = self.state.pendingMeasure or {}
+    table.insert(self.state.pendingMeasure, message)
   end
 
   -- Release old messages
