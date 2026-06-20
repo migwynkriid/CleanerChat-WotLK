@@ -1,6 +1,7 @@
 local Core, Constants = unpack(select(2, ...))
 
 local AceHook = Core.Libs.AceHook
+local LibEasing = Core.Libs.LibEasing
 
 local Colors = Constants.COLORS
 
@@ -57,20 +58,22 @@ function ChatDockMixin:Init(parent)
     end, true)
   end
 
-  -- Show the dock initially so tabs are visible
+  -- Show the dock initially, then fade the tabs out after the hold time.
+  -- (Glass behaviour: tabs are revealed on hover and fade out when idle.)
   self:Show()
+  self:FadeOutTabs()
 
   if self.subscriptions == nil then
     self.subscriptions = {
       Core:Subscribe(MOUSE_ENTER, function ()
-        -- Don't hide tabs when mouse is over
+        -- Reveal the tabs while the mouse is over the chat
         self.state.mouseOver = true
-        -- Dock is always visible now, no need to show
+        self:ShowTabs()
       end),
       Core:Subscribe(MOUSE_LEAVE, function ()
-        -- Keep dock visible - don't hide it
+        -- Fade the tabs out after the configured delay
         self.state.mouseOver = false
-        -- Don't hide the dock - keep tabs always visible for now
+        self:FadeOutTabs()
       end),
       Core:Subscribe(UPDATE_CONFIG, function (key)
         if key == "frameWidth" then
@@ -81,6 +84,56 @@ function ChatDockMixin:Init(parent)
       end)
     }
   end
+end
+
+-- Reveal the tab dock immediately and cancel any pending fade-out.
+function ChatDockMixin:ShowTabs()
+  if self.fadeOutTimer then
+    self.fadeOutTimer:Cancel()
+    self.fadeOutTimer = nil
+  end
+  if self.fadeHandle then
+    LibEasing:StopEasing(self.fadeHandle)
+    self.fadeHandle = nil
+  end
+  self:Show()
+  self:SetAlpha(1)
+end
+
+-- Fade the tab dock out after the configured hold time.
+function ChatDockMixin:FadeOutTabs()
+  if self.fadeOutTimer then
+    self.fadeOutTimer:Cancel()
+  end
+
+  self.fadeOutTimer = C_Timer.NewTimer(Core.db.profile.chatHoldTime or 10, function ()
+    self.fadeOutTimer = nil
+    if self.state.mouseOver then return end
+
+    local duration = Core.db.profile.chatFadeOutDuration or 0.6
+    if self.fadeHandle then
+      LibEasing:StopEasing(self.fadeHandle)
+      self.fadeHandle = nil
+    end
+
+    if duration > 0 and self:IsVisible() then
+      self.fadeHandle = LibEasing:Ease(
+        function (a) self:SetAlpha(a) end,
+        self:GetAlpha(),
+        0,
+        duration,
+        LibEasing.OutCubic,
+        function ()
+          self.fadeHandle = nil
+          self:Hide()
+          self:SetAlpha(1)
+        end
+      )
+    else
+      self:Hide()
+      self:SetAlpha(1)
+    end
+  end)
 end
 
 local isCreated = false
