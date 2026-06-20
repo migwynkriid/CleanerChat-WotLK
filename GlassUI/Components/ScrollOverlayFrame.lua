@@ -45,13 +45,20 @@ function ScrollOverlayFrame:Init()
     self.icon:SetHeight(16)
     self.icon:SetPoint("BOTTOMLEFT", 15, 5)
 
-    -- See new messages click area
+    -- See new messages click area. Covers the WHOLE overlay (the snap-to-bottom
+    -- icon *and* the "Unread messages" text) and -- crucially -- enables mouse:
+    -- a plain CreateFrame("Frame") receives no mouse events, so without this the
+    -- OnMouseDown handler (wired in SlidingMessageFrame via "OnClickSnapFrame")
+    -- never fired and clicking the indicator did nothing. The "Unread messages"
+    -- alert frame above it is not mouse-enabled, so it doesn't block these
+    -- clicks.
     if self.snapToBottomFrame == nil then
       self.snapToBottomFrame = CreateFrame("Frame", nil, self)
     end
-    self.snapToBottomFrame:SetHeight(20)
-    self.snapToBottomFrame:SetPoint("BOTTOMLEFT")
+    self.snapToBottomFrame:ClearAllPoints()
+    self.snapToBottomFrame:SetPoint("TOPLEFT")
     self.snapToBottomFrame:SetPoint("BOTTOMRIGHT")
+    self.snapToBottomFrame:EnableMouse(true)
 
     if self.newMessageAlertFrame == nil then
       self.newMessageAlertFrame = CreateNewMessageAlertFrame(self)
