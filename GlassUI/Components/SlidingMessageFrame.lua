@@ -90,6 +90,18 @@ function SlidingMessageFrameMixin:Init(chatFrame)
   chatFrame:EnableMouse(false)
   chatFrame:EnableMouseWheel(false)
 
+  -- Setting alpha 0 hides the native frame's text but NOT its embedded message
+  -- icons (|T|t) on this client, so they leak on top of the world. Actually
+  -- hide the frame so it renders nothing, and re-hide it whenever Blizzard
+  -- re-shows the selected dock frame. Glass's AddMessage hook still fires on
+  -- hidden frames, so its own display is unaffected.
+  if not self:IsHooked(chatFrame, "Show") then
+    self:SecureHook(chatFrame, "Show", function ()
+      chatFrame:Hide()
+    end)
+  end
+  chatFrame:Hide()
+
   -- Chat scroll frame for our custom messages
   self:SetHeight(self.config.height + self.config.overflowHeight)
   self:SetWidth(self.config.width)
@@ -469,6 +481,9 @@ local function CreateSlidingMessageFramePool(parent)
         end
         if smf:IsHooked(smf.chatFrame, "SetAlpha") then
           smf:Unhook(smf.chatFrame, "SetAlpha")
+        end
+        if smf:IsHooked(smf.chatFrame, "Show") then
+          smf:Unhook(smf.chatFrame, "Show")
         end
         -- Note: historyBuffer doesn't exist in WotLK 3.3.5
       end
