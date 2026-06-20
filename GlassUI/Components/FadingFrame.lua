@@ -6,6 +6,8 @@ local CreateFrame = CreateFrame
 local Mixin = Mixin
 -- luacheck: pop
 
+local LibEasing = Core.Libs.LibEasing
+
 local FadingFrameMixin = {}
 
 -- Helper function to safely set animation alpha
@@ -63,8 +65,14 @@ end
 function FadingFrameMixin:QuickShow()
   self:StopAnimating()
 
+  if self.fadeHandle and LibEasing then
+    LibEasing:StopEasing(self.fadeHandle)
+    self.fadeHandle = nil
+  end
+
   if self.hideTimer ~= nil then
     self.hideTimer:Cancel()
+    self.hideTimer = nil
   end
 
   self:SetAlpha(1)
@@ -72,8 +80,14 @@ function FadingFrameMixin:QuickShow()
 end
 
 function FadingFrameMixin:QuickHide()
+  if self.fadeHandle and LibEasing then
+    LibEasing:StopEasing(self.fadeHandle)
+    self.fadeHandle = nil
+  end
+
   if self.hideTimer ~= nil then
     self.hideTimer:Cancel()
+    self.hideTimer = nil
   end
 
   self:SetAlpha(1)
@@ -81,18 +95,24 @@ function FadingFrameMixin:QuickHide()
 end
 
 function FadingFrameMixin:Show()
-  -- Cancel any pending hide operations
+  -- Cancel any pending hide / in-flight fade-out so a re-shown (e.g.
+  -- moused-over) line snaps back to full opacity instead of continuing to fade.
   if self.hideTimer ~= nil then
     self.hideTimer:Cancel()
     self.hideTimer = nil
   end
 
-  if not self:IsVisible() then
-    self:StopAnimating()
-    self:SetAlpha(1)  -- Ensure visible
-    Frame_Show(self)
-    -- Skip fade-in animation - just show immediately for stability in WotLK
+  if self.fadeHandle and LibEasing then
+    LibEasing:StopEasing(self.fadeHandle)
+    self.fadeHandle = nil
   end
+
+  self:StopAnimating()
+  self:SetAlpha(1)  -- Ensure fully visible
+  if not self:IsVisible() then
+    Frame_Show(self)
+  end
+  -- Fade-in itself is driven by the SlidingMessageFrame slide animation.
 end
 
 function FadingFrameMixin:Hide()
@@ -101,8 +121,32 @@ function FadingFrameMixin:Hide()
     self.hideTimer = nil
   end
 
-  if self:IsVisible() then
-    -- Just hide immediately - skip fade animation for WotLK stability
+  if not self:IsVisible() then return end
+
+  if self.fadeHandle and LibEasing then
+    LibEasing:StopEasing(self.fadeHandle)
+    self.fadeHandle = nil
+  end
+
+  -- Fade the alpha out over the configured duration, then hide for real. The
+  -- AnimationGroup approach is unreliable on 3.3.5 (OnFinished can fail to
+  -- fire, leaving frames stuck), so drive the fade with LibEasing -- the same
+  -- approach the chat dock uses.
+  local duration = self.fadeOutDuration or 0
+  if duration > 0 and LibEasing then
+    self.fadeHandle = LibEasing:Ease(
+      function (alpha) self:SetAlpha(alpha) end,
+      self:GetAlpha(),
+      0,
+      duration,
+      LibEasing.OutCubic,
+      function ()
+        self.fadeHandle = nil
+        Frame_Hide(self)
+        self:SetAlpha(1)
+      end
+    )
+  else
     self:SetAlpha(1)
     Frame_Hide(self)
   end
@@ -127,10 +171,12 @@ function FadingFrameMixin:HideDelay(delay)
 end
 
 function FadingFrameMixin:SetFadeInDuration(duration)
+  self.fadeInDuration = duration
   self.fadeIn:SetDuration(duration)
 end
 
 function FadingFrameMixin:SetFadeOutDuration(duration)
+  self.fadeOutDuration = duration
   self.fadeOut:SetDuration(duration)
 end
 
