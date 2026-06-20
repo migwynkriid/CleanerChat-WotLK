@@ -159,21 +159,28 @@ function UIManager:OnEnable()
   if (not self.dockUpdateHooked) then
     self.dockUpdateHooked = true
 
-    local reasserting = false
+    -- Defer + debounce. Re-running the tab setup synchronously from inside
+    -- Blizzard's dock update can re-enter its dock code and trip an assert in
+    -- FrameXML\ChatFrame.lua, so schedule it for the next frame instead. We
+    -- only hook the high-level FCF_DockUpdate (which already drives
+    -- FCFDock_UpdateTabs) to avoid reacting to every internal call.
+    local reassertScheduled = false
     local function ReassertTabs()
-      if (reasserting) then return end
-      reasserting = true
-      SetupTabs()
-      reasserting = false
+      if (reassertScheduled) then return end
+      reassertScheduled = true
+      if (C_Timer and C_Timer.After) then
+        C_Timer.After(0, function ()
+          reassertScheduled = false
+          SetupTabs()
+        end)
+      else
+        reassertScheduled = false
+        SetupTabs()
+      end
     end
 
-    if (_G.hooksecurefunc) then
-      if (_G.FCF_DockUpdate) then
-        _G.hooksecurefunc("FCF_DockUpdate", ReassertTabs)
-      end
-      if (_G.FCFDock_UpdateTabs) then
-        _G.hooksecurefunc("FCFDock_UpdateTabs", ReassertTabs)
-      end
+    if (_G.hooksecurefunc and _G.FCF_DockUpdate) then
+      _G.hooksecurefunc("FCF_DockUpdate", ReassertTabs)
     end
   end
 
