@@ -20,6 +20,7 @@ function NewMessageAlertFrameMixin:Init()
     if self.text == nil then
       self.text = self:CreateFontString(nil, "ARTWORK", "GlassMessageFont")
     end
+    -- apache, fully solid (matches the "Bring me to the present" hint).
     self.text:SetTextColor(Colors.apache.r, Colors.apache.g, Colors.apache.b)
     self.text:SetPoint("BOTTOMLEFT", 30, 10)
     self.text:SetText("Unread messages")
