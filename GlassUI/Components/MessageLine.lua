@@ -39,6 +39,17 @@ local function GetFontHeight(fontString)
   return 14  -- reasonable default
 end
 
+-- A single shared, hidden FontString used to measure rendered text widths and
+-- heights, so we can position the clickable hyperlink overlays. Created lazily.
+local measureFontString
+local function getMeasureFontString()
+  if not measureFontString then
+    measureFontString = UIParent:CreateFontString(nil, "ARTWORK")
+    measureFontString:Hide()
+  end
+  return measureFontString
+end
+
 local MessageLineMixin = {}
 
 function MessageLineMixin:Init()
@@ -56,34 +67,14 @@ function MessageLineMixin:Init()
   self.text:SetWidth(Core.db.profile.frameWidth - Constants.TEXT_XPADDING * 2)
   self.text:SetIndentedWordWrap(Core.db.profile.indentWordWrap)
 
-  -- Hyperlink handling
-  -- Note: In WotLK 3.3.5, plain Frame objects don't support hyperlink scripts
-  -- Only SimpleHTML and MessageFrame types support OnHyperlinkClick/Enter/Leave
-  -- We use pcall to safely attempt setting these scripts
-  if self.SetHyperlinksEnabled then
-    pcall(function() self:SetHyperlinksEnabled(true) end)
-  end
-
-  -- Try to set hyperlink scripts (will fail silently on WotLK for plain Frames)
-  if self:HasScript("OnHyperlinkClick") then
-    self:SetScript("OnHyperlinkClick", function (_, link, text, button)
-      Core:Dispatch(HyperlinkClick({link, text, button}))
-    end)
-  end
-
-  if self:HasScript("OnHyperlinkEnter") then
-    self:SetScript("OnHyperlinkEnter", function (_, link, text)
-      if Core.db.profile.mouseOverTooltips then
-        Core:Dispatch(HyperlinkEnter({link, text}))
-      end
-    end)
-  end
-
-  if self:HasScript("OnHyperlinkLeave") then
-    self:SetScript("OnHyperlinkLeave", function (_, link)
-      Core:Dispatch(HyperlinkLeave(link))
-    end)
-  end
+  -- Hyperlink handling.
+  -- WotLK 3.3.5 only fires OnHyperlinkClick/Enter/Leave on ScrollingMessageFrame
+  -- and SimpleHTML -- NOT on the plain Frame we render each message into, so
+  -- those scripts never trigger here (verified: links stay dead even with the
+  -- frame mouse-enabled). Instead we overlay a small transparent Button on top
+  -- of each |H...|h link in UpdateHyperlinks(), which works on any client. The
+  -- line itself stays mouse-transparent so non-link chat still clicks through.
+  self.linkButtons = self.linkButtons or {}
 
   if self.subscriptions == nil then
     self.subscriptions = {
@@ -122,6 +113,112 @@ function MessageLineMixin:UpdateFrame()
 
   local rightBgWidth = math.min(250, Core.db.profile.frameWidth - 50)
   self:SetGradientBackground(50, rightBgWidth, Colors.codGray, Core.db.profile.chatBackgroundOpacity)
+
+  -- Reposition the clickable hyperlink overlays for the current wrapping.
+  self:UpdateHyperlinks()
+end
+
+---
+-- Overlay a small, transparent, clickable Button on top of each |H...|h
+-- hyperlink in the line. Plain Frames don't fire OnHyperlink* scripts on 3.3.5,
+-- so this is how links become clickable. We measure text widths with a shared
+-- FontString to place each overlay. Single-line messages (the common case for
+-- item links) get pixel-accurate overlays; wrapped messages fall back to a
+-- full-width band over the line(s) the link spans.
+function MessageLineMixin:UpdateHyperlinks()
+  local buttons = self.linkButtons
+  if not buttons then
+    buttons = {}
+    self.linkButtons = buttons
+  end
+
+  -- Hide overlays from the previous layout; we re-show the ones still needed.
+  for i = 1, #buttons do
+    buttons[i]:Hide()
+  end
+
+  local text = self.processedText
+  if not text or not string.find(text, "|H", 1, true) then
+    return
+  end
+
+  local textXPad = Constants.TEXT_XPADDING
+  local textWidth = Core.db.profile.frameWidth - textXPad * 2
+
+  local fs = getMeasureFontString()
+  local fontPath, fontSize, fontFlags = self.text:GetFont()
+  if fontPath then
+    fs:SetFont(fontPath, fontSize, fontFlags)
+  end
+
+  -- Height of a single line (includes the font's internal leading).
+  fs:SetWidth(0)
+  fs:SetText("Ay")
+  local oneLineH = fs:GetStringHeight()
+  if not oneLineH or oneLineH <= 0 then
+    oneLineH = GetFontHeight(self.text)
+  end
+
+  -- Does the whole message fit on one line?
+  fs:SetWidth(0)
+  fs:SetText(text)
+  local singleLine = (fs:GetStringWidth() or 0) <= textWidth
+
+  local count = 0
+  local pos = 1
+  while true do
+    local s, e, link, linkText = string.find(text, "|H(.-)|h(.-)|h", pos)
+    if not s then break end
+    pos = e + 1
+    count = count + 1
+
+    local btn = buttons[count]
+    if not btn then
+      btn = CreateFrame("Button", nil, self)
+      btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+      btn:SetScript("OnClick", function (b, mouseButton)
+        if b._link then Core:Dispatch(HyperlinkClick({b._link, b._text, mouseButton})) end
+      end)
+      btn:SetScript("OnEnter", function (b)
+        if b._link and Core.db.profile.mouseOverTooltips then
+          Core:Dispatch(HyperlinkEnter({b._link, b._text}))
+        end
+      end)
+      btn:SetScript("OnLeave", function (b)
+        if b._link then Core:Dispatch(HyperlinkLeave(b._link)) end
+      end)
+      buttons[count] = btn
+    end
+
+    btn._link = link
+    btn._text = linkText
+    btn:ClearAllPoints()
+
+    local prefix = string.sub(text, 1, s - 1)
+
+    if singleLine then
+      fs:SetWidth(0)
+      fs:SetText(prefix)
+      local px = fs:GetStringWidth() or 0
+      fs:SetText(linkText)
+      local lw = fs:GetStringWidth() or 0
+      btn:SetPoint("TOPLEFT", self.text, "TOPLEFT", px, 0)
+      btn:SetSize(math.max(4, lw), oneLineH)
+    else
+      fs:SetWidth(textWidth)
+      fs:SetText(prefix == "" and "" or prefix)
+      local startLine = 0
+      if prefix ~= "" then
+        startLine = math.max(0, math.floor((fs:GetStringHeight() or 0) / oneLineH + 0.5) - 1)
+      end
+      fs:SetText(string.sub(text, 1, e))
+      local endLine = math.max(startLine, math.floor((fs:GetStringHeight() or 0) / oneLineH + 0.5) - 1)
+      btn:SetPoint("TOPLEFT", self.text, "TOPLEFT", 0, -startLine * oneLineH)
+      btn:SetSize(textWidth, oneLineH * (endLine - startLine + 1))
+    end
+
+    btn:Show()
+  end
 end
 
 ---
