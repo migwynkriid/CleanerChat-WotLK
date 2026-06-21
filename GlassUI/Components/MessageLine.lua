@@ -122,8 +122,9 @@ function MessageLineMixin:Init()
   if self.text == nil then
     self.text = self:CreateFontString(nil, "ARTWORK", "GlassMessageFont")
   end
-  self.text:SetPoint("LEFT", Constants.TEXT_XPADDING, 0)
-  self.text:SetWidth(Core.db.profile.frameWidth - Constants.TEXT_XPADDING * 2)
+  local leftPadding = Core.db.profile.messageLeftPadding or Constants.TEXT_XPADDING
+  self.text:SetPoint("LEFT", leftPadding, 0)
+  self.text:SetWidth(Core.db.profile.frameWidth - leftPadding - Constants.TEXT_XPADDING)
   self.text:SetIndentedWordWrap(Core.db.profile.indentWordWrap)
 
   -- Hyperlink handling.
@@ -145,6 +146,10 @@ function MessageLineMixin:Init()
 
         if key == "chatFadeOutDuration" then
           self:SetFadeOutDuration(Core.db.profile.chatFadeOutDuration)
+        end
+
+        if key == "messageLeftPadding" then
+          self:UpdateFrame()
         end
       end)
     }
@@ -173,7 +178,8 @@ function MessageLineMixin:SetMessageText(processed)
   -- Only split icons for single-line messages -- positioning overlays across
   -- wrapped lines isn't reliable, so wrapped messages keep their embedded icons
   -- (unchanged behaviour).
-  local textWidth = Core.db.profile.frameWidth - Constants.TEXT_XPADDING * 2
+  local leftPadding = Core.db.profile.messageLeftPadding or Constants.TEXT_XPADDING
+  local textWidth = Core.db.profile.frameWidth - leftPadding - Constants.TEXT_XPADDING
   fs:SetWidth(0)
   fs:SetText(processed)
   if (fs:GetStringWidth() or 0) > textWidth then
@@ -193,8 +199,11 @@ end
 -- Update height based on text height
 function MessageLineMixin:UpdateFrame()
   -- Set the widths first so wrapped text reports its real (multi-line) height.
+  local leftPadding = Core.db.profile.messageLeftPadding or Constants.TEXT_XPADDING
   self:SetWidth(Core.db.profile.frameWidth)
-  self.text:SetWidth(Core.db.profile.frameWidth - Constants.TEXT_XPADDING * 2)
+  self.text:ClearAllPoints()
+  self.text:SetPoint("LEFT", leftPadding, 0)
+  self.text:SetWidth(Core.db.profile.frameWidth - leftPadding - Constants.TEXT_XPADDING)
   self.text:SetIndentedWordWrap(Core.db.profile.indentWordWrap)
 
   -- WotLK quirk: GetStringHeight() can return 0 / a too-small value (especially
@@ -288,8 +297,8 @@ function MessageLineMixin:UpdateHyperlinks()
     return
   end
 
-  local textXPad = Constants.TEXT_XPADDING
-  local textWidth = Core.db.profile.frameWidth - textXPad * 2
+  local textXPad = Core.db.profile.messageLeftPadding or Constants.TEXT_XPADDING
+  local textWidth = Core.db.profile.frameWidth - textXPad - Constants.TEXT_XPADDING
 
   local fs = getMeasureFontString()
   local fontPath, fontSize, fontFlags = self.text:GetFont()

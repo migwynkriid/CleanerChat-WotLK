@@ -391,6 +391,24 @@ function C:OnEnable()
                   end,
                   order = 1.5,
                 },
+                messageLeftPadding = {
+                  name = "Left padding",
+                  desc = "Default: "..Core.defaults.profile.messageLeftPadding.."\nMin: 0\nMax: 50\n\nControls the blank space on the left side of messages.",
+                  type = "range",
+                  min = 0,
+                  max = 50,
+                  softMin = 0,
+                  softMax = 30,
+                  step = 1,
+                  get = function ()
+                    return Core.db.profile.messageLeftPadding
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.messageLeftPadding = input
+                    Core:Dispatch(UpdateConfig("messageLeftPadding"))
+                  end,
+                  order = 1.6,
+                },
               },
             },
             section2 = {

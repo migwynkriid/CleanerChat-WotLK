@@ -66,6 +66,7 @@ Core.defaults = {
     chatBackgroundOpacity = 0.4,
     messageLeading = 3,
     messageLinePadding = 0.25,
+    messageLeftPadding = 15,
 
     chatHoldTime = 10,
     chatFadeInDuration = 0.6,
