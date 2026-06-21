@@ -50,7 +50,7 @@ function ChatDockMixin:Init(parent)
   -- We create our own dock frame instead
 
   -- Gradient background. Opacity is user-configurable via the Top Bar settings.
-  self:SetGradientBackground(50, 250, Colors.black, Core.db.profile.dockBackgroundOpacity or 0.4)
+  self:SetGradientBackground(50, 250, Core.db.profile.dockBackgroundColor or Colors.black, Core.db.profile.dockBackgroundOpacity or 0.4)
 
   -- Override drag behaviour
   -- Disable undocking frames (if GENERAL_CHAT_DOCK exists)
@@ -96,8 +96,8 @@ function ChatDockMixin:Init(parent)
           self:SetWidth(Core.db.profile.frameWidth)
         end
 
-        if key == "frameWidth" or key == "dockBackgroundOpacity" then
-          self:SetGradientBackground(50, 250, Colors.black, Core.db.profile.dockBackgroundOpacity or 0.4)
+        if key == "frameWidth" or key == "dockBackgroundOpacity" or key == "dockBackgroundColor" then
+          self:SetGradientBackground(50, 250, Core.db.profile.dockBackgroundColor or Colors.black, Core.db.profile.dockBackgroundOpacity or 0.4)
         end
 
         if key == "tabsOnHover" then

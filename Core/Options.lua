@@ -289,8 +289,11 @@ Options.GenerateOptionsMenu = function(self)
 
 	-- Top-level tree. The Glass UI settings are merged in as additional
 	-- categories so everything lives under /cc (Glass no longer has /glass).
+	-- The version is read live from the .toc so the header always matches it.
+	local tocVersion = GetAddOnMetadata(Addon, "Version")
+	local title = tocVersion and ("CleanerChat V"..tocVersion) or "CleanerChat"
 	local options = {
-		name = "CleanerChat",
+		name = title,
 		type = "group",
 		args = {
 			cleanerchat = ccGroup,

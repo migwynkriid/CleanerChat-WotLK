@@ -34,7 +34,7 @@ function ScrollOverlayFrame:Init()
     -- Note: Mask textures are not available in WotLK 3.3.5
     -- We skip the mask functionality for this version
 
-    self:SetGradientBackground(15, 15, Colors.codGray, overlayOpacity)
+    self:SetGradientBackground(15, 15, Core.db.profile.chatBackgroundColor or Colors.codGray, overlayOpacity)
 
     -- Note: AddMaskTexture not available in WotLK 3.3.5
 

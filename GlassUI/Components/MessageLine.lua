@@ -126,7 +126,7 @@ function MessageLineMixin:Init()
   self:SetFadeOutDuration(Core.db.profile.chatFadeOutDuration)
 
   local rightBgWidth = math.min(250, Core.db.profile.frameWidth - 50)
-  self:SetGradientBackground(50, rightBgWidth, Colors.codGray, Core.db.profile.chatBackgroundOpacity)
+  self:SetGradientBackground(50, rightBgWidth, Core.db.profile.chatBackgroundColor or Colors.codGray, Core.db.profile.chatBackgroundOpacity)
 
   if self.text == nil then
     self.text = self:CreateFontString(nil, "ARTWORK", "GlassMessageFont")
@@ -216,7 +216,7 @@ function MessageLineMixin:UpdateFrame()
   self:SetHeight(stringHeight + Ypadding * 2)
 
   local rightBgWidth = math.min(250, Core.db.profile.frameWidth - 50)
-  self:SetGradientBackground(50, rightBgWidth, Colors.codGray, Core.db.profile.chatBackgroundOpacity)
+  self:SetGradientBackground(50, rightBgWidth, Core.db.profile.chatBackgroundColor or Colors.codGray, Core.db.profile.chatBackgroundOpacity)
 
   -- Reposition the faded icon overlays, then the clickable hyperlink overlays.
   self:UpdateIcons()
@@ -429,7 +429,7 @@ end
 -- Update texture color based on setting
 function MessageLineMixin:UpdateTextures()
   local rightBgWidth = math.min(250, Core.db.profile.frameWidth - 50)
-  self:SetGradientBackground(50, rightBgWidth, Colors.codGray, Core.db.profile.chatBackgroundOpacity)
+  self:SetGradientBackground(50, rightBgWidth, Core.db.profile.chatBackgroundColor or Colors.codGray, Core.db.profile.chatBackgroundOpacity)
 end
 
 local function CreateMessageLine(parent)

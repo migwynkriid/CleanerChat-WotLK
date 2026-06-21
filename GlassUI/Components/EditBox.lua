@@ -45,8 +45,9 @@ function EditBoxMixin:Init(parent)
   self.header:SetPoint("LEFT", 8, 0)
 
   local bg = self:CreateTexture(nil, "BACKGROUND")
+  local editBoxColor = Core.db.profile.editBoxBackgroundColor or Colors.codGray
   bg:SetColorTexture(
-    Colors.codGray.r, Colors.codGray.g, Colors.codGray.b, Core.db.profile.editBoxBackgroundOpacity
+    editBoxColor.r, editBoxColor.g, editBoxColor.b, Core.db.profile.editBoxBackgroundOpacity
   )
   bg:SetAllPoints()
 
@@ -151,9 +152,10 @@ function EditBoxMixin:Init(parent)
       self:SetWidth(Core.db.profile.frameWidth - 8 * 2)
     end
 
-    if key == "editBoxBackgroundOpacity" then
+    if key == "editBoxBackgroundOpacity" or key == "editBoxBackgroundColor" then
+      local color = Core.db.profile.editBoxBackgroundColor or Colors.codGray
       bg:SetColorTexture(
-        Colors.codGray.r, Colors.codGray.g, Colors.codGray.b, Core.db.profile.editBoxBackgroundOpacity
+        color.r, color.g, color.b, Core.db.profile.editBoxBackgroundOpacity
       )
     end
 

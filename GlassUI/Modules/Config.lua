@@ -54,6 +54,17 @@ function C:OnEnable()
                   end,
                   order = 2.1,
                 },
+                resetConfig = {
+                  name = "Reset config",
+                  desc = "Reset all Glass settings to their default values.",
+                  type = "execute",
+                  confirm = true,
+                  confirmText = "Reset all settings to their defaults?",
+                  func = function()
+                    Core.db:ResetProfile()
+                  end,
+                  order = 2.2,
+                },
               }
             },
             section2 = {
@@ -236,6 +247,22 @@ function C:OnEnable()
                     Core:Dispatch(UpdateConfig("editBoxBackgroundOpacity"))
                   end,
                 },
+                editBoxBackgroundColor = {
+                  name = "Background color",
+                  desc = "The colour of the edit box background.",
+                  type = "color",
+                  hasAlpha = false,
+                  order = 1.4,
+                  get = function ()
+                    local c = Core.db.profile.editBoxBackgroundColor
+                    return c.r, c.g, c.b
+                  end,
+                  set = function (info, r, g, b)
+                    local c = Core.db.profile.editBoxBackgroundColor
+                    c.r, c.g, c.b = r, g, b
+                    Core:Dispatch(UpdateConfig("editBoxBackgroundColor"))
+                  end,
+                },
               }
             },
             section2 = {
@@ -353,6 +380,22 @@ function C:OnEnable()
                   set = function (info, input)
                     Core.db.profile.chatBackgroundOpacity = input
                     Core:Dispatch(UpdateConfig("chatBackgroundOpacity"))
+                  end,
+                },
+                chatBackgroundColor = {
+                  name = "Background color",
+                  desc = "The colour of the chat message background.",
+                  type = "color",
+                  hasAlpha = false,
+                  order = 1.35,
+                  get = function ()
+                    local c = Core.db.profile.chatBackgroundColor
+                    return c.r, c.g, c.b
+                  end,
+                  set = function (info, r, g, b)
+                    local c = Core.db.profile.chatBackgroundColor
+                    c.r, c.g, c.b = r, g, b
+                    Core:Dispatch(UpdateConfig("chatBackgroundColor"))
                   end,
                 },
                 messageLeading = {
@@ -607,6 +650,22 @@ function C:OnEnable()
                     Core:Dispatch(UpdateConfig("dockBackgroundOpacity"))
                   end,
                 },
+                dockBackgroundColor = {
+                  name = "Background color",
+                  desc = "The colour of the top bar background.",
+                  type = "color",
+                  hasAlpha = false,
+                  order = 1.3,
+                  get = function ()
+                    local c = Core.db.profile.dockBackgroundColor
+                    return c.r, c.g, c.b
+                  end,
+                  set = function (info, r, g, b)
+                    local c = Core.db.profile.dockBackgroundColor
+                    c.r, c.g, c.b = r, g, b
+                    Core:Dispatch(UpdateConfig("dockBackgroundColor"))
+                  end,
+                },
               },
             },
             section2 = {
@@ -714,11 +773,19 @@ function C:RefreshConfig()
   -- Edit box
   Core:Dispatch(UpdateConfig("editBoxFontSize"))
   Core:Dispatch(UpdateConfig("editBoxBackgroundOpacity"))
+  Core:Dispatch(UpdateConfig("editBoxBackgroundColor"))
   Core:Dispatch(UpdateConfig("editBoxAnchor"))
 
   -- Messages
   Core:Dispatch(UpdateConfig("messageFontSize"))
   Core:Dispatch(UpdateConfig("chatBackgroundOpacity"))
+  Core:Dispatch(UpdateConfig("chatBackgroundColor"))
   Core:Dispatch(UpdateConfig("chatFadeInDuration"))
   Core:Dispatch(UpdateConfig("chatFadeOutDuration"))
+
+  -- Top bar (dock)
+  Core:Dispatch(UpdateConfig("dockFontSize"))
+  Core:Dispatch(UpdateConfig("dockBackgroundOpacity"))
+  Core:Dispatch(UpdateConfig("dockBackgroundColor"))
+  Core:Dispatch(UpdateConfig("tabsOnHover"))
 end
