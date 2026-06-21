@@ -35,34 +35,16 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
 
--- GLOBALS: CopyTable, GetAddOnEnableState, GetNumAddOns, UnitName, ReloadUI
+-- GLOBALS: CopyTable, ReloadUI
 
 -- Lua API
 local ipairs = ipairs
 local next = next
-local select = select
 local table_sort = table.sort
 local type = type
 
--- WoW API (GetAddOnEnableState is shimmed for 3.3.5 in Common/Compatibility.lua)
-local GetAddOnEnableState = GetAddOnEnableState
-local GetAddOnInfo = GetAddOnInfo
-local GetNumAddOns = GetNumAddOns
-
 -- Utility
 -------------------------------------------------------
-local hasaddons = function(...)
-	for i = 1,GetNumAddOns() do
-		local name, _, _, loadable = GetAddOnInfo(i)
-		for j = 1, select("#", ...) do
-			local addon = select(j, ...)
-			if (name == addon) then
-				return (loadable and not(GetAddOnEnableState(UnitName("player"), i) == 0))
-			end
-		end
-	end
-end
-
 local setter = function(info,val)
 	ns.db.filters[info[#info]] = val
 	local moduleName = ns:GetModuleNameFromFilter(info[#info])
@@ -86,23 +68,6 @@ end
 local optionDB = {
 	type = "group",
 	args = {
-		-- NOT YET IMPLEMENTED!
-		--styleWindows = {
-		--	order = 1,
-		--	name = L["Style Chat Windows"],
-		--	desc = L["Will apply a clean, minimalistic styling to the chat windows."],
-		--	width = "full",
-		--	type = "toggle",
-		--	disabled = function(info) return hasaddons("AzeriteUI","TukUI","ElvUI","KkthnxUI","Prat-3.0","ls_Glass") end,
-		--	set = function(info,value)
-		--		ns.db.styling = value
-		--		local windows = ns:GetModule("Windows", true)
-		--		if (windows) then
-		--			windows:UpdateSettings()
-		--		end
-		--	end,
-		--	get = function(info) return ns.db.styling end,
-		--},
 		channelNameMode = {
 			order = 10,
 			name = L["Channel Name Style"],
@@ -111,7 +76,7 @@ local optionDB = {
 			type = "select",
 			values = {
 				initial = L["Shortened (e.g. \"[G]\")"],
-				full = L["Full name (e.g. \"General\")"],
+				full = L["Full name (e.g. \"[General]\")"],
 			},
 			disabled = function(info) return not ns.db.filters.channels end,
 			set = function(info,value) ns.db.channelNameMode = value; Options:UpdateReloadStatus() end,
@@ -170,6 +135,15 @@ local optionDB = {
 			order = 100,
 			type = "header",
 			name = L["Filter Selection"]
+		},
+		moneyPrettify = {
+			order = 105,
+			name = L["Prettify Money"],
+			desc = L["Display money gains and losses with coin icons (e.g. \"+ 28\"). When off, uses the default Blizzard text format."],
+			width = "full",
+			type = "toggle",
+			set = function(info,value) ns.db.moneyPrettify = value; Options:UpdateReloadStatus() end,
+			get = function(info) return ns.db.moneyPrettify end,
 		}
 	}
 }
@@ -342,6 +316,7 @@ Options.TakeSettingsSnapshot = function(self)
 		channelNumber = ns.db.channelNumber,
 		channelCapitalize = ns.db.channelCapitalize,
 		capitalizeNames = ns.db.capitalizeNames,
+		moneyPrettify = ns.db.moneyPrettify,
 		filters = CopyTable(ns.db.filters)
 	}
 end
@@ -355,6 +330,7 @@ Options.IsDirty = function(self)
 	if (snapshot.channelNumber ~= ns.db.channelNumber) then return true end
 	if (snapshot.channelCapitalize ~= ns.db.channelCapitalize) then return true end
 	if (snapshot.capitalizeNames ~= ns.db.capitalizeNames) then return true end
+	if (snapshot.moneyPrettify ~= ns.db.moneyPrettify) then return true end
 	for key,value in next,snapshot.filters do
 		if (ns.db.filters[key] ~= value) then return true end
 	end

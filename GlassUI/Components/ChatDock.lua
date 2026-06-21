@@ -5,6 +5,8 @@ local LibEasing = Core.Libs.LibEasing
 
 local Colors = Constants.COLORS
 
+local EDIT_FOCUS_GAINED = Constants.EVENTS.EDIT_FOCUS_GAINED
+local EDIT_FOCUS_LOST = Constants.EVENTS.EDIT_FOCUS_LOST
 local MOUSE_ENTER = Constants.EVENTS.MOUSE_ENTER
 local MOUSE_LEAVE = Constants.EVENTS.MOUSE_LEAVE
 local UPDATE_CONFIG = Constants.EVENTS.UPDATE_CONFIG
@@ -65,22 +67,29 @@ function ChatDockMixin:Init(parent)
     end, true)
   end
 
-  -- Show the dock initially, then fade the tabs out after the hold time.
-  -- (Glass behaviour: tabs are revealed on hover and fade out when idle.)
+  -- Show the dock initially, then fade the tabs out after the hold time
+  -- (only if tabsOnHover is enabled).
   self:Show()
-  self:FadeOutTabs()
+  self:SetAlpha(1)
+  if Core.db.profile.tabsOnHover then
+    self:FadeOutTabs()
+  end
 
   if self.subscriptions == nil then
     self.subscriptions = {
       Core:Subscribe(MOUSE_ENTER, function ()
         -- Reveal the tabs while the mouse is over the chat
         self.state.mouseOver = true
-        self:ShowTabs()
+        if Core.db.profile.tabsOnHover then
+          self:ShowTabs()
+        end
       end),
       Core:Subscribe(MOUSE_LEAVE, function ()
         -- Fade the tabs out after the configured delay
         self.state.mouseOver = false
-        self:FadeOutTabs()
+        if Core.db.profile.tabsOnHover then
+          self:FadeOutTabs()
+        end
       end),
       Core:Subscribe(UPDATE_CONFIG, function (key)
         if key == "frameWidth" then
@@ -89,6 +98,16 @@ function ChatDockMixin:Init(parent)
 
         if key == "frameWidth" or key == "dockBackgroundOpacity" then
           self:SetGradientBackground(50, 250, Colors.black, Core.db.profile.dockBackgroundOpacity or 0.4)
+        end
+
+        if key == "tabsOnHover" then
+          if Core.db.profile.tabsOnHover then
+            -- Tabs on hover enabled - start fade out timer
+            self:FadeOutTabs()
+          else
+            -- Tabs always visible - cancel any fade and show
+            self:ShowTabs()
+          end
         end
       end)
     }

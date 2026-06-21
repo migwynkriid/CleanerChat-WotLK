@@ -23,7 +23,6 @@
 	<Script file="Modules\Config.lua"/>
 	<Script file="Modules\Fonts.lua"/>
 	<Script file="Modules\Hyperlinks.lua"/>
-	<Script file="Modules\News.lua"/>
 	<Script file="Modules\TextProcessing.lua"/>
 	<Script file="Modules\UIManager.lua"/>
 

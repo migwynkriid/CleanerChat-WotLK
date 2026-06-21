@@ -42,7 +42,7 @@ local table_insert = table.insert
 -- Rebuilds a channel link from its captured pieces according to the
 -- user's preferences:
 --   * channelNameMode  -> "initial" shows the first letter (e.g. "[G]"),
---                         "full" shows the whole name (e.g. "General").
+--                         "full" shows the whole name (e.g. "[General]").
 --   * channelNumber    -> when true, prefixes the channel number, e.g. "1. ".
 --   * channelCapitalize-> when true, capitalizes the first letter.
 -- e.g. "|Hchannel:CHANNEL:1|h[1. General - The Barrens]|h" -> "1. [G]"
@@ -63,8 +63,10 @@ local formatChannelTag = function(channel, number, displaynum, name)
 		if (capitalize) then
 			label = string_upper(label)
 		end
-		label = "["..label.."]"
 	end
+
+	-- Both modes are wrapped in brackets, e.g. "[G]" or "[General]".
+	label = "["..label.."]"
 
 	local prefix = ""
 	if (showNumber) then

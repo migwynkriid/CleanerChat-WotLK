@@ -1,8 +1,8 @@
 ## Interface: 30300
 
-## Title: Cleaner|cffffd200Chat|r
-## Notes: Cleans up the chat, making it prettier and easier on the eye.
-## Version: 2.0.59-335
+## Title: |cffDFBA69CleanerChat|r
+## Notes: Filters chat clutter (loot, XP, rep, achievements, etc.) and replaces the default chat with an immersive, modern UI. Type /cc for options.
+## Version: 1.0
 ## Author: migwynkriid
 
 ## X-Category: Interface Enhancements

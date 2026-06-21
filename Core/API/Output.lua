@@ -110,7 +110,6 @@ out.craft_single_other = '%s *gray*created:** %s'
 out.craft_multiple_other = '%s *gray*created:** %s *offwhite*(%d)**'
 out.item_deficit = "*red*- %s**"
 out.item_deficit_multiple = "*red*- %s** *offwhite*(%d)**"
-out.item_transfer = "*green*+** *white*%s:** %s"
 out.money = plus
 out.money_deficit = "*gray*-** %s"
 out.objective_status = plus_yellow
@@ -146,7 +145,5 @@ out.roll_all_passed = "*gray*All Passed:** %s"
 -- Level up outputs (3.3.5)
 out.levelup_ding = "*yellow*Level %d**"
 out.levelup_hp = "*green*+** *white*%d** *green*HP**"
-out.levelup_talent = "*green*+** *white*%d** *yellow*Talent Point**"
-out.levelup_talents = "*green*+** *white*%d** *yellow*Talent Points**"
 out.levelup_stat = "*green*+** *white*%d** *green*%s**"
-out.levelup_essence = "*darkorange*Unspent Talent Essence**"
+out.levelup_essence = "*green*+** *darkorange*Unspent Talent Essence**"

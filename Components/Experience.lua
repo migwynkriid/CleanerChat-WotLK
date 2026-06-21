@@ -73,14 +73,6 @@ local G = {
 
 	-- "Congratulations, you have reached |cffFF4E00|Hlevelup:%d:LEVEL_UP_TYPE_CHARACTER|h[Level %d]|h|r!"
 	LEVEL_UP = LEVEL_UP,
-
-	-- 3.3.5 level up messages (plain text format)
-	LEVEL_UP_335 = "Congratulations, you have reached level %d!",
-	GAINED_HP = "You have gained %d hit points.",
-	GAINED_TALENT = "You have gained %d talent point.",
-	GAINED_TALENTS = "You have gained %d talent points.",
-	STAT_INCREASE = "Your %s increases by %d.",
-	UNSPENT_TALENT_ESSENCE = "Unspent Talent Essence"
 }
 
 
@@ -167,17 +159,10 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 			end
 		end
 
-		-- Talent point(s) gained on level up
+		-- Talent point(s) gained on level up - hidden entirely so only the
+		-- Ascension "Unspent Talent Essence" line is shown below.
 		if (string_find(message, "You have gained") and string_find(message, "talent point")) then
-			local points = string_match(message, "gained (%d+)")
-			if (points) then
-				local num = tonumber(points)
-				if (num > 1) then
-					return false, string_format(ns.out.levelup_talents, num), author, ...
-				else
-					return false, string_format(ns.out.levelup_talent, num), author, ...
-				end
-			end
+			return true
 		end
 
 		-- Stat increases on level up: "Your Strength increases by 1."
@@ -223,15 +208,6 @@ local levelupReplacement = function(msg)
 		end
 	end
 
-	-- "You have gained 1 talent point(s)."
-	if (string_find(msg, "talent point")) then
-		local points = string_match(msg, "gained (%d+)")
-		if (points) then
-			local num = tonumber(points)
-			return string_format(num > 1 and ns.out.levelup_talents or ns.out.levelup_talent, num)
-		end
-	end
-
 	-- "Your Strength increases by 1."
 	if (string_find(msg, "increases by")) then
 		local stat, amount = string_match(msg, "Your (%a+) increases by (%d+)")
@@ -248,17 +224,33 @@ local levelupReplacement = function(msg)
 	return msg
 end
 
+-- Blacklist: drop the "You have gained X talent point(s)." line entirely.
+-- On Ascension, talent progression is shown by the "Unspent Talent Essence"
+-- line instead, so the redundant talent-point message is hidden here. This runs
+-- at the AddMessage layer, catching it no matter how the server prints it.
+Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
+	if (msg and string_find(msg, "You have gained") and string_find(msg, "talent point")) then
+		return true
+	end
+end
+
 local onChatEventProxy = function(...)
 	return Module:OnChatEvent(...)
 end
 
+local onAddMessageProxy = function(...)
+	return Module:OnAddMessage(...)
+end
+
 Module.OnEnable = function(self)
+	self:RegisterBlacklistFilter(onAddMessageProxy)
 	self:RegisterMessageEventFilter("CHAT_MSG_COMBAT_XP_GAIN", onChatEventProxy)
 	self:RegisterMessageEventFilter("CHAT_MSG_SYSTEM", onChatEventProxy)
 	self:RegisterMessageReplacement(levelupReplacement, true)
 end
 
 Module.OnDisable = function(self)
+	self:UnregisterBlacklistFilter(onAddMessageProxy)
 	self:UnregisterMessageEventFilter("CHAT_MSG_COMBAT_XP_GAIN", onChatEventProxy)
 	self:UnregisterMessageEventFilter("CHAT_MSG_SYSTEM", onChatEventProxy)
 	self:UnregisterMessageReplacement(levelupReplacement)

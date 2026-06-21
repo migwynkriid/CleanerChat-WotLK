@@ -253,11 +253,11 @@ ns:SetDefaultModulePrototype(modulePrototype)
 
 -- Addon default settings.
 local defaults = {
-	styling = true, -- will be ignored when conflicting addons are detected
 	channelNameMode = "initial", -- "initial" shows the first letter (e.g. "[G]"), "full" shows the whole name
 	channelNumber = true, -- prefix the channel display with its number, e.g. "1. "
 	channelCapitalize = true, -- capitalize the channel name/initial
 	capitalizeNames = true, -- capitalize the first letter of player names
+	moneyPrettify = true, -- use spaces in large gold amounts (e.g. "1 234" instead of "1234")
 	hideOtherCrafts = false, -- hide other players' "<name> creates <item>" craft broadcasts
 	hideUIErrors = true, -- hide the server's "UI Error: an interface error occured" chat notification
 	filters = {
@@ -483,8 +483,6 @@ ns.OnInitialize = function(self)
 end
 
 ns.OnEnable = function(self)
-
-	self.WAIT_FOR_EXTERNAL = ns.API.IsAddOnEnabled("AzeriteUI")
 
 	-- Initial caching of all chat frame message methods.
 	self:CacheAllMessageMethods()

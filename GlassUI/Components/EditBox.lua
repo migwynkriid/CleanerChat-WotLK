@@ -4,6 +4,8 @@ local AceHook = Core.Libs.AceHook
 
 local Colors = Constants.COLORS
 
+local EditFocusGained = Constants.ACTIONS.EditFocusGained
+local EditFocusLost = Constants.ACTIONS.EditFocusLost
 local UPDATE_CONFIG = Constants.EVENTS.UPDATE_CONFIG
 
 -- luacheck: push ignore 113
@@ -112,6 +114,30 @@ function EditBoxMixin:Init(parent)
   -- animations means no deferred hide and no show/hide race.
   self:SetScript("OnShow", function ()
     self:SetAlpha(1)
+  end)
+
+  -- When the edit box gains focus (user presses Enter or clicks), reveal the
+  -- chat messages if the option is enabled.
+  local oldOnEditFocusGained = self:GetScript("OnEditFocusGained")
+  self:SetScript("OnEditFocusGained", function (frame, ...)
+    if Core.db.profile.showOnEditFocus then
+      Core:Dispatch(EditFocusGained())
+    end
+    if oldOnEditFocusGained then
+      oldOnEditFocusGained(frame, ...)
+    end
+  end)
+
+  -- When the edit box loses focus, start the fade out if showOnEditFocus is enabled.
+  -- This ensures the mouseOver state is properly reset when typing is done.
+  local oldOnEditFocusLost = self:GetScript("OnEditFocusLost")
+  self:SetScript("OnEditFocusLost", function (frame, ...)
+    if Core.db.profile.showOnEditFocus then
+      Core:Dispatch(EditFocusLost())
+    end
+    if oldOnEditFocusLost then
+      oldOnEditFocusLost(frame, ...)
+    end
   end)
 
   Core:Subscribe(UPDATE_CONFIG, function (key)

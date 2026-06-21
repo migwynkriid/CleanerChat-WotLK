@@ -22,6 +22,8 @@ local drop, reduce, take = lodash.drop, lodash.reduce, lodash.take
 local CreateMessageLinePool = Core.Components.CreateMessageLinePool
 local CreateScrollOverlayFrame = Core.Components.CreateScrollOverlayFrame
 
+local EDIT_FOCUS_GAINED = Constants.EVENTS.EDIT_FOCUS_GAINED
+local EDIT_FOCUS_LOST = Constants.EVENTS.EDIT_FOCUS_LOST
 local MOUSE_ENTER = Constants.EVENTS.MOUSE_ENTER
 local MOUSE_LEAVE = Constants.EVENTS.MOUSE_LEAVE
 local UPDATE_CONFIG = Constants.EVENTS.UPDATE_CONFIG
@@ -49,7 +51,6 @@ function SlidingMessageFrameMixin:Init(chatFrame)
     mouseOver = false,
     showingTooltip = false,
     prevEasingHandle = nil,
-    incomingScrollbackMessages = {},
     incomingMessages = {},
     messages = {},
     head = nil,
@@ -268,6 +269,14 @@ function SlidingMessageFrameMixin:Init(chatFrame)
             message.hideTimer = nil
           end
         end
+
+        -- If messagesOnHover is enabled, fade in all messages
+        if Core.db.profile.messagesOnHover then
+          local fadeDuration = Core.db.profile.chatFadeInDuration or 0.3
+          for _, message in ipairs(self.state.messages) do
+            message:FadeIn(fadeDuration)
+          end
+        end
       end),
       Core:Subscribe(MOUSE_LEAVE, function ()
         -- Hide chats when mouse leaves
@@ -275,6 +284,35 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 
         self.overlay:HideDelay(Core.db.profile.chatHoldTime)
 
+        -- Always fade out messages when mouse leaves
+        for _, message in ipairs(self.state.messages) do
+          message:HideDelay(Core.db.profile.chatHoldTime)
+        end
+      end),
+      -- Edit focus shows ALL messages regardless of messagesOnHover setting
+      Core:Subscribe(EDIT_FOCUS_GAINED, function ()
+        self.state.mouseOver = true
+        
+        -- Cancel all hide timers
+        for _, message in ipairs(self.state.messages) do
+          if message.hideTimer then
+            message.hideTimer:Cancel()
+            message.hideTimer = nil
+          end
+        end
+        
+        -- Always show ALL messages with animation when edit box is focused
+        local fadeDuration = Core.db.profile.chatFadeInDuration or 0.3
+        for _, message in ipairs(self.state.messages) do
+          message:FadeIn(fadeDuration)
+        end
+      end),
+      Core:Subscribe(EDIT_FOCUS_LOST, function ()
+        self.state.mouseOver = false
+        
+        self.overlay:HideDelay(Core.db.profile.chatHoldTime)
+        
+        -- Start fade out timers for all messages
         for _, message in ipairs(self.state.messages) do
           message:HideDelay(Core.db.profile.chatHoldTime)
         end
@@ -322,6 +360,15 @@ function SlidingMessageFrameMixin:Init(chatFrame)
               message:UpdateTextures()
             end
           end
+
+          if key == "messagesOnHover" then
+            -- When toggled, just show current messages if mouse is over and option is now enabled
+            if Core.db.profile.messagesOnHover and self.state.mouseOver then
+              for _, message in ipairs(self.state.messages) do
+                message:Show()
+              end
+            end
+          end
         end
       end)
     }
@@ -349,11 +396,6 @@ function SlidingMessageFrameMixin:AddMessage(...)
   -- Enqueue messages to be displayed
   local args = {...}
   table.insert(self.state.incomingMessages, args)
-end
-
-function SlidingMessageFrameMixin:BackFillMessage(...)
-  local args = {...}
-  table.insert(self.state.incomingScrollbackMessages, args)
 end
 
 -- Recompute the scroll-child height from the current message heights, keeping
@@ -396,20 +438,11 @@ function SlidingMessageFrameMixin:OnFrame()
       table.insert(incoming, message)
     end
     self.state.incomingMessages = {}
-    self:Update(incoming, false)
-  end
-
-  if #self.state.incomingScrollbackMessages > 0 then
-    local incoming = {}
-    for _, message in ipairs(self.state.incomingScrollbackMessages) do
-      table.insert(incoming, message)
-    end
-    self.state.incomingScrollbackMessages = {}
-    self:Update(incoming, true)
+    self:Update(incoming)
   end
 end
 
-function SlidingMessageFrameMixin:Update(incoming, reverse)
+function SlidingMessageFrameMixin:Update(incoming)
   -- Create new message frame for each message
   local newMessages = {}
 
@@ -418,16 +451,9 @@ function SlidingMessageFrameMixin:Update(incoming, reverse)
     messageFrame:SetPoint("BOTTOMLEFT")
 
     -- Attach previous messageFrame to this one
-    if reverse then
-      if self.state.tail then
-        messageFrame:ClearAllPoints()
-        messageFrame:SetPoint("BOTTOMLEFT", self.state.tail, "TOPLEFT")
-      end
-    else
-      if self.state.head then
-        self.state.head:ClearAllPoints()
-        self.state.head:SetPoint("BOTTOMLEFT", messageFrame, "TOPLEFT")
-      end
+    if self.state.head then
+      self.state.head:ClearAllPoints()
+      self.state.head:SetPoint("BOTTOMLEFT", messageFrame, "TOPLEFT")
     end
 
     if self.state.tail == nil then
@@ -438,11 +464,7 @@ function SlidingMessageFrameMixin:Update(incoming, reverse)
       self.state.head = messageFrame
     end
 
-    if reverse then
-      self.state.tail = messageFrame
-    else
-      self.state.head = messageFrame
-    end
+    self.state.head = messageFrame
 
     table.insert(newMessages, messageFrame)
   end
@@ -488,14 +510,11 @@ function SlidingMessageFrameMixin:Update(incoming, reverse)
 
   for _, message in ipairs(newMessages) do
     message:Show()
+    -- Always fade out new messages when mouse is not over
     if not self.state.mouseOver then
       message:HideDelay(Core.db.profile.chatHoldTime)
     end
-    if reverse then
-      table.insert(self.state.messages, 1, message)
-    else
-      table.insert(self.state.messages, message)
-    end
+    table.insert(self.state.messages, message)
 
     -- Queue for a next-frame re-measure so the layout is corrected once the
     -- engine has laid the text out (fixes overlapping messages).
@@ -553,7 +572,6 @@ local function CreateSlidingMessageFramePool(parent)
         smf.state.tail = nil
         smf.state.messages = {}
         smf.state.incomingMessages = {}
-        smf.state.incomingScrollbackMessages = {}
       end
 
       if smf.messageFramePool ~= nil then

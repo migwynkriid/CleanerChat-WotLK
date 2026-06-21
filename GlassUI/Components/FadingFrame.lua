@@ -115,6 +115,47 @@ function FadingFrameMixin:Show()
   -- Fade-in itself is driven by the SlidingMessageFrame slide animation.
 end
 
+-- Fade in with animation (for hover/focus reveal)
+function FadingFrameMixin:FadeIn(duration)
+  -- Cancel any pending hide / in-flight fade
+  if self.hideTimer ~= nil then
+    self.hideTimer:Cancel()
+    self.hideTimer = nil
+  end
+
+  if self.fadeHandle and LibEasing then
+    LibEasing:StopEasing(self.fadeHandle)
+    self.fadeHandle = nil
+  end
+
+  self:StopAnimating()
+  
+  duration = duration or (self.fadeInDuration or 0.3)
+  local startAlpha = self:GetAlpha()
+  
+  if not self:IsVisible() then
+    self:SetAlpha(0)
+    startAlpha = 0
+    Frame_Show(self)
+  end
+  
+  if duration > 0 and startAlpha < 1 and LibEasing then
+    self.fadeHandle = LibEasing:Ease(
+      function (alpha) self:SetAlpha(alpha) end,
+      startAlpha,
+      1,
+      duration,
+      LibEasing.OutCubic,
+      function ()
+        self.fadeHandle = nil
+        self:SetAlpha(1)
+      end
+    )
+  else
+    self:SetAlpha(1)
+  end
+end
+
 function FadingFrameMixin:Hide()
   if self.hideTimer ~= nil then
     self.hideTimer:Cancel()

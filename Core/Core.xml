@@ -4,7 +4,6 @@
 	<Script file="Private.lua"/>
 
 	<!-- Data -->
-	<Script file="Common\Compatibility.lua"/>
 	<Script file="Common\Constants.lua"/>
 	<Script file="Common\Colors.lua"/>
 
@@ -13,9 +12,6 @@
 		* Can rely on anything in the data folder.
 		* Should not cross-reference API files.
 	-->
-	<Script file="API\Addons.lua"/>
-	<Script file="API\Assets.lua"/>
-	<Script file="API\Colors.lua"/>
 	<Script file="API\Output.lua"/>
 	<Script file="API\Utils.lua"/>
 

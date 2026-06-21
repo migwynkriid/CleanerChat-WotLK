@@ -50,12 +50,6 @@ local tonumber = tonumber
 -- WoW Globals (keep nil if missing - empty string patterns match everything!)
 local G = {
 
-	-- Retail-only features kept for potential future use
-	LEARN_HEIRLOOM = ERR_LEARN_HEIRLOOM_S, -- "%s has been added to your heirloom collection."
-	LEARN_TRANSMOG = ERR_LEARN_TRANSMOG_S, -- "%s has been added to your appearance collection."
-	HEIRLOOMS = HEIRLOOMS or "Heirlooms", -- "Heirlooms"
-	WARDROBE = WARDROBE, -- "Appearances"
-
 	-- 3.3.5 globals
 	HONOR_POINTS = HONOR_POINTS or "Honor Points", -- "Honor Points"
 	COMBATLOG_HONORAWARD = COMBATLOG_HONORAWARD, -- "You have been awarded %d honor points."
@@ -165,17 +159,9 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 					local countString = string_sub(message, last + 1)
 					local count = tonumber(string_match(countString, "(%d+)"))
 					if (count) and (count > 1) then
-						--if (name) then
-						--	return false, string_format(ns.out.item_multiple_other, name, item, count), author, ...
-						--else
-							return false, string_format(ns.out.item_multiple, item, count), author, ...
-						--end
+						return false, string_format(ns.out.item_multiple, item, count), author, ...
 					else
-						--if (name) then
-						--	return false, string_format(ns.out.item_single_other, name, item), author, ...
-						--else
-							return false, string_format(ns.out.item_single, item), author, ...
-						--end
+						return false, string_format(ns.out.item_single, item), author, ...
 					end
 				end
 			end
@@ -384,23 +370,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 			return true
 		end
 
-		-- When new transmogs are learned and put into the appearance collection.
-		local appearance = safeMatch(message, P[G.LEARN_TRANSMOG])
-		if (appearance) then
-			return false, string_format(ns.out.item_transfer, G.WARDROBE or "Appearances", appearance), author, ...
-		end
-
-		-- When a new heirloom is learned
-		local heirloom = safeMatch(message, P[G.LEARN_HEIRLOOM])
-		if (heirloom) then
-			return false, string_format(ns.out.item_transfer, G.HEIRLOOMS, heirloom), author, ...
-		end
-
 	end
-end
-
-Module.OnReplacementSet = function(self, msg, r, g, b, chatID, ...)
-	-- Nothing needed for 3.3.5
 end
 
 Module.OnInitialize = function(self)
@@ -491,13 +461,8 @@ local onChatEventProxy = function(...)
 	return Module:OnChatEvent(...)
 end
 
-local onReplacementSetProxy = function(...)
-	return Module:OnChatEvent(...)
-end
-
 Module.OnEnable = function(self)
 	self:RegisterBlacklistFilter(onAddMessageProxy)
-	self:RegisterMessageReplacement(onReplacementSetProxy)
 	self:RegisterMessageEventFilter("CHAT_MSG_COMBAT_HONOR_GAIN", onChatEventProxy)
 	self:RegisterMessageEventFilter("CHAT_MSG_CURRENCY", onChatEventProxy)
 	self:RegisterMessageEventFilter("CHAT_MSG_LOOT", onChatEventProxy)
@@ -525,7 +490,6 @@ end
 
 Module.OnDisable = function(self)
 	self:UnregisterBlacklistFilter(onAddMessageProxy)
-	self:UnregisterMessageReplacement(onReplacementSetProxy)
 	self:UnregisterMessageEventFilter("CHAT_MSG_COMBAT_HONOR_GAIN", onChatEventProxy)
 	self:UnregisterMessageEventFilter("CHAT_MSG_CURRENCY", onChatEventProxy)
 	self:UnregisterMessageEventFilter("CHAT_MSG_LOOT", onChatEventProxy)

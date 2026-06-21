@@ -51,19 +51,13 @@ local G = {
 	SILVER_AMOUNT_SYMBOL = SILVER_AMOUNT_SYMBOL,
 	COPPER_AMOUNT = COPPER_AMOUNT,
 	COPPER_AMOUNT_SYMBOL = COPPER_AMOUNT_SYMBOL,
-	LARGE_NUMBER_SEPERATOR = LARGE_NUMBER_SEPERATOR or ",",
-	ANIMA = POWER_TYPE_ANIMA, -- May be nil (Shadowlands+)
-	ANIMA_V2 = POWER_TYPE_ANIMA_V2, -- May be nil (Shadowlands+)
-	ANIMA_LABEL = POWER_TYPE_ANIMA and (ns.Colors.quality.Rare.colorCode .. POWER_TYPE_ANIMA .. "|r") or nil
+	LARGE_NUMBER_SEPERATOR = LARGE_NUMBER_SEPERATOR or ","
 }
-
--- To correctly track frame and font sizes
-local CURRENT_CHAT_FRAME
 
 -- Return a coin texture string.
 -- Note: In 3.3.5, always use Blizzard coin icons for reliability
 local Coin = setmetatable({}, { __index = function(t,k)
-	local frame = CURRENT_CHAT_FRAME or DEFAULT_CHAT_FRAME or ChatFrame1
+	local frame = DEFAULT_CHAT_FRAME or ChatFrame1
 	local _,size = frame:GetFont()
 
 	size = size or 20
@@ -90,10 +84,6 @@ local P = setmetatable({}, { __index = function(t,k)
 	rawset(t,k,makePattern(k))
 	return rawget(t,k)
 end })
-
--- Add ANIMA patterns if they exist (Shadowlands+)
-if (G.ANIMA) then P[G.ANIMA] = "^(%d+) "..G.ANIMA end
-if (G.ANIMA_V2) then P[G.ANIMA_V2] = "^(%d+) "..G.ANIMA_V2 end
 
 -- Remove large number formatting
 local simplifyNumbers = function(message)
@@ -138,7 +128,8 @@ local formatMoney = function(gold, silver, copper, colorCode)
 	colorCode = colorCode or "|cfff0f0f0"
 	local msg
 	if (gold and gold > 0) then
-		msg = string_format(colorCode.."%s|r%s", prettify(gold), Coin["Gold"])
+		local goldStr = (ns.db == nil or ns.db.moneyPrettify) and prettify(gold) or tostring(gold)
+		msg = string_format(colorCode.."%s|r%s", goldStr, Coin["Gold"])
 	end
 	if (silver and silver > 0) then
 		msg = (msg and msg.." " or "") .. string_format(colorCode.."%d|r%s", silver, Coin["Silver"])
@@ -236,6 +227,9 @@ local parseForMoney = function(message)
 end
 
 Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
+	-- If prettify is disabled, let all money messages through unchanged.
+	if (ns.db ~= nil) and (not ns.db.moneyPrettify) then return end
+
 	-- Don't blacklist the clean money line we emit ourselves -- it carries coin
 	-- icons too, so it would otherwise match here and get dropped.
 	if (self.emittingOwnMessage) then return end
@@ -248,27 +242,11 @@ end
 
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 	if (event == "CHAT_MSG_MONEY") then
+		-- If prettify is disabled, let the default message through.
+		if (ns.db ~= nil) and (not ns.db.moneyPrettify) then return end
 		-- We always hide this when this filter is active,
 		-- so no need for any checks of any sort here.
 		return true
-	end
-end
-
--- This might be triggered by C_CovenantSanctumUI.DepositAnima(),
--- and not sent into any chat channels or through any event handlers.
--- Good thing about this is that we don't need to parse for sender,
--- or make exceptions to avoid false positives from normal chat.
--- If it starts with the number, it can't be a player message,
--- because the channel or their name link would then be first.
-Module.OnReplacementSet = function(self, msg, r, g, b, chatID, ...)
-	local anima = string_match(simplifyNumbers(msg), P[G.ANIMA])
-	if (anima) then
-		return string_format(ns.out.item_multiple, G.ANIMA_LABEL, anima)
-	end
-
-	anima = string_match(simplifyNumbers(msg), P[G.ANIMA_V2])
-	if (anima) then
-		return string_format(ns.out.item_multiple, G.ANIMA_LABEL, anima)
 	end
 end
 
@@ -305,6 +283,12 @@ Module.OnEvent = function(self, event, ...)
 
 	elseif (event == "PLAYER_MONEY") then
 		local currentMoney = GetMoney()
+
+		-- If prettify is disabled, skip our custom output entirely.
+		if (ns.db ~= nil) and (not ns.db.moneyPrettify) then
+			self.playerMoney = currentMoney
+			return
+		end
 
 		-- Money changes are reported immediately as they happen, including while a
 		-- vendor/mail/trainer window is open -- buying and selling each fire
@@ -357,10 +341,6 @@ local onAddMessageProxy = function(...)
 	return Module:OnAddMessage(...)
 end
 
-local onReplacementSetProxy = function(...)
-	return Module:OnReplacementSet(...)
-end
-
 Module.OnEnable = function(self)
 
 	self.playerMoney = GetMoney()
@@ -369,10 +349,6 @@ Module.OnEnable = function(self)
 	self:RegisterEvent("PLAYER_MONEY", "OnEvent")
 
 	self:RegisterBlacklistFilter(onAddMessageProxy)
-
-	if (ns.IsWoW10) then
-		self:RegisterMessageReplacement(onReplacementSetProxy)
-	end
 
 	self:RegisterMessageEventFilter("CHAT_MSG_MONEY", onChatEventProxy)
 end
@@ -385,10 +361,6 @@ Module.OnDisable = function(self)
 	self:UnregisterEvent("PLAYER_MONEY", "OnEvent")
 
 	self:UnregisterBlacklistFilter(onAddMessageProxy)
-
-	if (ns.IsWoW10) then
-		self:UnregisterMessageReplacement(onReplacementSetProxy)
-	end
 
 	self:UnregisterMessageEventFilter("CHAT_MSG_MONEY", onChatEventProxy)
 end

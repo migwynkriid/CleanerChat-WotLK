@@ -30,14 +30,10 @@ local Module = ns:NewModule("Spells")
 -- Addon Localization
 local L = LibStub("AceLocale-3.0"):GetLocale((...))
 
--- GLOBALS: DEFAULT_CHAT_FRAME
--- GLOBALS: C_Timer, ChatTypeInfo, GetTime,
-
 -- Lua API
 local rawget = rawget
 local rawset = rawset
 local setmetatable = setmetatable
-local string_format = string.format
 local string_match = string.match
 
 -- WoW Globals (with 3.3.5 fallbacks)
@@ -45,8 +41,7 @@ local G = {
 	LEARN_ABILITY = ERR_LEARN_ABILITY_S or "You have learned a new ability: %s.",
 	LEARN_PASSIVE = ERR_LEARN_PASSIVE_S or "You have learned a new passive effect: %s.",
 	LEARN_SPELL = ERR_LEARN_SPELL_S or "You have learned a new spell: %s.",
-	SPELL_UNLEARNED = ERR_SPELL_UNLEARNED_S or "You have unlearned %s.",
-	SPELLS = SPELLS or "Spells"
+	SPELL_UNLEARNED = ERR_SPELL_UNLEARNED_S or "You have unlearned %s."
 }
 
 -- Convert a WoW global string to a search pattern
@@ -89,93 +84,14 @@ Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
 	end
 end
 
-Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
-
-	local now = GetTime()
-
-	local ability = safeMatch(message,P[G.LEARN_ABILITY])
-	if (ability) then
-		self.abilities = self.abilities + 1
-		self.latest = now
-	end
-
-	local passive = safeMatch(message,P[G.LEARN_PASSIVE])
-	if (passive) then
-		self.passives = self.passives + 1
-		self.latest = now
-	end
-
-	local spell = safeMatch(message,P[G.LEARN_SPELL])
-	if (spell) then
-		self.spells = self.spells + 1
-		self.latest = now
-	end
-
-	local unlearned = safeMatch(message,P[G.SPELL_UNLEARNED])
-	if (unlearned) then
-		self.unlearned = self.unlearned + 1
-		self.latest = now
-	end
-
-	if (not self.timer) then
-
-		self.timer = C_Timer.NewTicker(.1, function()
-			local now = GetTime()
-			if (now > (self.latest + 1)) then
-
-				local info = ChatTypeInfo["SYSTEM"]
-
-				local msg
-				local learned = self.abilities + self.passives + self.spells
-				if (learned > 1) then
-					DEFAULT_CHAT_FRAME:AddMessage(string_format(ns.out.item_multiple, G.SPELLS, learned), info.r, info.g, info.b)
-				elseif (learned > 0) then
-					DEFAULT_CHAT_FRAME:AddMessage(string_format(ns.out.item_single, G.SPELLS), info.r, info.g, info.b)
-				end
-
-				if (self.unlearned > 1) then
-					DEFAULT_CHAT_FRAME:AddMessage(string_format(ns.out.item_deficit_multiple, G.SPELLS, self.unlearned), info.r, info.g, info.b)
-				elseif (self.unlearned > 0) then
-					DEFAULT_CHAT_FRAME:AddMessage(string_format(ns.out.item_deficit, G.SPELLS), info.r, info.g, info.b)
-				end
-
-				self.abilities = 0
-				self.passives = 0
-				self.spells = 0
-				self.unlearned = 0
-
-				self.timer:Cancel()
-				self.timer = nil
-				self.latest = nil
-			end
-		end)
-
-	end
-
-end
-
-local onChatEventProxy = function(...)
-	return Module:OnChatEvent(...)
-end
-
 local onAddMessageProxy = function(...)
 	return Module:OnAddMessage(...)
 end
 
 Module.OnEnable = function(self)
-	self.abilities = 0
-	self.passives = 0
-	self.spells = 0
-	self.unlearned = 0
-
 	self:RegisterBlacklistFilter(onAddMessageProxy)
 end
 
 Module.OnDisable = function(self)
-	self.abilities = 0
-	self.passives = 0
-	self.spells = 0
-	self.unlearned = 0
-
 	self:UnregisterBlacklistFilter(onAddMessageProxy)
 end

@@ -126,4 +126,5 @@ end
 Module.OnDisable = function(self)
 	self:UnregisterMessageEventFilter("CHAT_MSG_SYSTEM", onChatEventProxy)
 	self:UnregisterMessageEventFilter("CHAT_MSG_CHANNEL", onChatEventProxy)
+	self:UnregisterMessageEventFilter("CHAT_MSG_WHISPER", onChatEventProxy)
 end

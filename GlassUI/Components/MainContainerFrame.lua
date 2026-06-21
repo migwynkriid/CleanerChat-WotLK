@@ -41,7 +41,8 @@ end
 
 function MainContainerFrameMixin:OnFrame()
   -- Mouse over tracking
-  if self.state.mouseOver ~= MouseIsOver(self) then
+  local isOver = MouseIsOver(self)
+  if self.state.mouseOver ~= isOver then
     if not self.state.mouseOver then
       Core:Dispatch(MouseEnter())
     else

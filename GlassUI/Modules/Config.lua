@@ -4,9 +4,8 @@ local C = Core:GetModule("Config")
 local AceDBOptions = Core.Libs.AceDBOptions
 local LSM = Core.Libs.LSM
 
-local OpenNews = Constants.ACTIONS.OpenNews
-local RefreshConfig = Constants.ACTIONS.RefreshConfig
 local UnlockMover = Constants.ACTIONS.UnlockMover
+local LockMover = Constants.ACTIONS.LockMover
 local UpdateConfig = Constants.ACTIONS.UpdateConfig
 
 local SAVE_FRAME_POSITION = Constants.EVENTS.SAVE_FRAME_POSITION
@@ -31,40 +30,29 @@ function C:OnEnable()
           order = 1,
           args = {
             section1 = {
-              name = "Info",
+              name = "Frame Position",
               type = "group",
               inline = true,
               order = 2,
               args = {
-                version = {
-                  name = " |cffffd100Version:|r  "..Core.Version,
-                  type = "description",
-                  width = "double",
-                  fontSize = "medium",
-                  order = 2.1,
-                },
-                whatsNew = {
-                  name = "What’s new",
-                  type = "execute",
-                  func = function()
-                    Core:Dispatch(OpenNews())
-                  end,
-                  order = 2.2,
-                },
-                slashCmd = {
-                  name = "|c00DFBA69/cc|r  |cff808080...............|r  Open config window\n"..
-                         "|c00DFBA69/cc lock|r  |cff808080.......|r  Unlock Glass frame\n",
-                  type = "description",
-                  width = "double",
-                  order = 2.3,
-                },
                 unlockFrame = {
-                  name = "Unlock frame",
+                  name = function()
+                    local UIManager = Core:GetModule("UIManager", true)
+                    if UIManager and UIManager.moverDialog and UIManager.moverDialog:IsShown() then
+                      return "Lock frame"
+                    end
+                    return "Unlock frame"
+                  end,
                   type = "execute",
                   func = function()
-                    Core:Dispatch(UnlockMover())
+                    local UIManager = Core:GetModule("UIManager", true)
+                    if UIManager and UIManager.moverDialog and UIManager.moverDialog:IsShown() then
+                      Core:Dispatch(LockMover())
+                    else
+                      Core:Dispatch(UnlockMover())
+                    end
                   end,
-                  order = 2.4,
+                  order = 2.1,
                 },
               }
             },
@@ -297,6 +285,26 @@ function C:OnEnable()
                   end
                 }
               },
+            },
+            section3 = {
+              name = "Behavior",
+              type = "group",
+              inline = true,
+              order = 3,
+              args = {
+                showOnEditFocus = {
+                  name = "Show chat on focus",
+                  desc = "When enabled, opening the edit box (pressing Enter or clicking) reveals the chat messages.",
+                  type = "toggle",
+                  order = 3.1,
+                  get = function ()
+                    return Core.db.profile.showOnEditFocus
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.showOnEditFocus = input
+                  end,
+                },
+              },
             }
           },
         },
@@ -409,18 +417,6 @@ function C:OnEnable()
                     Core.db.profile.chatHoldTime = input
                   end,
                 },
-                chatShowOnMouseOver = {
-                  name = "Show on mouse over",
-                  desc = "Default: "..tostring(Core.defaults.profile.chatShowOnMouseOver),
-                  type = "toggle",
-                  order = 2.2,
-                  get = function ()
-                    return Core.db.profile.chatShowOnMouseOver
-                  end,
-                  set = function (info, input)
-                    Core.db.profile.chatShowOnMouseOver = input
-                  end,
-                },
                 fadeInDuration = {
                   name = "Fade in duration",
                   desc = "Default: "..Core.defaults.profile.chatFadeInDuration..
@@ -526,6 +522,19 @@ function C:OnEnable()
                   set = function (info, input)
                     -- TODO: Update messages dynamically
                     Core.db.profile.iconTextureYOffset = input
+                  end,
+                },
+                messagesOnHover = {
+                  name = "Show messages on hover",
+                  desc = "When enabled, hovering over the chat reveals faded messages. When disabled, only scrolling reveals them.",
+                  type = "toggle",
+                  order = 3.4,
+                  get = function ()
+                    return Core.db.profile.messagesOnHover
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.messagesOnHover = input
+                    Core:Dispatch(UpdateConfig("messagesOnHover"))
                   end,
                 },
               }
@@ -639,6 +648,19 @@ function C:OnEnable()
                     Core.db.profile.dockFadeInDuration = input
                   end,
                 },
+                tabsOnHover = {
+                  name = "Show tabs on hover",
+                  desc = "When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible.",
+                  type = "toggle",
+                  order = 2.4,
+                  get = function ()
+                    return Core.db.profile.tabsOnHover
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.tabsOnHover = input
+                    Core:Dispatch(UpdateConfig("tabsOnHover"))
+                  end,
+                },
               },
             },
           },
@@ -681,7 +703,4 @@ function C:RefreshConfig()
   Core:Dispatch(UpdateConfig("chatBackgroundOpacity"))
   Core:Dispatch(UpdateConfig("chatFadeInDuration"))
   Core:Dispatch(UpdateConfig("chatFadeOutDuration"))
-
-  -- For things that don't update using the config frame e.g. frame position
-  Core:Dispatch(RefreshConfig())
 end

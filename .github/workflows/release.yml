@@ -17,12 +17,24 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for changelog generation
 
-      - name: Extract version from TOC
+      - name: Calculate version
         id: version
         run: |
-          VERSION=$(grep -oP '## Version: \K.*' CleanerChat.toc | tr -d '\r')
+          # Count existing v1.x tags to determine next version
+          TAG_COUNT=$(git tag -l 'v1.*' | wc -l)
+          
+          # First release will be v1.0, then v1.1, v1.2, etc.
+          VERSION="1.${TAG_COUNT}"
+          
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Detected version: $VERSION"
+          echo "Next version: v$VERSION (found $TAG_COUNT existing v1.x tags)"
+
+      - name: Update TOC version
+        run: |
+          # Update the version in the TOC file for the release
+          sed -i "s/^## Version:.*/## Version: ${{ steps.version.outputs.version }}/" CleanerChat.toc
+          echo "Updated TOC version to ${{ steps.version.outputs.version }}"
+          grep "## Version" CleanerChat.toc
 
       - name: Generate changelog
         id: changelog
@@ -65,16 +77,16 @@ jobs:
           
           # Create the zip file
           cd release
-          zip -r ../CleanerChat-${{ steps.version.outputs.version }}.zip CleanerChat
+          zip -r ../CleanerChat-v${{ steps.version.outputs.version }}.zip CleanerChat
           cd ..
           
-          echo "Created: CleanerChat-${{ steps.version.outputs.version }}.zip"
+          echo "Created: CleanerChat-v${{ steps.version.outputs.version }}.zip"
           ls -la *.zip
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.version.outputs.version }}-${{ github.run_number }}
+          tag_name: v${{ steps.version.outputs.version }}
           name: CleanerChat v${{ steps.version.outputs.version }}
           body: |
             ## CleanerChat v${{ steps.version.outputs.version }}
@@ -85,10 +97,10 @@ jobs:
             ${{ steps.changelog.outputs.changelog }}
             
             ### Installation
-            1. Download `CleanerChat-${{ steps.version.outputs.version }}.zip`
+            1. Download `CleanerChat-v${{ steps.version.outputs.version }}.zip`
             2. Extract to `Interface\AddOns\`
             3. Restart WoW or `/reload`
-          files: CleanerChat-${{ steps.version.outputs.version }}.zip
+          files: CleanerChat-v${{ steps.version.outputs.version }}.zip
           draft: false
           prerelease: false
         env:

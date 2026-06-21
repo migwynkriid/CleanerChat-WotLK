@@ -1,6 +1,6 @@
 --[[
 
-	TEMPORARY DIAGNOSTIC FILE - SAFE TO DELETE
+	CHAT DIAGNOSTIC MODULE - toggled on demand with /ccdebug
 
 	Captures, for every chat line:
 	  [RAW] = the exact text the chat frame receives BEFORE CleanerChat

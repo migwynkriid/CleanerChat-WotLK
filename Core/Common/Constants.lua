@@ -25,14 +25,7 @@
 --]]
 local Addon, ns = ...
 
--- Lua API
-local string_find = string.find
-local string_match = string.match
-local string_split = string.split
-local tonumber = tonumber
-
--- GLOBALS: GetBuildInfo, GetRealmName, UnitClass, UnitNameUnmodified
--- GLOBALS: WOW_PROJECT_ID, WOW_PROJECT_MAINLINE, WOW_PROJECT_WRATH_CLASSIC, WOW_PROJECT_CLASSIC, WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+-- GLOBALS: GetBuildInfo
 
 -- Addon version
 ------------------------------------------------------
@@ -43,47 +36,11 @@ if (version:find("project%-version")) then
 	version = "Development"
 end
 ns.Private.Version = version
-ns.Private.IsDevelopment = version == "Development"
-ns.Private.IsAlpha = string_find(version, "%-Alpha$")
-ns.Private.IsBeta =string_find(version, "%-Beta$")
-ns.Private.IsRC = string_find(version, "%-RC$")
-ns.Private.IsRelease = string_find(version, "%-Release$")
 
--- WoW client version
+-- WoW client interface version
 ------------------------------------------------------
-local patch, build, date, version = GetBuildInfo()
-local major, minor, micro = string_split(".", patch)
-
-ns.Private.ClientVersion = version
-ns.Private.ClientDate = date
-ns.Private.ClientPatch = patch
-ns.Private.ClientMajor = tonumber(major)
-ns.Private.ClientMinor = tonumber(minor)
-ns.Private.ClientMicro = tonumber(micro)
-ns.Private.ClientBuild = tonumber(build)
-
--- Simple flags for client version checks
--- Note: 3.3.5 compatibility shims are added in Compatibility.lua
-ns.Private.IsRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-ns.Private.IsClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-ns.Private.IsTBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
-ns.Private.IsWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
---ns.Private.IsCata = WOW_PROJECT_ID == (WOW_PROJECT_CATA_CLASSIC or 99) -- NYI in first build
-ns.Private.IsCata = (version >= 40400) and (version < 50000)
-ns.Private.WoW10 = version >= 100000
+local _, _, _, version = GetBuildInfo()
 
 -- 3.3.5 specific detection (private server)
 -- Interface 30300 is 3.3.5a, Classic Wrath uses 30400+
 ns.Private.Is335 = (version >= 30300) and (version < 30400)
-ns.Private.IsClassicWrath = (version >= 30400) and (version < 40000)
-
--- Prefix for frame names
-------------------------------------------------------
-ns.Private.Prefix = string_match(Addon, "^(.*)UI") or Addon
-
--- Player constants
-------------------------------------------------------
-local _,playerClass = UnitClass("player")
-ns.Private.PlayerClass = playerClass
-ns.Private.PlayerRealm = GetRealmName()
-ns.Private.PlayerName = UnitNameUnmodified("player")
