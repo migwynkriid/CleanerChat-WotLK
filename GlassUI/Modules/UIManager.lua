@@ -35,6 +35,30 @@ end
 function UIManager:OnEnable()
   self.tickerFrame = CreateFrame("Frame", "GlassUpdaterFrame", UIParent)
 
+  -- Watch for Blizzard_CombatLog loading to hide its quick-button bar
+  local addonWatcher = CreateFrame("Frame")
+  addonWatcher:RegisterEvent("ADDON_LOADED")
+  addonWatcher:SetScript("OnEvent", function(_, event, addon)
+    if addon == "Blizzard_CombatLog" then
+      local combatLogButtons = _G["CombatLogQuickButtonFrame"]
+      if combatLogButtons then
+        combatLogButtons:Hide()
+        combatLogButtons:SetAlpha(0)
+        -- Replace Show to prevent it from ever appearing
+        combatLogButtons.Show = function() end
+      end
+    end
+  end)
+  -- Also check if it's already loaded
+  if IsAddOnLoaded("Blizzard_CombatLog") then
+    local combatLogButtons = _G["CombatLogQuickButtonFrame"]
+    if combatLogButtons then
+      combatLogButtons:Hide()
+      combatLogButtons:SetAlpha(0)
+      combatLogButtons.Show = function() end
+    end
+  end
+
   -- Mover
   self.moverFrame = CreateMoverFrame("GlassMoverFrame", UIParent)
   self.moverDialog = CreateMoverDialog("GlassMoverDialog", UIParent)
@@ -74,12 +98,23 @@ function UIManager:OnEnable()
   -- Create tabs for active chat windows
   -- Use a small delay to ensure Blizzard chat system is fully ready
   local function SetupTabs(reveal)
+    -- Hide native Combat Log initially (will be shown when its tab is selected)
+    local combatLogFrame = _G.ChatFrame2
+    if combatLogFrame then
+      combatLogFrame:Hide()
+      combatLogFrame:SetAlpha(0)
+    end
+    
     local activeTabs = {}
     for i=1, NUM_CHAT_WINDOWS do
       local chatFrame = _G["ChatFrame"..i]
       local chatTab = _G["ChatFrame"..i.."Tab"]
       
       if chatFrame then
+        -- Skip Combat Log (ChatFrame2) - let it use native Blizzard rendering
+        -- We still create a tab for it, but don't hide the native frame here
+        local isCombatLog = (chatFrame == _G.ChatFrame2)
+        
         -- Create or get the sliding message frame
         if not self.state.frames[i] then
           local smf = self.slidingMessageFramePool:Acquire()
@@ -98,8 +133,10 @@ function UIManager:OnEnable()
           end
           
           -- Hide the original Blizzard chat frame visuals so Glass renders
-          -- them. The Combat Log is now rendered by Glass as well.
-          chatFrame:SetAlpha(0)
+          -- them. Skip Combat Log - it handles its own visibility via SelectChatTab.
+          if not isCombatLog then
+            chatFrame:SetAlpha(0)
+          end
         else
           -- Hide unused chat frame and tab, and drop any stale tab reference so
           -- a closed window's tab is not re-shown later by SelectChatTab.
@@ -115,21 +152,6 @@ function UIManager:OnEnable()
     local UpdateTabPositions = Core.Components.UpdateTabPositions
     if UpdateTabPositions then
       UpdateTabPositions(activeTabs)
-    end
-
-    -- Hide the native Combat Log filter quick-button bar ("Self / Everything /
-    -- What happened to me?"). It is Blizzard combat log UI that floats above the
-    -- Glass chat. Blizzard re-shows it when the combat log is selected, so pin it
-    -- hidden with a Show hook (installed once).
-    local combatLogButtons = _G["CombatLogQuickButtonFrame"]
-    if combatLogButtons then
-      combatLogButtons:Hide()
-      if not self.combatLogButtonsHooked then
-        self.combatLogButtonsHooked = true
-        if _G.hooksecurefunc then
-          _G.hooksecurefunc(combatLogButtons, "Show", function (f) f:Hide() end)
-        end
-      end
     end
     
     -- Don't auto-select - just show all frames for now

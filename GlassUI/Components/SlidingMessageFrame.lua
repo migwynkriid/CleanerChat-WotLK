@@ -54,16 +54,35 @@ function SlidingMessageFrameMixin:Init(chatFrame)
     messages = {},
     head = nil,
     tail = nil,
-    isCombatLog = false,
+    isCombatLog = (chatFrame == _G.ChatFrame2),
     scrollAtBottom = true,
     unreadMessages = false,
   }
   self.chatFrame = chatFrame
 
+  -- Combat Log (ChatFrame2) in WotLK uses a completely different rendering system
+  -- that doesn't go through AddMessage(). Rather than trying to hook it, we let
+  -- Blizzard's native Combat Log render and just toggle its visibility when the
+  -- Glass Combat Log tab is selected. UIManager handles showing/hiding ChatFrame2.
+  if self.state.isCombatLog then
+    -- Hide the button frame only
+    local buttonFrame = _G[chatFrame:GetName().."ButtonFrame"]
+    if buttonFrame then
+      buttonFrame:Hide()
+    end
+    
+    -- Set up minimal scroll frame (not used for combat log display)
+    self:SetHeight(self.config.height + self.config.overflowHeight)
+    self:SetWidth(self.config.width)
+    self:SetPoint("TOPLEFT", 0, (Constants.DOCK_HEIGHT + 5) * -1)
+    self:SetVerticalScroll(self.config.overflowHeight)
+    self:Hide()  -- Hide Glass overlay for combat log - native frame renders instead
+    
+    -- Skip the rest of Init for combat log
+    return
+  end
+
   -- Hide Blizzard UI elements (but don't modify chatFrame parent/position).
-  -- The Combat Log (ChatFrame2) is treated like any other chat frame so its
-  -- messages render inside the Glass UI. We never change chatFrame's parent or
-  -- position, so Blizzard_CombatLog / FCF_DockUpdate keep working.
   local buttonFrame = _G[chatFrame:GetName().."ButtonFrame"]
   if buttonFrame then
     buttonFrame:Hide()
@@ -208,6 +227,8 @@ function SlidingMessageFrameMixin:Init(chatFrame)
     self.messageFramePool = CreateMessageLinePool(self.slider)
   end
 
+  -- Hook AddMessage to capture messages for our display
+  -- Note: Combat Log returns early in Init, so this only runs for regular chat frames
   self:Hook(chatFrame, "AddMessage", function (frame, text, ...)
     -- Run incoming text through CleanerChat's filters so the Glass display
     -- matches CleanerChat's formatting and drops blacklisted messages.

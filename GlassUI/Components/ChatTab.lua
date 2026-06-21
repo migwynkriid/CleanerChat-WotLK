@@ -304,16 +304,48 @@ Core.Components.SelectChatTab = function(selectedTab)
     SELECTED_DOCK_FRAME = selectedChatFrame
   end
   
+  -- Check if Combat Log tab is being selected
+  local combatLogFrame = _G.ChatFrame2
+  local selectingCombatLog = (selectedChatFrame == combatLogFrame)
+  
+  -- Always hide the Combat Log quick-button bar ("Self / Everything / What happened to me?")
+  -- It can appear at various times so we hide it on every tab switch
+  local combatLogButtons = _G["CombatLogQuickButtonFrame"]
+  if combatLogButtons then
+    combatLogButtons:Hide()
+    combatLogButtons:SetAlpha(0)
+  end
+  
+  -- Show/hide native Combat Log based on selection
+  -- WotLK Combat Log doesn't use AddMessage, so we show the native frame
+  if combatLogFrame then
+    if selectingCombatLog then
+      -- Show native Combat Log and restore all its properties
+      combatLogFrame:Show()
+      combatLogFrame:SetAlpha(1)
+      combatLogFrame:EnableMouse(true)
+      combatLogFrame:EnableMouseWheel(true)
+      -- Position it to match Glass frame area
+      combatLogFrame:ClearAllPoints()
+      combatLogFrame:SetPoint("TOPLEFT", UIManager.container, "TOPLEFT", 0, -Constants.DOCK_HEIGHT - 5)
+      combatLogFrame:SetPoint("BOTTOMRIGHT", UIManager.container, "BOTTOMRIGHT", 0, 0)
+    else
+      -- Hide native Combat Log when other tabs selected
+      combatLogFrame:Hide()
+      combatLogFrame:SetAlpha(0)
+    end
+  end
+  
   -- Show/hide SlidingMessageFrames based on selection
   for i, smf in pairs(frames) do
     if smf and smf.chatFrame and smf.Show and smf.Hide then
-      if smf.chatFrame == selectedChatFrame then
+      -- Skip showing Glass overlay for Combat Log (it uses native rendering)
+      if smf.state and smf.state.isCombatLog then
+        smf:Hide()
+      elseif smf.chatFrame == selectedChatFrame then
         smf:Show()
       else
-        -- Hide every other frame's messages -- including the Combat Log -- so
-        -- only the selected tab is visible. Otherwise all SlidingMessageFrames
-        -- render at the same spot and different chats look merged onto one tab
-        -- (and their lines overlap).
+        -- Hide every other frame's messages so only the selected tab is visible
         smf:Hide()
       end
     end
