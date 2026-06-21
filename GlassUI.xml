@@ -1,11 +1,11 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 
 	<!-- Glass core -->
-	<Script file="init.lua"/>
-	<Script file="constants.lua"/>
-	<Script file="utils.lua"/>
+	<Script file="GlassUI\init.lua"/>
+	<Script file="GlassUI\constants.lua"/>
+	<Script file="GlassUI\utils.lua"/>
 
-	<!-- Components -->
+	<!-- Components (in the addon root Components folder) -->
 	<Script file="Components\ChatDock.lua"/>
 	<Script file="Components\ChatTab.lua"/>
 	<Script file="Components\EditBox.lua"/>
@@ -20,10 +20,10 @@
 	<Script file="Components\SlidingMessageFrame.lua"/>
 
 	<!-- Modules -->
-	<Script file="Modules\Config.lua"/>
-	<Script file="Modules\Fonts.lua"/>
-	<Script file="Modules\Hyperlinks.lua"/>
-	<Script file="Modules\TextProcessing.lua"/>
-	<Script file="Modules\UIManager.lua"/>
+	<Script file="GlassUI\Modules\Config.lua"/>
+	<Script file="GlassUI\Modules\Fonts.lua"/>
+	<Script file="GlassUI\Modules\Hyperlinks.lua"/>
+	<Script file="GlassUI\Modules\TextProcessing.lua"/>
+	<Script file="GlassUI\Modules\UIManager.lua"/>
 
 </Ui>

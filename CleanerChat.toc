@@ -28,4 +28,4 @@ Core\Core.xml
 Components\Components.xml
 
 # Glass chat UI overhaul
-GlassUI\GlassUI.xml
+GlassUI.xml

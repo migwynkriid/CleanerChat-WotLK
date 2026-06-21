@@ -42,7 +42,7 @@ function ScrollOverlayFrame:Init()
     if self.icon == nil then
       self.icon = self:CreateTexture(nil, "ARTWORK")
     end
-    self.icon:SetTexture("Interface\\AddOns\\CleanerChat\\GlassUI\\Assets\\snapToBottomIcon")
+    self.icon:SetTexture("Interface\\AddOns\\CleanerChat\\Assets\\snapToBottomIcon")
     self.icon:SetWidth(16)
     self.icon:SetHeight(16)
     self.icon:SetPoint("BOTTOMLEFT", 15, 5)
