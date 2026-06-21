@@ -40,6 +40,9 @@ L["Hide the \"UI Error: an interface error occurred\" notifications the server p
 L["Show Startup Message"] = true
 L["Print a message on login showing how to open CleanerChat settings."] = true
 
+L["Chat Debug Capture"] = true
+L["Print the raw text and underlying event for every chat line, for diagnosing filters (same as /ccdebug). Stays on across /reload."] = true
+
 L["Settings changed - the UI will reload when you close this window."] = true
 
 L["Filter Selection"] = true

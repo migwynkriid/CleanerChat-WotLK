@@ -102,25 +102,62 @@ local watchedEvents = {
 }
 
 SLASH_CCDEBUG1 = "/ccdebug"
-SlashCmdList["CCDEBUG"] = function()
-	active = not active
+
+-- Turn capture on/off. `silent` skips the chat confirmation (used when
+-- re-applying the saved state on login).
+local setActive = function(value, silent)
+	value = value and true or false
+	if (value == active) then return end
+	active = value
 	if (active) then
 		ensureHooks()
 		for _,event in ipairs(watchedEvents) do
 			ChatFrame_AddMessageEventFilter(event, eventFilter)
 		end
-		print("|cffff7d0aCleanerChat|r raw debug: |cff00ff00ON|r - say something in the affected channel.")
+		if (not silent) then
+			print("|cffff7d0aCleanerChat|r raw debug: |cff00ff00ON|r - say something in the affected channel.")
+		end
 	else
 		for _,event in ipairs(watchedEvents) do
 			ChatFrame_RemoveMessageEventFilter(event, eventFilter)
 		end
-		print("|cffff7d0aCleanerChat|r raw debug: |cffff0000OFF|r")
+		if (not silent) then
+			print("|cffff7d0aCleanerChat|r raw debug: |cffff0000OFF|r")
+		end
 	end
+end
+
+-- Public setter that also PERSISTS the choice to the saved variables so it
+-- survives a /reload or relog.
+ns.SetRawDebug = function(value)
+	value = value and true or false
+	if (ns.db) then ns.db.rawDebug = value end
+	setActive(value)
+end
+
+ns.GetRawDebug = function()
+	if (ns.db) then return ns.db.rawDebug and true or false end
+	return active
 end
 
 -- Expose the toggle on the addon namespace so it can also be reached through
 -- the addon's normal AceConsole command registration (in Options.lua), which
 -- is known to work on this client even when a bare SlashCmdList entry doesn't.
 ns.ToggleRawDebug = function()
-	SlashCmdList["CCDEBUG"]()
+	ns.SetRawDebug(not active)
 end
+
+SlashCmdList["CCDEBUG"] = function()
+	ns.ToggleRawDebug()
+end
+
+-- Re-apply the saved state on login (ns.db is ready by PLAYER_LOGIN, which
+-- fires after AceAddon OnInitialize sets up the database).
+local loader = CreateFrame("Frame")
+loader:RegisterEvent("PLAYER_LOGIN")
+loader:SetScript("OnEvent", function(self)
+	self:UnregisterEvent("PLAYER_LOGIN")
+	if (ns.db and ns.db.rawDebug) then
+		setActive(true, true)
+	end
+end)

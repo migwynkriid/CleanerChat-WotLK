@@ -314,6 +314,31 @@ Options.GenerateOptionsMenu = function(self)
 		end
 	end
 
+	-- Inject the CleanerChat "/ccdebug" chat-capture toggle into the General
+	-- tab. The state lives in ns.db (so it survives /reload) and is applied
+	-- through ns.SetRawDebug. Defined here (not in Glass) so it stays a
+	-- CleanerChat-owned setting; idempotent on rebuild.
+	local generalTab = options.args.general
+	if (generalTab) and (generalTab.args) then
+		generalTab.args.ccDebugSection = {
+			name = "Debugging",
+			type = "group",
+			inline = true,
+			order = 90,
+			args = {
+				rawDebug = {
+					name = L["Chat Debug Capture"],
+					desc = L["Print the raw text and underlying event for every chat line, for diagnosing filters (same as /ccdebug). Stays on across /reload."],
+					type = "toggle",
+					width = "full",
+					order = 1,
+					get = function() return ns.GetRawDebug and ns.GetRawDebug() end,
+					set = function(info, val) if (ns.SetRawDebug) then ns.SetRawDebug(val) end end,
+				},
+			},
+		}
+	end
+
 	AceConfigRegistry:RegisterOptionsTable(Addon, options)
 	AceConfigDialog:SetDefaultSize(Addon, 800, 520)
 end

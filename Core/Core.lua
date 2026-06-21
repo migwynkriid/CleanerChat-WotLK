@@ -265,6 +265,7 @@ local defaults = {
 	hideOtherCrafts = false, -- hide other players' "<name> creates <item>" craft broadcasts
 	hideUIErrors = true, -- hide the server's "UI Error: an interface error occured" chat notification
 	showStartupMessage = true, -- print "Use /cc for settings" on addon load
+	rawDebug = false, -- /ccdebug chat raw/event capture (persists across /reload)
 	filters = {
 		achievements = true,
 		auctions = true,
