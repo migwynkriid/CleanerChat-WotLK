@@ -180,7 +180,7 @@ local function Constructor()
 	local colorSwatch = frame:CreateTexture(nil, "OVERLAY")
 	colorSwatch:SetWidth(19)
 	colorSwatch:SetHeight(19)
-	colorSwatch:SetTexture(130939) -- Interface\\ChatFrame\\ChatFrameColorSwatch
+	colorSwatch:SetTexture("Interface\\ChatFrame\\ChatFrameColorSwatch") -- 130939 FileDataID unsupported on 3.3.5
 	colorSwatch:SetPoint("LEFT")
 
 	local texture = frame:CreateTexture(nil, "BACKGROUND")
@@ -195,7 +195,7 @@ local function Constructor()
 	colorSwatch.checkers = checkers
 	checkers:SetWidth(14)
 	checkers:SetHeight(14)
-	checkers:SetTexture(188523) -- Tileset\\Generic\\Checkers
+	checkers:SetTexture("Tileset\\Generic\\Checkers") -- 188523 FileDataID unsupported on 3.3.5
 	checkers:SetTexCoord(.25, 0, 0.5, .25)
 	checkers:SetDesaturated(true)
 	checkers:SetVertexColor(1, 1, 1, 0.75)
