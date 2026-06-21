@@ -5,6 +5,7 @@ local AceDBOptions = Core.Libs.AceDBOptions
 local LSM = Core.Libs.LSM
 
 local UnlockMover = Constants.ACTIONS.UnlockMover
+local LockMover = Constants.ACTIONS.LockMover
 local UpdateConfig = Constants.ACTIONS.UpdateConfig
 
 local SAVE_FRAME_POSITION = Constants.EVENTS.SAVE_FRAME_POSITION
@@ -29,32 +30,29 @@ function C:OnEnable()
           order = 1,
           args = {
             section1 = {
-              name = "Info",
+              name = "Frame Position",
               type = "group",
               inline = true,
               order = 2,
               args = {
-                version = {
-                  name = " |cffffd100Version:|r  "..Core.Version,
-                  type = "description",
-                  width = "double",
-                  fontSize = "medium",
-                  order = 2.1,
-                },
-                slashCmd = {
-                  name = "|c00DFBA69/cc|r  |cff808080...............|r  Open config window\n"..
-                         "|c00DFBA69/cc lock|r  |cff808080.......|r  Unlock Glass frame\n",
-                  type = "description",
-                  width = "double",
-                  order = 2.3,
-                },
                 unlockFrame = {
-                  name = "Unlock frame",
+                  name = function()
+                    local UIManager = Core:GetModule("UIManager", true)
+                    if UIManager and UIManager.moverDialog and UIManager.moverDialog:IsShown() then
+                      return "Lock frame"
+                    end
+                    return "Unlock frame"
+                  end,
                   type = "execute",
                   func = function()
-                    Core:Dispatch(UnlockMover())
+                    local UIManager = Core:GetModule("UIManager", true)
+                    if UIManager and UIManager.moverDialog and UIManager.moverDialog:IsShown() then
+                      Core:Dispatch(LockMover())
+                    else
+                      Core:Dispatch(UnlockMover())
+                    end
                   end,
-                  order = 2.4,
+                  order = 2.1,
                 },
               }
             },
