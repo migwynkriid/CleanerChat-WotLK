@@ -18,11 +18,8 @@ _G[AddonName] = Core
 
 -- Core
 Core.Libs = {
-  AceConfig = _G.LibStub("AceConfig-3.0"),
-  AceConfigDialog = _G.LibStub("AceConfigDialog-3.0"),
   AceDB = _G.LibStub("AceDB-3.0"),
   AceDBOptions = _G.LibStub("AceDBOptions-3.0"),
-  AceGUI = _G.LibStub("AceGUI-3.0"),
   AceHook = _G.LibStub("AceHook-3.0"),
   LSM = _G.LibStub("LibSharedMedia-3.0"),
   LibEasing = _G.LibStub("LibEasing-1.0"),
@@ -38,7 +35,6 @@ Core.Version = "DEBUG"
 Core:NewModule("Config", "AceConsole-3.0")
 Core:NewModule("Fonts")
 Core:NewModule("Hyperlinks")
-Core:NewModule("News")
 Core:NewModule("TextProcessing")
 Core:NewModule("UIManager", "AceHook-3.0")
 
@@ -71,7 +67,6 @@ Core.defaults = {
     messageLinePadding = 0.25,
 
     chatHoldTime = 10,
-    chatShowOnMouseOver = true,
     chatFadeInDuration = 0.6,
     chatFadeOutDuration = 0.6,
     chatSlideInDuration = 0.3,

@@ -110,7 +110,6 @@ out.craft_single_other = '%s *gray*created:** %s'
 out.craft_multiple_other = '%s *gray*created:** %s *offwhite*(%d)**'
 out.item_deficit = "*red*- %s**"
 out.item_deficit_multiple = "*red*- %s** *offwhite*(%d)**"
-out.item_transfer = "*green*+** *white*%s:** %s"
 out.money = plus
 out.money_deficit = "*gray*-** %s"
 out.objective_status = plus_yellow

@@ -49,7 +49,6 @@ function SlidingMessageFrameMixin:Init(chatFrame)
     mouseOver = false,
     showingTooltip = false,
     prevEasingHandle = nil,
-    incomingScrollbackMessages = {},
     incomingMessages = {},
     messages = {},
     head = nil,
@@ -351,11 +350,6 @@ function SlidingMessageFrameMixin:AddMessage(...)
   table.insert(self.state.incomingMessages, args)
 end
 
-function SlidingMessageFrameMixin:BackFillMessage(...)
-  local args = {...}
-  table.insert(self.state.incomingScrollbackMessages, args)
-end
-
 -- Recompute the scroll-child height from the current message heights, keeping
 -- the view pinned to the bottom when appropriate.
 function SlidingMessageFrameMixin:RecomputeContentHeight()
@@ -396,20 +390,11 @@ function SlidingMessageFrameMixin:OnFrame()
       table.insert(incoming, message)
     end
     self.state.incomingMessages = {}
-    self:Update(incoming, false)
-  end
-
-  if #self.state.incomingScrollbackMessages > 0 then
-    local incoming = {}
-    for _, message in ipairs(self.state.incomingScrollbackMessages) do
-      table.insert(incoming, message)
-    end
-    self.state.incomingScrollbackMessages = {}
-    self:Update(incoming, true)
+    self:Update(incoming)
   end
 end
 
-function SlidingMessageFrameMixin:Update(incoming, reverse)
+function SlidingMessageFrameMixin:Update(incoming)
   -- Create new message frame for each message
   local newMessages = {}
 
@@ -418,16 +403,9 @@ function SlidingMessageFrameMixin:Update(incoming, reverse)
     messageFrame:SetPoint("BOTTOMLEFT")
 
     -- Attach previous messageFrame to this one
-    if reverse then
-      if self.state.tail then
-        messageFrame:ClearAllPoints()
-        messageFrame:SetPoint("BOTTOMLEFT", self.state.tail, "TOPLEFT")
-      end
-    else
-      if self.state.head then
-        self.state.head:ClearAllPoints()
-        self.state.head:SetPoint("BOTTOMLEFT", messageFrame, "TOPLEFT")
-      end
+    if self.state.head then
+      self.state.head:ClearAllPoints()
+      self.state.head:SetPoint("BOTTOMLEFT", messageFrame, "TOPLEFT")
     end
 
     if self.state.tail == nil then
@@ -438,11 +416,7 @@ function SlidingMessageFrameMixin:Update(incoming, reverse)
       self.state.head = messageFrame
     end
 
-    if reverse then
-      self.state.tail = messageFrame
-    else
-      self.state.head = messageFrame
-    end
+    self.state.head = messageFrame
 
     table.insert(newMessages, messageFrame)
   end
@@ -491,11 +465,7 @@ function SlidingMessageFrameMixin:Update(incoming, reverse)
     if not self.state.mouseOver then
       message:HideDelay(Core.db.profile.chatHoldTime)
     end
-    if reverse then
-      table.insert(self.state.messages, 1, message)
-    else
-      table.insert(self.state.messages, message)
-    end
+    table.insert(self.state.messages, message)
 
     -- Queue for a next-frame re-measure so the layout is corrected once the
     -- engine has laid the text out (fixes overlapping messages).
@@ -553,7 +523,6 @@ local function CreateSlidingMessageFramePool(parent)
         smf.state.tail = nil
         smf.state.messages = {}
         smf.state.incomingMessages = {}
-        smf.state.incomingScrollbackMessages = {}
       end
 
       if smf.messageFramePool ~= nil then

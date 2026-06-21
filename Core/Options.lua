@@ -35,34 +35,16 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
 
--- GLOBALS: CopyTable, GetAddOnEnableState, GetNumAddOns, UnitName, ReloadUI
+-- GLOBALS: CopyTable, ReloadUI
 
 -- Lua API
 local ipairs = ipairs
 local next = next
-local select = select
 local table_sort = table.sort
 local type = type
 
--- WoW API (GetAddOnEnableState is shimmed for 3.3.5 in Common/Compatibility.lua)
-local GetAddOnEnableState = GetAddOnEnableState
-local GetAddOnInfo = GetAddOnInfo
-local GetNumAddOns = GetNumAddOns
-
 -- Utility
 -------------------------------------------------------
-local hasaddons = function(...)
-	for i = 1,GetNumAddOns() do
-		local name, _, _, loadable = GetAddOnInfo(i)
-		for j = 1, select("#", ...) do
-			local addon = select(j, ...)
-			if (name == addon) then
-				return (loadable and not(GetAddOnEnableState(UnitName("player"), i) == 0))
-			end
-		end
-	end
-end
-
 local setter = function(info,val)
 	ns.db.filters[info[#info]] = val
 	local moduleName = ns:GetModuleNameFromFilter(info[#info])
@@ -86,23 +68,6 @@ end
 local optionDB = {
 	type = "group",
 	args = {
-		-- NOT YET IMPLEMENTED!
-		--styleWindows = {
-		--	order = 1,
-		--	name = L["Style Chat Windows"],
-		--	desc = L["Will apply a clean, minimalistic styling to the chat windows."],
-		--	width = "full",
-		--	type = "toggle",
-		--	disabled = function(info) return hasaddons("AzeriteUI","TukUI","ElvUI","KkthnxUI","Prat-3.0","ls_Glass") end,
-		--	set = function(info,value)
-		--		ns.db.styling = value
-		--		local windows = ns:GetModule("Windows", true)
-		--		if (windows) then
-		--			windows:UpdateSettings()
-		--		end
-		--	end,
-		--	get = function(info) return ns.db.styling end,
-		--},
 		channelNameMode = {
 			order = 10,
 			name = L["Channel Name Style"],

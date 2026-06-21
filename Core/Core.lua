@@ -253,7 +253,6 @@ ns:SetDefaultModulePrototype(modulePrototype)
 
 -- Addon default settings.
 local defaults = {
-	styling = true, -- will be ignored when conflicting addons are detected
 	channelNameMode = "initial", -- "initial" shows the first letter (e.g. "[G]"), "full" shows the whole name
 	channelNumber = true, -- prefix the channel display with its number, e.g. "1. "
 	channelCapitalize = true, -- capitalize the channel name/initial
@@ -483,8 +482,6 @@ ns.OnInitialize = function(self)
 end
 
 ns.OnEnable = function(self)
-
-	self.WAIT_FOR_EXTERNAL = ns.API.IsAddOnEnabled("AzeriteUI")
 
 	-- Initial caching of all chat frame message methods.
 	self:CacheAllMessageMethods()

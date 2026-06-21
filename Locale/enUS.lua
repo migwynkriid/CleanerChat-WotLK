@@ -14,9 +14,6 @@ L["I"] = true 		-- Instance (WoW Retail)
 L["G"] = true 		-- Guild
 L["O"] = true 		-- Officer
 
-L["Style Chat Windows"] = true
-L["Will apply a clean, minimalistic styling to the chat windows."] = true
-
 L["Channel Name Style"] = true
 L["Choose whether to show the channel's full name or just its first letter. Requires the Chat Channel Names filter."] = true
 L["Shortened (e.g. \"[G]\")"] = true
@@ -34,14 +31,12 @@ L["Capitalize the first letter of player names shown in chat. Requires the Playe
 L["Hide Crafting Broadcasts"] = true
 L["Hide the \"<name> created: <item>\" messages shown when other players craft items nearby. Requires the Learning (Crafting) filter."] = true
 
-L["Hide UI Error Messages"] = true
+L["Hide UI Error Messages on Login from CleanerChat"] = true
 L["Hide the \"UI Error: an interface error occurred\" notifications the server prints to chat when a UI error happens."] = true
 
 L["Settings changed - the UI will reload when you close this window."] = true
 
 L["Filter Selection"] = true
-L["Choose which chat filters should be activated. Setting changes require a reload to take effect."] = true
-L["Apply the current settings and reload the UI. Settings will still be stored if you don't do this, but won't be applied until you reload the user interface, relog or exit the game."] = true
 
 L["Achievements"] = true
 L["Simplify Achievement messages."] = true

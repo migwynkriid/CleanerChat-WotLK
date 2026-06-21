@@ -56,28 +56,6 @@ if not _G.BackdropTemplateMixin then
 end
 
 ---
--- SOUNDKIT polyfill (needed early by some UI code)
-if not _G.SOUNDKIT then
-  _G.SOUNDKIT = {
-    IG_MAINMENU_OPTION = "igMainMenuOption",
-    GS_TITLE_OPTION_EXIT = "gsTitleOptionExit",
-    IG_CHARACTER_INFO_TAB = "igCharacterInfoTab",
-    IG_SPELLBOOK_OPEN = "igSpellBookOpen",
-    IG_SPELLBOOK_CLOSE = "igSpellBookClose",
-    IG_ABILITY_ICON_DROP = "igAbilityIconDrop",
-    U_CHAT_SCROLL_BUTTON = "uChatScrollButton",
-  }
-end
-
----
--- WOW_PROJECT_ID polyfill for libraries that check for it
-if not _G.WOW_PROJECT_ID then
-  _G.WOW_PROJECT_ID = 1  -- Mainline/Retail equivalent, but we're on WotLK
-  _G.WOW_PROJECT_MAINLINE = 1
-  _G.WOW_PROJECT_CLASSIC = 2
-end
-
----
 -- Mixin polyfill
 -- Copies methods from mixins to the target object
 if not _G.Mixin then

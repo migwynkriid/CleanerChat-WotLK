@@ -4,8 +4,6 @@ local C = Core:GetModule("Config")
 local AceDBOptions = Core.Libs.AceDBOptions
 local LSM = Core.Libs.LSM
 
-local OpenNews = Constants.ACTIONS.OpenNews
-local RefreshConfig = Constants.ACTIONS.RefreshConfig
 local UnlockMover = Constants.ACTIONS.UnlockMover
 local UpdateConfig = Constants.ACTIONS.UpdateConfig
 
@@ -42,14 +40,6 @@ function C:OnEnable()
                   width = "double",
                   fontSize = "medium",
                   order = 2.1,
-                },
-                whatsNew = {
-                  name = "What’s new",
-                  type = "execute",
-                  func = function()
-                    Core:Dispatch(OpenNews())
-                  end,
-                  order = 2.2,
                 },
                 slashCmd = {
                   name = "|c00DFBA69/cc|r  |cff808080...............|r  Open config window\n"..
@@ -409,18 +399,6 @@ function C:OnEnable()
                     Core.db.profile.chatHoldTime = input
                   end,
                 },
-                chatShowOnMouseOver = {
-                  name = "Show on mouse over",
-                  desc = "Default: "..tostring(Core.defaults.profile.chatShowOnMouseOver),
-                  type = "toggle",
-                  order = 2.2,
-                  get = function ()
-                    return Core.db.profile.chatShowOnMouseOver
-                  end,
-                  set = function (info, input)
-                    Core.db.profile.chatShowOnMouseOver = input
-                  end,
-                },
                 fadeInDuration = {
                   name = "Fade in duration",
                   desc = "Default: "..Core.defaults.profile.chatFadeInDuration..
@@ -681,7 +659,4 @@ function C:RefreshConfig()
   Core:Dispatch(UpdateConfig("chatBackgroundOpacity"))
   Core:Dispatch(UpdateConfig("chatFadeInDuration"))
   Core:Dispatch(UpdateConfig("chatFadeOutDuration"))
-
-  -- For things that don't update using the config frame e.g. frame position
-  Core:Dispatch(RefreshConfig())
 end

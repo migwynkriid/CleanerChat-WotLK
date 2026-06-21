@@ -299,14 +299,6 @@ function UIManager:OnEnable()
     ChatFrame1Background:Hide()
   end
 
-  -- New version alert
-  --@non-debug@
-  if Core.db.global.version == nil or Utils.versionGreaterThan(Core.Version, Core.db.global.version) then
-    Utils.notify('Glass has just been updated. |cFFFFFF00|Hgarrmission:Glass:opennews|h[See what’s new]|h|r')
-    Core.db.global.version = Core.Version
-  end
-  --@end-non-debug@--
-
   -- Force classic chat style (if CVar exists in WotLK)
   local chatStyleCVar = GetCVar("chatStyle")
   if chatStyleCVar and chatStyleCVar ~= "classic" then

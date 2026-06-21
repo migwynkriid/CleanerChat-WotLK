@@ -68,10 +68,17 @@ Built for the 3.3.5a (WotLK, interface `30300`) client and tested on the Ascensi
 
 ## Credits
 
-- The **chat cleaning** was inspired by the ChatCleaner addon by Lars Norberg (Goldpaw).
-- The **chat overhaul** integrates a WotLK-backported build of the **Glass** immersive chat addon.
+CleanerChat stands on the shoulders of two excellent addons. **All credit for the original work belongs to their creators** — this project simply backports them to 3.3.5, strips out the parts that don't exist on the WotLK client, cleans them up, and makes them run smoothly on the 3.3.5 client.
 
-CleanerChat is an independent project maintained by migwynkriid.
+### Glass — the chat overhaul
+
+The immersive chat UI is built on **[Glass](https://www.curseforge.com/wow/addons/glass)** by **mixxorz**. The community absolutely loved Glass, and this project exists to **keep the spirit of Glass alive** on 3.3.5. The build here is **backported** to WotLK: non-available retail/modern APIs were stripped out and replaced with compatibility shims, and the code was cleaned up to work on the 3.3.5 client. Thank you, **mixxorz**!
+
+### ChatCleaner — the chat cleaning
+
+The message filtering and reformatting is based on **[ChatCleaner](https://github.com/GoldpawsStuff/ChatCleaner)** by Lars Norberg (Goldpaw / GoldpawsStuff). Like Glass, it has also been **backported** to 3.3.5 — stripped of features and APIs that aren't available on WotLK, cleaned up, and made to work on the 3.3.5 client. Thank you, **Goldpaw**!
+
+CleanerChat is an independent project maintained by migwynkriid that bundles backported, cleaned-up builds of both addons into one and is currently the sole maintainer of the project.
 
 ## License
 
