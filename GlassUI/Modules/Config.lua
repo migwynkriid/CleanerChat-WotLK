@@ -16,7 +16,15 @@ local ANCHORS = {
   ["BOTTOMLEFT"] = "Bottom left",
   ["BOTTOMRIGHT"] = "Bottom right"
 }
-local FLAGS = { [""] = "None", ["OUTLINE"] = "Outline", ["OUTLINE, MONOCHROME"] = "Outline Monochrome" }
+local FLAGS = {
+  [""] = "None",
+  ["OUTLINE"] = "Outline",
+  ["THICKOUTLINE"] = "Thick Outline",
+  ["MONOCHROME"] = "Monochrome",
+  ["MONOCHROME, OUTLINE"] = "Monochrome Outline",
+  ["MONOCHROME, THICKOUTLINE"] = "Monochrome Thick Outline",
+  ["OUTLINE, MONOCHROME"] = "Outline Monochrome",
+}
 
 function C:OnEnable()
   local options = {
@@ -229,6 +237,20 @@ function C:OnEnable()
                   end,
                   order = 1.1,
                 },
+                editBoxFontFlags = {
+                  name = "Font style",
+                  desc = "Add an outline to the edit box text so it stands out instead of looking flat.",
+                  type = "select",
+                  order = 1.15,
+                  values = FLAGS,
+                  get = function ()
+                    return Core.db.profile.editBoxFontFlags
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.editBoxFontFlags = input
+                    Core:Dispatch(UpdateConfig("editBoxFontFlags"))
+                  end,
+                },
                 editBoxBackgroundOpacity = {
                   name = "Background opacity",
                   desc = "Default: "..Core.defaults.profile.editBoxBackgroundOpacity,
@@ -363,6 +385,20 @@ function C:OnEnable()
                     Core:Dispatch(UpdateConfig("messageFontSize"))
                   end,
                   order = 1.2,
+                },
+                messageFontFlags = {
+                  name = "Font style",
+                  desc = "Add an outline to chat message text so it stands out instead of looking flat.",
+                  type = "select",
+                  order = 1.25,
+                  values = FLAGS,
+                  get = function ()
+                    return Core.db.profile.messageFontFlags
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.messageFontFlags = input
+                    Core:Dispatch(UpdateConfig("messageFontFlags"))
+                  end,
                 },
                 chatBackgroundOpacity = {
                   name = "Background opacity",
@@ -632,6 +668,20 @@ function C:OnEnable()
                     Core:Dispatch(UpdateConfig("dockFontSize"))
                   end,
                 },
+                dockFontFlags = {
+                  name = "Font style",
+                  desc = "Add an outline to the chat tab text so it stands out instead of looking flat.",
+                  type = "select",
+                  order = 1.15,
+                  values = FLAGS,
+                  get = function ()
+                    return Core.db.profile.dockFontFlags
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.dockFontFlags = input
+                    Core:Dispatch(UpdateConfig("dockFontFlags"))
+                  end,
+                },
                 dockBackgroundOpacity = {
                   name = "Background opacity",
                   desc = "Default: "..Core.defaults.profile.dockBackgroundOpacity,
@@ -772,12 +822,14 @@ function C:RefreshConfig()
 
   -- Edit box
   Core:Dispatch(UpdateConfig("editBoxFontSize"))
+  Core:Dispatch(UpdateConfig("editBoxFontFlags"))
   Core:Dispatch(UpdateConfig("editBoxBackgroundOpacity"))
   Core:Dispatch(UpdateConfig("editBoxBackgroundColor"))
   Core:Dispatch(UpdateConfig("editBoxAnchor"))
 
   -- Messages
   Core:Dispatch(UpdateConfig("messageFontSize"))
+  Core:Dispatch(UpdateConfig("messageFontFlags"))
   Core:Dispatch(UpdateConfig("chatBackgroundOpacity"))
   Core:Dispatch(UpdateConfig("chatBackgroundColor"))
   Core:Dispatch(UpdateConfig("chatFadeInDuration"))
@@ -785,6 +837,7 @@ function C:RefreshConfig()
 
   -- Top bar (dock)
   Core:Dispatch(UpdateConfig("dockFontSize"))
+  Core:Dispatch(UpdateConfig("dockFontFlags"))
   Core:Dispatch(UpdateConfig("dockBackgroundOpacity"))
   Core:Dispatch(UpdateConfig("dockBackgroundColor"))
   Core:Dispatch(UpdateConfig("tabsOnHover"))

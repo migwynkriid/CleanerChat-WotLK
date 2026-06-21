@@ -19,7 +19,7 @@ function Fonts:OnEnable()
   self.fonts.GlassMessageFont:SetFont(
     LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.font),
     Core.db.profile.messageFontSize,
-    Core.db.profile.fontFlags
+    Core.db.profile.messageFontFlags
   )
   self.fonts.GlassMessageFont:SetShadowColor(0, 0, 0, 1)
   self.fonts.GlassMessageFont:SetShadowOffset(1, -1)
@@ -32,7 +32,7 @@ function Fonts:OnEnable()
   self.fonts.GlassChatDockFont:SetFont(
     LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.font),
     Core.db.profile.dockFontSize,
-    Core.db.profile.fontFlags
+    Core.db.profile.dockFontFlags
   )
   self.fonts.GlassChatDockFont:SetShadowColor(0, 0, 0, 0)
   self.fonts.GlassChatDockFont:SetShadowOffset(1, -1)
@@ -45,7 +45,7 @@ function Fonts:OnEnable()
   self.fonts.GlassEditBoxFont:SetFont(
     LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.font),
     Core.db.profile.editBoxFontSize,
-    Core.db.profile.fontFlags
+    Core.db.profile.editBoxFontFlags
   )
   self.fonts.GlassEditBoxFont:SetShadowColor(0, 0, 0, 0)
   self.fonts.GlassEditBoxFont:SetShadowOffset(1, -1)
@@ -54,11 +54,11 @@ function Fonts:OnEnable()
   self.fonts.GlassEditBoxFont:SetSpacing(3)
 
   Core:Subscribe(UPDATE_CONFIG, function (key)
-    if key == "font" or key == "messageFontSize" then
+    if key == "font" or key == "messageFontSize" or key == "messageFontFlags" then
       self.fonts.GlassMessageFont:SetFont(
         LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.font),
         Core.db.profile.messageFontSize,
-        Core.db.profile.fontFlags
+        Core.db.profile.messageFontFlags
       )
     end
 
@@ -66,19 +66,19 @@ function Fonts:OnEnable()
       self.fonts.GlassMessageFont:SetSpacing(Core.db.profile.messageLeading)
     end
 
-    if key == "font" or key == "dockFontSize" then
+    if key == "font" or key == "dockFontSize" or key == "dockFontFlags" then
       self.fonts.GlassChatDockFont:SetFont(
         LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.font),
         Core.db.profile.dockFontSize,
-        Core.db.profile.fontFlags
+        Core.db.profile.dockFontFlags
       )
     end
 
-    if key == "font" or key == "editBoxFontSize" then
+    if key == "font" or key == "editBoxFontSize" or key == "editBoxFontFlags" then
       self.fonts.GlassEditBoxFont:SetFont(
         LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.font),
         Core.db.profile.editBoxFontSize,
-        Core.db.profile.fontFlags
+        Core.db.profile.editBoxFontFlags
       )
     end
   end)

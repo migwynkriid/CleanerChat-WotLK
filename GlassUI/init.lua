@@ -54,6 +54,7 @@ Core.defaults = {
 
     -- Edit box
     editBoxFontSize = 12,
+    editBoxFontFlags = "OUTLINE",
     editBoxBackgroundOpacity = 0.6,
     editBoxBackgroundColor = { r = 17 / 255, g = 17 / 255, b = 17 / 255 }, -- codGray
     editBoxAnchor = {
@@ -64,6 +65,7 @@ Core.defaults = {
 
     -- Messages
     messageFontSize = 12,
+    messageFontFlags = "OUTLINE",
     chatBackgroundOpacity = 0.4,
     chatBackgroundColor = { r = 17 / 255, g = 17 / 255, b = 17 / 255 }, -- codGray
     messageLeading = 3,
@@ -77,6 +79,7 @@ Core.defaults = {
 
     -- Top bar (chat tabs dock)
     dockFontSize = 12,
+    dockFontFlags = "OUTLINE",
     dockBackgroundOpacity = 0.4,
     dockBackgroundColor = { r = 0, g = 0, b = 0 }, -- black
     dockHoldTime = 10,
