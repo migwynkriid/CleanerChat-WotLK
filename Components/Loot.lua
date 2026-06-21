@@ -30,9 +30,37 @@ local Module = ns:NewModule("Loot")
 -- Addon Localization
 local L = LibStub("AceLocale-3.0"):GetLocale((...))
 
--- GLOBALS: UnitClass
+-- GLOBALS: UnitClass, UseContainerItem
 -- GLOBALS: MerchantFrame, ChatTypeInfo, DEFAULT_CHAT_FRAME, ChatFrame1
 -- GLOBALS: hooksecurefunc, GetContainerItemLink, GetContainerItemInfo
+
+-- Pending vendor sale info: stores {bag, slot, link, count} captured BEFORE
+-- UseContainerItem runs. Set by the pre-hook, consumed by the post-hook.
+local pendingVendorSale = nil
+
+-- Pre-hook: Replace UseContainerItem at file load time (earliest possible)
+-- to capture item info BEFORE the original function removes it from the bag.
+do
+	local originalUseContainerItem = UseContainerItem
+	UseContainerItem = function(bag, slot, ...)
+		-- Capture item info BEFORE calling the original
+		pendingVendorSale = nil
+		if MerchantFrame and MerchantFrame:IsShown() then
+			local link = GetContainerItemLink(bag, slot)
+			if link then
+				local _, count = GetContainerItemInfo(bag, slot)
+				pendingVendorSale = {
+					bag = bag,
+					slot = slot,
+					link = link,
+					count = count or 1
+				}
+			end
+		end
+		-- Call the original function
+		return originalUseContainerItem(bag, slot, ...)
+	end
+end
 -- Lua API
 local ipairs = ipairs
 local rawget = rawget
@@ -469,42 +497,52 @@ Module.OnEnable = function(self)
 	self:RegisterMessageEventFilter("CHAT_MSG_SYSTEM", onChatEventProxy)
 
 	-- Track vendor sales so they show a "- item" line (see ReportItemSold).
-	-- Right-clicking a bag item while the merchant window is open sells it, so
-	-- we post-hook UseContainerItem. We delay the check to confirm the item was
-	-- actually removed (vendor might reject unsellable items like "The merchant
-	-- doesn't want that item"). Hooked once; gated on IsEnabled so disabling
-	-- the Loot module also stops the tracking.
+	-- The pre-hook (at file load) captures item info into pendingVendorSale.
+	-- This post-hook checks if the sale succeeded and reports it.
 	if (not self.merchantHooked) then
 		self.merchantHooked = true
 		hooksecurefunc("UseContainerItem", function(bag, slot)
-			if (not Module:IsEnabled()) then return end
-			if (not MerchantFrame) or (not MerchantFrame:IsShown()) then return end
+			if not Module:IsEnabled() then return end
+			if not pendingVendorSale then return end
 
-			local link = GetContainerItemLink(bag, slot)
-			if (not link) then return end
+			-- Consume the pending sale info
+			local pending = pendingVendorSale
+			pendingVendorSale = nil
 
-			local _, countBefore = GetContainerItemInfo(bag, slot)
-			countBefore = countBefore or 1
+			-- Verify this is the same bag/slot
+			if pending.bag ~= bag or pending.slot ~= slot then return end
 
-			-- Delay the check to let the server confirm the sale.
-			-- If the vendor rejects the item, it will still be in the slot.
-			if (C_Timer and C_Timer.After) then
-				C_Timer.After(0.1, function()
+			local link = pending.link
+			local countBefore = pending.count
+
+			-- The server confirms the item removal asynchronously and latency
+			-- varies, so a single fixed delay is unreliable (it often checks
+			-- before the bag updates, sees the item still there, and reports
+			-- nothing). Instead POLL the slot until it changes, then report.
+			-- If after ~1s it never changed, the vendor rejected the item
+			-- (unsellable) so we report nothing -- no false positive.
+			if C_Timer and C_Timer.After then
+				local attempts = 0
+				local function check()
+					attempts = attempts + 1
 					local linkAfter = GetContainerItemLink(bag, slot)
 					local _, countAfter = GetContainerItemInfo(bag, slot)
 					countAfter = countAfter or 0
 
-					-- Item completely gone = sold all
-					if (not linkAfter) then
+					if not linkAfter then
+						-- Slot empty = sold the whole stack
 						Module:ReportItemSold(link, countBefore)
-					-- Same item but count decreased = sold some (shouldn't happen with vendors but be safe)
-					elseif (linkAfter == link and countAfter < countBefore) then
+					elseif linkAfter == link and countAfter < countBefore then
+						-- Same item, fewer of them = sold part of the stack
 						Module:ReportItemSold(link, countBefore - countAfter)
+					elseif attempts < 12 then
+						-- Bag not updated yet, keep polling
+						C_Timer.After(0.1, check)
 					end
-					-- If item is still there with same count, vendor rejected it - don't report
-				end)
+				end
+				C_Timer.After(0.05, check)
 			else
-				-- Fallback: immediate report (old behavior) if no timer available
+				-- No timer available: report immediately
 				Module:ReportItemSold(link, countBefore)
 			end
 		end)
