@@ -293,8 +293,13 @@ Module.OnEvent = function(self, event, ...)
 				local b = info and info.b or 0
 
 				if (money > 0) then
-					-- Check if we should buffer for one-line quest rewards
-					if (ns.db and ns.db.oneLineQuestRewards) then
+					-- Check if we should buffer for one-line quest rewards.
+					-- Skip buffering when vendor/mail/trainer windows are open -- those
+					-- are transactions, not quest rewards, and should display immediately.
+					local atVendor = MerchantFrame and MerchantFrame:IsShown()
+					local atMail = MailFrame and MailFrame:IsShown()
+					local atTrainer = ClassTrainerFrame and ClassTrainerFrame:IsShown()
+					if (not atVendor) and (not atMail) and (not atTrainer) and (ns.db and ns.db.oneLineQuestRewards) then
 						local chatFrame = DEFAULT_CHAT_FRAME or ChatFrame1
 						if (chatFrame) then
 							local moneyText = formatMoney(g,s,c)
