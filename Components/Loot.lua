@@ -33,6 +33,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale((...))
 -- GLOBALS: UnitClass
 -- GLOBALS: MerchantFrame, ChatTypeInfo, DEFAULT_CHAT_FRAME, ChatFrame1
 -- GLOBALS: hooksecurefunc, GetContainerItemLink, GetContainerItemInfo
+-- GLOBALS: TakeInboxItem, GetInboxItem, GetInboxItemLink
 
 -- Lua API
 local ipairs = ipairs
@@ -84,8 +85,6 @@ local G = {
 
 }
 
-local _,playerClass = UnitClass("player")
-
 -- Convert a WoW global string to a search pattern
 local makePattern = ns.MakePattern
 
@@ -108,26 +107,22 @@ Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
 	-- Not sure any of these Honor entries are parsed, or even needed.
 
 	-- "%s dies, honorable kill Rank: %s (%d Honor Points)"
-	local honorpoints = safeMatch(msg,P[G.COMBATLOG_HONORGAIN])
-	if (honorpoints) then
+	if (safeMatch(msg,P[G.COMBATLOG_HONORGAIN])) then
 		return true
 	end
 
 	-- "%s dies, honorable kill (%d Honor Points)"
-	local honorpoints = safeMatch(msg,P[G.COMBATLOG_HONORGAIN_NO_RANK])
-	if (honorpoints) then
+	if (safeMatch(msg,P[G.COMBATLOG_HONORGAIN_NO_RANK])) then
 		return true
 	end
 
 	-- "You have been awarded %d honor points."
-	local honorpoints = safeMatch(msg,P[G.COMBATLOG_HONORAWARD])
-	if (honorpoints) then
+	if (safeMatch(msg,P[G.COMBATLOG_HONORAWARD])) then
 		return true
 	end
 
 	-- "You have been awarded %d arena points."
-	local arenapoints = safeMatch(msg,P[G.COMBATLOG_ARENAPOINTSAWARD])
-	if (arenapoints) then
+	if (safeMatch(msg,P[G.COMBATLOG_ARENAPOINTSAWARD])) then
 		return true
 	end
 
@@ -454,6 +449,38 @@ Module.ReportItemSold = function(self, link, count)
 	end
 end
 
+-- Taking an item from the mailbox is silent on 3.3.5 (no loot chat message),
+-- so the "+ item" line you get from looting never appeared for mail. Hook the
+-- mail-take function and emit a matching "+ item" line. The cached attachment
+-- is still readable in the post-hook (not cleared until the server's
+-- MAIL_INBOX_UPDATE), so we read it there.
+Module.ReportMailItem = function(self, mailID, attachIndex)
+	local link = GetInboxItemLink and GetInboxItemLink(mailID, attachIndex)
+	if (not link) then return end
+
+	local _, _, count = GetInboxItem(mailID, attachIndex)
+
+	-- Strip the [] from the link (keeps the |H hyperlink + quality colour).
+	local item = string_gsub(link, "[%[/%]]", "")
+
+	local msg
+	if (count and count > 1) then
+		msg = string_format(ns.out.item_multiple, item, count)
+	else
+		msg = string_format(ns.out.item_single, item)
+	end
+
+	local info = ChatTypeInfo and ChatTypeInfo["LOOT"]
+	local r = info and info.r or 1
+	local g = info and info.g or 1
+	local b = info and info.b or 1
+
+	local chatFrame = DEFAULT_CHAT_FRAME or ChatFrame1
+	if (chatFrame) and (chatFrame.AddMessage) then
+		chatFrame:AddMessage(msg, r, g, b)
+	end
+end
+
 local onAddMessageProxy = function(...)
 	return Module:OnAddMessage(...)
 end
@@ -517,6 +544,19 @@ Module.OnEnable = function(self)
 			else
 				-- No timer available: report immediately
 				Module:ReportItemSold(link, countBefore)
+			end
+		end)
+	end
+
+	-- Taking items from the mailbox is silent on 3.3.5, so hook the mail-take
+	-- function and emit a "+ item" line (see ReportMailItem). Covers the default
+	-- mail UI -- clicking an attachment calls TakeInboxItem. hooksecurefunc = no
+	-- taint; the attachment is still readable in the post-hook.
+	if (not self.mailHooked) then
+		self.mailHooked = true
+		hooksecurefunc("TakeInboxItem", function(mailID, attachIndex)
+			if (Module:IsEnabled()) then
+				Module:ReportMailItem(mailID, attachIndex)
 			end
 		end)
 	end

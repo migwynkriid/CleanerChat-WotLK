@@ -33,7 +33,6 @@ local L = LibStub("AceLocale-3.0"):GetLocale((...))
 -- Libraries
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
-local AceGUI = LibStub("AceGUI-3.0")
 
 -- GLOBALS: CopyTable, ReloadUI
 
@@ -168,7 +167,7 @@ local filterDB = {
 	},
 	auctions = {
 		name = L["Auctions"],
-		desc = L["Suppress auction messages while auction frame is open, display summary after."],
+		desc = L["Simplify auction house messages: listings created, cancelled, sold, won and bids placed."],
 		width = 1.5,
 		type = "toggle",
 		set = setter,
