@@ -50,3 +50,6 @@ L["One Line Quest Rewards"] = "퀘스트 보상 한 줄 표시"
 L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."] = "퀘스트 보상(아이템, 화폐, 경험치)을 한 줄로 결합합니다. 평판 획득은 세력별로 별도로 유지됩니다."
 L["Show Item Destruction"] = "아이템 파괴 표시"
 L["Display a message when you destroy (delete) an item."] = "아이템을 파괴(삭제)할 때 메시지를 표시합니다."
+
+L["Show Vendor Sales"] = "상인 판매 표시"
+L["Display a message when you sell an item to a vendor."] = "상인에게 아이템을 판매할 때 메시지를 표시합니다."

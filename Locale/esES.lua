@@ -51,3 +51,6 @@ L["Combine quest rewards (items, currency, experience) into a single line. Reput
 
 L["Show Item Destruction"] = "Mostrar destrucción de objetos"
 L["Display a message when you destroy (delete) an item."] = "Muestra un mensaje cuando destruyes (eliminas) un objeto."
+
+L["Show Vendor Sales"] = "Mostrar ventas a vendedor"
+L["Display a message when you sell an item to a vendor."] = "Muestra un mensaje cuando vendes un objeto a un vendedor."

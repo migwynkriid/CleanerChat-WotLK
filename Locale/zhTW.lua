@@ -49,3 +49,6 @@ L["One Line Quest Rewards"] = "任務獎勵單行顯示"
 L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."] = "將任務獎勵（物品、貨幣、經驗）合併為一行。聲望獲取按陣營單獨顯示。"
 L["Show Item Destruction"] = "顯示物品銷毀"
 L["Display a message when you destroy (delete) an item."] = "當你銷毀（刪除）物品時顯示訊息。"
+
+L["Show Vendor Sales"] = "顯示商人出售"
+L["Display a message when you sell an item to a vendor."] = "當你向商人出售物品時顯示訊息。"

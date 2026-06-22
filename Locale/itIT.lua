@@ -50,3 +50,6 @@ L["One Line Quest Rewards"] = "Ricompense missione su una riga"
 L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."] = "Combina le ricompense delle missioni (oggetti, valuta, esperienza) su una singola riga. I guadagni di reputazione rimangono separati per fazione."
 L["Show Item Destruction"] = "Mostra distruzione oggetti"
 L["Display a message when you destroy (delete) an item."] = "Mostra un messaggio quando distruggi (elimini) un oggetto."
+
+L["Show Vendor Sales"] = "Mostra vendite al mercante"
+L["Display a message when you sell an item to a vendor."] = "Mostra un messaggio quando vendi un oggetto a un mercante."

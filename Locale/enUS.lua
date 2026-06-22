@@ -89,6 +89,9 @@ L["Combine quest rewards (items, currency, experience) into a single line. Reput
 L["Show Item Destruction"] = true
 L["Display a message when you destroy (delete) an item."] = true
 
+L["Show Vendor Sales"] = true
+L["Display a message when you sell an item to a vendor."] = true
+
 -- Glass UI Config Strings
 -- Category/Section Names
 L["Glass"] = true

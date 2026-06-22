@@ -245,6 +245,7 @@ local defaults = {
 	rawDebug = false, -- /ccdebug chat raw/event capture (persists across /reload)
 	oneLineQuestRewards = true, -- combine quest rewards (items, currency, xp) into one line
 	showItemDestruction = true, -- show "- item" when destroying items
+	showVendorSales = true, -- show "- item" when selling to vendors
 	filters = {
 		achievements = true,
 		auctions = true,

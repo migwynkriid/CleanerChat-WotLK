@@ -510,6 +510,7 @@ Module.OnEnable = function(self)
 		self.merchantHooked = true
 		hooksecurefunc("UseContainerItem", function(bag, slot)
 			if not Module:IsEnabled() then return end
+			if (ns.db and not ns.db.showVendorSales) then return end
 			if not MerchantFrame or not MerchantFrame:IsShown() then return end
 
 			-- Capture the item (still present -- removal is async).

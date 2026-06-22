@@ -145,6 +145,15 @@ local optionDB = {
 			type = "toggle",
 			set = function(info,value) ns.db.showItemDestruction = value end,
 			get = function(info) return ns.db.showItemDestruction end,
+		},
+		showVendorSales = {
+			order = 108,
+			name = L["Show Vendor Sales"],
+			desc = L["Display a message when you sell an item to a vendor."],
+			width = 1.5,
+			type = "toggle",
+			set = function(info,value) ns.db.showVendorSales = value end,
+			get = function(info) return ns.db.showVendorSales end,
 		}
 	}
 }

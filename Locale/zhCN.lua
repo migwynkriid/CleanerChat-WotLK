@@ -47,3 +47,6 @@ L["One Line Quest Rewards"] = "任务奖励单行显示"
 L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."] = "将任务奖励（物品、货币、经验）合并为一行。声望获取按阵营单独显示。"
 L["Show Item Destruction"] = "显示物品销毁"
 L["Display a message when you destroy (delete) an item."] = "当你销毁（删除）物品时显示消息。"
+
+L["Show Vendor Sales"] = "显示商人出售"
+L["Display a message when you sell an item to a vendor."] = "当你向商人出售物品时显示消息。"
