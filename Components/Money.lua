@@ -36,14 +36,14 @@ local Coin = setmetatable({}, { __index = function(t,k)
 	local _,fontHeight = frame:GetFont()
 
 	fontHeight = fontHeight or 14
-	-- Match icon size to font height for proper scaling
+	-- Icon matches font height exactly
 	local size = math_floor(fontHeight)
 	if size < 10 then size = 10 end
 
 	-- Use Blizzard coin textures (always available in 3.3.5)
 	-- Format: |Tpath:height:width:xOffset:yOffset|t
-	-- Y offset centers the icon vertically with the text baseline
-	local yOffset = math_floor(size * 0.125)
+	-- Y offset scales with font size to stay centered (roughly 15% of font height)
+	local yOffset = math_floor(fontHeight * 0.15 + 0.5)
 
 	if (k == "Gold") then
 		return string_format([[|TInterface\MoneyFrame\UI-GoldIcon:%d:%d:0:%d|t]], size, size, yOffset)
@@ -109,10 +109,10 @@ local formatMoney = function(gold, silver, copper, colorCode)
 	local parts = {}
 	if (gold and gold > 0) then
 		local goldStr = (ns.db == nil or ns.db.moneyPrettify) and prettify(gold) or tostring(gold)
-		parts[#parts + 1] = string_format("%s%s|r %s", colorCode, goldStr, Coin["Gold"])
+		parts[#parts + 1] = string_format("%s%s|r %s  ", colorCode, goldStr, Coin["Gold"])
 	end
 	if (silver and silver > 0) then
-		parts[#parts + 1] = string_format("%s%d|r %s", colorCode, silver, Coin["Silver"])
+		parts[#parts + 1] = string_format("%s%d|r %s  ", colorCode, silver, Coin["Silver"])
 	end
 	if (copper and copper > 0) then
 		parts[#parts + 1] = string_format("%s%d|r %s", colorCode, copper, Coin["Copper"])
