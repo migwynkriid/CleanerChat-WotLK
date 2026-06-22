@@ -151,6 +151,16 @@ function ScrollOverlayFrame:HideNewMessageAlert()
   end
 end
 
+-- Override Show to respect hideScrollIndicator setting
+function ScrollOverlayFrame:Show()
+  if Core.db.profile.hideScrollIndicator then
+    return -- Don't show if indicator is disabled
+  end
+  -- Call the FadingFrameMixin's Show implementation directly
+  local FadingFrameMixin = Core.Components.FadingFrameMixin
+  FadingFrameMixin.Show(self)
+end
+
 local function CreateScrollOverlayFrame(parent)
   local FadingFrameMixin = Core.Components.FadingFrameMixin
   local GradientBackgroundMixin = Core.Components.GradientBackgroundMixin

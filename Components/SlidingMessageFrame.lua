@@ -434,6 +434,15 @@ function SlidingMessageFrameMixin:Init(chatFrame)
               self.overlay:UpdatePosition()
             end
           end
+
+          if key == "hideScrollIndicator" then
+            if self.overlay then
+              if Core.db.profile.hideScrollIndicator then
+                self.overlay:QuickHide()
+              end
+              -- If turned back on, it will show naturally when scrolling up
+            end
+          end
         end
       end)
     }

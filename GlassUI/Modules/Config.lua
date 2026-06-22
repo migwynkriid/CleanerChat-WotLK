@@ -667,6 +667,20 @@ function C:OnEnable()
                   type = "header",
                   order = 3.5,
                 },
+                hideScrollIndicator = {
+                  name = "Hide scroll indicator",
+                  desc = "Hide the \"Unread messages\" and \"Bring me to the present\" indicator completely.",
+                  type = "toggle",
+                  width = "full",
+                  order = 3.55,
+                  get = function ()
+                    return Core.db.profile.hideScrollIndicator
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.hideScrollIndicator = input
+                    Core:Dispatch(UpdateConfig("hideScrollIndicator"))
+                  end,
+                },
                 scrollIndicatorColor = {
                   name = "Indicator text color",
                   desc = "Color of the \"Unread messages\" and \"Bring me to the present\" text.",
@@ -674,6 +688,7 @@ function C:OnEnable()
                   hasAlpha = false,
                   width = 1,
                   order = 3.6,
+                  disabled = function () return Core.db.profile.hideScrollIndicator end,
                   get = function ()
                     local c = Core.db.profile.scrollIndicatorColor
                     return c.r, c.g, c.b
@@ -690,6 +705,7 @@ function C:OnEnable()
                   type = "range",
                   width = 1.5,
                   order = 3.65,
+                  disabled = function () return Core.db.profile.hideScrollIndicator end,
                   min = 0,
                   max = 1,
                   step = 0.05,
@@ -708,6 +724,7 @@ function C:OnEnable()
                   hasAlpha = false,
                   width = 1,
                   order = 3.7,
+                  disabled = function () return Core.db.profile.hideScrollIndicator end,
                   get = function ()
                     local c = Core.db.profile.scrollIndicatorBgColor
                     return c.r, c.g, c.b
@@ -724,6 +741,7 @@ function C:OnEnable()
                   type = "range",
                   width = 1.5,
                   order = 3.75,
+                  disabled = function () return Core.db.profile.hideScrollIndicator end,
                   min = 0,
                   max = 1,
                   step = 0.05,
@@ -969,6 +987,7 @@ function C:RefreshConfig()
   Core:Dispatch(UpdateConfig("scrollIndicatorOpacity"))
   Core:Dispatch(UpdateConfig("scrollIndicatorBgColor"))
   Core:Dispatch(UpdateConfig("scrollIndicatorBgOpacity"))
+  Core:Dispatch(UpdateConfig("hideScrollIndicator"))
 
   -- Top bar (dock)
   Core:Dispatch(UpdateConfig("dockFontSize"))
