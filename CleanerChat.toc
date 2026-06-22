@@ -2,7 +2,7 @@
 
 ## Title: |cffDFBA69CleanerChat|r
 ## Notes: Filters chat clutter (loot, XP, rep, achievements, etc.) and replaces the default chat with an immersive, modern UI. Type /cc for options.
-## Version: 1.21
+## Version: 1.22
 ## Author: migwynkriid
 
 ## X-Category: Interface Enhancements
