@@ -135,3 +135,4 @@ out.glory_progress = "*gray*%d Glory needed to reach the next rank**"
 
 -- Death message
 out.died = "*red*-** *palered*Died**"
+out.durability_loss = "*red*-** *palered*%d%% Durability**"

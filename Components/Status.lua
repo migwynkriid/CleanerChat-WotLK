@@ -38,11 +38,6 @@ end })
 
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 
-	-- Death message: |cff71d5ff|Hdeath:...|h[You died.]|h|r
-	if (string_find(message, "|Hdeath:")) then
-		return false, ns.out.died, author, ...
-	end
-
 	-- AFK
 	if (message == MARKED_AFK) then
 		return false, ns.out.afk_added, author, ...
