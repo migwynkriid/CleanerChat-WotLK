@@ -4,6 +4,9 @@ local C = Core:GetModule("Config")
 local AceDBOptions = Core.Libs.AceDBOptions
 local LSM = Core.Libs.LSM
 
+-- Localization
+local L = LibStub("AceLocale-3.0"):GetLocale("CleanerChat")
+
 local UnlockMover = Constants.ACTIONS.UnlockMover
 local LockMover = Constants.ACTIONS.LockMover
 local UpdateConfig = Constants.ACTIONS.UpdateConfig
@@ -11,34 +14,34 @@ local UpdateConfig = Constants.ACTIONS.UpdateConfig
 local SAVE_FRAME_POSITION = Constants.EVENTS.SAVE_FRAME_POSITION
 
 local ANCHORS = {
-  ["TOPLEFT"] = "Top left",
-  ["TOPRIGHT"] = "Top right",
-  ["BOTTOMLEFT"] = "Bottom left",
-  ["BOTTOMRIGHT"] = "Bottom right"
+  ["TOPLEFT"] = L["Top left"],
+  ["TOPRIGHT"] = L["Top right"],
+  ["BOTTOMLEFT"] = L["Bottom left"],
+  ["BOTTOMRIGHT"] = L["Bottom right"]
 }
 local FLAGS = {
-  [""] = "None",
-  ["OUTLINE"] = "Outline",
-  ["THICKOUTLINE"] = "Thick Outline",
-  ["MONOCHROME"] = "Monochrome",
-  ["MONOCHROME, OUTLINE"] = "Monochrome Outline",
-  ["MONOCHROME, THICKOUTLINE"] = "Monochrome Thick Outline",
-  ["OUTLINE, MONOCHROME"] = "Outline Monochrome",
+  [""] = L["None"],
+  ["OUTLINE"] = L["Outline"],
+  ["THICKOUTLINE"] = L["Thick Outline"],
+  ["MONOCHROME"] = L["Monochrome"],
+  ["MONOCHROME, OUTLINE"] = L["Monochrome Outline"],
+  ["MONOCHROME, THICKOUTLINE"] = L["Monochrome Thick Outline"],
+  ["OUTLINE, MONOCHROME"] = L["Outline Monochrome"],
 }
 
 function C:OnEnable()
   local options = {
-      name = "Glass",
+      name = L["Glass"],
       handler = C,
       type = "group",
       args = {
         general = {
-          name = "General",
+          name = L["General"],
           type = "group",
           order = 1,
           args = {
             section1 = {
-              name = "Frame Position",
+              name = L["Frame Position"],
               type = "group",
               inline = true,
               order = 2,
@@ -47,9 +50,9 @@ function C:OnEnable()
                   name = function()
                     local UIManager = Core:GetModule("UIManager", true)
                     if UIManager and UIManager.moverDialog and UIManager.moverDialog:IsShown() then
-                      return "Lock frame"
+                      return L["Lock frame"]
                     end
-                    return "Unlock frame"
+                    return L["Unlock frame"]
                   end,
                   type = "execute",
                   func = function()
@@ -63,11 +66,11 @@ function C:OnEnable()
                   order = 2.1,
                 },
                 resetConfig = {
-                  name = "Reset config",
-                  desc = "Reset all Glass settings to their default values.",
+                  name = L["Reset config"],
+                  desc = L["Reset all Glass settings to their default values."],
                   type = "execute",
                   confirm = true,
-                  confirmText = "Reset all settings to their defaults?",
+                  confirmText = L["Reset all settings to their defaults?"],
                   func = function()
                     Core.db:ResetProfile()
                   end,
@@ -76,14 +79,14 @@ function C:OnEnable()
               }
             },
             section2 = {
-              name = "Appearance",
+              name = L["Appearance"],
               type = "group",
               inline = true,
               order = 3,
               args = {
                 font = {
-                  name = "Font",
-                  desc = "Font to use throughout Glass",
+                  name = L["Font"],
+                  desc = L["Font to use throughout Glass"],
                   type = "select",
                   order = 3.1,
                   dialogControl = "LSM30_Font",
@@ -99,13 +102,13 @@ function C:OnEnable()
               },
             },
             section3 = {
-              name = "Frame",
+              name = L["Frame"],
               type = "group",
               inline = true,
               order = 4,
               args = {
                 frameXOfs = {
-                  name = "X offset",
+                  name = L["X offset"],
                   desc = "Default: "..Core.defaults.profile.positionAnchor.xOfs,
                   type = "range",
                   order = 4.1,
@@ -123,7 +126,7 @@ function C:OnEnable()
                   end
                 },
                 frameWidth = {
-                  name = "Width",
+                  name = L["Width"],
                   desc = "Default: "..Core.defaults.profile.frameWidth..
                     "\nMin: 100",
                   type = "range",
@@ -142,7 +145,7 @@ function C:OnEnable()
                   end
                 },
                 frameYOfs = {
-                  name = "Y offset",
+                  name = L["Y offset"],
                   desc = "Default: "..Core.defaults.profile.positionAnchor.yOfs,
                   type = "range",
                   order = 4.4,
@@ -160,7 +163,7 @@ function C:OnEnable()
                   end
                 },
                 frameHeight = {
-                  name = "Height",
+                  name = L["Height"],
                   desc = "Default: "..Core.defaults.profile.frameHeight,
                   type = "range",
                   order = 4.5,
@@ -178,7 +181,7 @@ function C:OnEnable()
                   end
                 },
                 frameAnchor = {
-                  name = "Anchor",
+                  name = L["Anchor"],
                   desc = "Default: "..Core.db.profile.positionAnchor.point,
                   type = "select",
                   order = 4.3,
@@ -196,18 +199,18 @@ function C:OnEnable()
           }
         },
         editBox = {
-          name = "Edit box",
+          name = L["Edit box"],
           type = "group",
           order = 2,
           args = {
             section1 = {
-              name = "Appearance",
+              name = L["Appearance"],
               type = "group",
               inline = true,
               order = 1,
               args = {
                 editBoxFontSize = {
-                  name = "Font size",
+                  name = L["Font size"],
                   desc = "Default: "..Core.defaults.profile.editBoxFontSize.."\nMin: 1\nMax: 100",
                   type = "range",
                   min = 1,
@@ -225,8 +228,8 @@ function C:OnEnable()
                   order = 1.1,
                 },
                 editBoxFontFlags = {
-                  name = "Font style",
-                  desc = "Add an outline to the edit box text so it stands out instead of looking flat.",
+                  name = L["Font style"],
+                  desc = L["Add an outline to the edit box text so it stands out instead of looking flat."],
                   type = "select",
                   order = 1.3,
                   values = FLAGS,
@@ -239,7 +242,7 @@ function C:OnEnable()
                   end,
                 },
                 editBoxBackgroundOpacity = {
-                  name = "Background opacity",
+                  name = L["Background opacity"],
                   desc = "Default: "..Core.defaults.profile.editBoxBackgroundOpacity,
                   type = "range",
                   order = 1.2,
@@ -257,8 +260,8 @@ function C:OnEnable()
                   end,
                 },
                 editBoxBackgroundColor = {
-                  name = "Background color",
-                  desc = "The colour of the edit box background.",
+                  name = L["Background color"],
+                  desc = L["The colour of the edit box background."],
                   type = "color",
                   hasAlpha = false,
                   order = 1.4,
@@ -275,19 +278,19 @@ function C:OnEnable()
               }
             },
             section2 = {
-              name = "Position",
+              name = L["Position"],
               type = "group",
               inline = true,
               order = 2,
               args = {
                 editBoxAnchorPosition = {
-                  name = "Position",
+                  name = L["Position"],
                   desc = "Default: "..Core.defaults.profile.editBoxAnchor.position,
                   type = "select",
                   order = 2.2,
                   values = {
-                    ABOVE = "Above",
-                    BELOW = "Below",
+                    ABOVE = L["Above"],
+                    BELOW = L["Below"],
                   },
                   get = function ()
                     return Core.db.profile.editBoxAnchor.position
@@ -303,7 +306,7 @@ function C:OnEnable()
                   end
                 },
                 editBoxAnchorYOfs = {
-                  name = "Vertical offset",
+                  name = L["Vertical offset"],
                   desc = "Default: 5 or -5",
                   type = "range",
                   order = 2.1,
@@ -323,14 +326,14 @@ function C:OnEnable()
               },
             },
             section3 = {
-              name = "Behavior",
+              name = L["Behavior"],
               type = "group",
               inline = true,
               order = 3,
               args = {
                 showOnEditFocus = {
-                  name = "Show chat on focus",
-                  desc = "When enabled, opening the edit box (pressing Enter or clicking) reveals the chat messages.",
+                  name = L["Show chat on focus"],
+                  desc = L["When enabled, opening the edit box (pressing Enter or clicking) reveals the chat messages."],
                   type = "toggle",
                   order = 3.1,
                   get = function ()
@@ -345,18 +348,18 @@ function C:OnEnable()
           },
         },
         messages = {
-          name = "Messages",
+          name = L["Messages"],
           type = "group",
           order = 3,
           args = {
             section1 = {
-              name = "Appearance",
+              name = L["Appearance"],
               type = "group",
               inline = true,
               order = 1,
               args = {
                 messageFontSize = {
-                  name = "Font size",
+                  name = L["Font size"],
                   desc = "Default: "..Core.defaults.profile.messageFontSize.."\nMin: 1\nMax: 100",
                   type = "range",
                   min = 1,
@@ -374,8 +377,8 @@ function C:OnEnable()
                   order = 1.2,
                 },
                 messageFontFlags = {
-                  name = "Font style",
-                  desc = "Add an outline to chat message text so it stands out instead of looking flat.",
+                  name = L["Font style"],
+                  desc = L["Add an outline to chat message text so it stands out instead of looking flat."],
                   type = "select",
                   order = 1.6,
                   values = FLAGS,
@@ -388,7 +391,7 @@ function C:OnEnable()
                   end,
                 },
                 chatBackgroundOpacity = {
-                  name = "Background opacity",
+                  name = L["Background opacity"],
                   desc = "Default: "..Core.defaults.profile.chatBackgroundOpacity,
                   type = "range",
                   order = 1.2,
@@ -406,8 +409,8 @@ function C:OnEnable()
                   end,
                 },
                 chatBackgroundColor = {
-                  name = "Background color",
-                  desc = "The colour of the chat message background.",
+                  name = L["Background color"],
+                  desc = L["The colour of the chat message background."],
                   type = "color",
                   hasAlpha = false,
                   order = 1.7,
@@ -422,7 +425,7 @@ function C:OnEnable()
                   end,
                 },
                 messageLeading = {
-                  name = "Leading",
+                  name = L["Leading"],
                   desc = "Default: "..Core.defaults.profile.messageLeading.."\nMin: 0\nMax: 10",
                   type = "range",
                   min = 0,
@@ -440,7 +443,7 @@ function C:OnEnable()
                   order = 1.3,
                 },
                 messageLinePadding = {
-                  name = "Line padding",
+                  name = L["Line padding"],
                   desc = "Default: "..Core.defaults.profile.messageLinePadding.."\nMin: 0\nMax: 5",
                   type = "range",
                   min = 0,
@@ -458,8 +461,8 @@ function C:OnEnable()
                   order = 1.4,
                 },
                 messageLeftPadding = {
-                  name = "Left padding",
-                  desc = "Default: "..Core.defaults.profile.messageLeftPadding.."\nMin: 0\nMax: 50\n\nControls the blank space on the left side of messages.",
+                  name = L["Left padding"],
+                  desc = "Default: "..Core.defaults.profile.messageLeftPadding.."\nMin: 0\nMax: 50\n\n"..L["Controls the blank space on the left side of messages."],
                   type = "range",
                   min = 0,
                   max = 50,
@@ -478,14 +481,14 @@ function C:OnEnable()
               },
             },
             section2 = {
-              name = "Animations",
+              name = L["Animations"],
               type = "group",
               inline = true,
               order = 2,
               args = {
                 disableAnimations = {
-                  name = "Disable animations",
-                  desc = "Show messages instantly with no slide or fade -- the chat becomes static. The timing sliders below have no effect while this is on.",
+                  name = L["Disable animations"],
+                  desc = L["Show messages instantly with no slide or fade -- the chat becomes static. The timing sliders below have no effect while this is on."],
                   type = "toggle",
                   order = 2.0,
                   get = function ()
@@ -497,8 +500,8 @@ function C:OnEnable()
                   end,
                 },
                 messagesAlwaysVisible = {
-                  name = "Keep messages visible",
-                  desc = "Messages never fade out -- they stay on screen permanently. Overrides the fade out delay and duration below.",
+                  name = L["Keep messages visible"],
+                  desc = L["Messages never fade out -- they stay on screen permanently. Overrides the fade out delay and duration below."],
                   type = "toggle",
                   order = 2.01,
                   get = function ()
@@ -516,7 +519,7 @@ function C:OnEnable()
                   width = "full",
                 },
                 chatHoldTime = {
-                  name = "Fade out delay",
+                  name = L["Fade out delay"],
                   desc = "Default: "..Core.defaults.profile.chatHoldTime..
                     "\nMin: 1\nMax: 180",
                   type = "range",
@@ -534,7 +537,7 @@ function C:OnEnable()
                   end,
                 },
                 fadeInDuration = {
-                  name = "Fade in duration",
+                  name = L["Fade in duration"],
                   desc = "Default: "..Core.defaults.profile.chatFadeInDuration..
                     "\nMin: 0\nMax:30",
                   type = "range",
@@ -553,7 +556,7 @@ function C:OnEnable()
                   end
                 },
                 fadeOutDuration = {
-                  name = "Fade out duration",
+                  name = L["Fade out duration"],
                   desc = "Default: "..Core.defaults.profile.chatFadeOutDuration..
                     "\nMin: 0\nMax:30",
                   type = "range",
@@ -572,7 +575,7 @@ function C:OnEnable()
                   end
                 },
                 slideInDuration = {
-                  name = "Slide in duration",
+                  name = L["Slide in duration"],
                   desc = "Default: "..Core.defaults.profile.chatSlideInDuration,
                   type = "range",
                   order = 2.3,
@@ -591,14 +594,14 @@ function C:OnEnable()
               }
             },
             section3 = {
-              name = "Misc",
+              name = L["Misc"],
               type = "group",
               inline = true,
               order = 3,
               args = {
                 indentWordWrap = {
-                  name = "Indent on line wrap",
-                  desc = "Adds an indent when a message wraps beyond a single line.",
+                  name = L["Indent on line wrap"],
+                  desc = L["Adds an indent when a message wraps beyond a single line."],
                   type = "toggle",
                   order = 3.1,
                   get = function ()
@@ -610,8 +613,8 @@ function C:OnEnable()
                   end,
                 },
                 mouseOverTooltips = {
-                  name = "Mouse over tooltips",
-                  desc = "Should tooltips appear when hovering over chat links.",
+                  name = L["Mouse over tooltips"],
+                  desc = L["Should tooltips appear when hovering over chat links."],
                   type = "toggle",
                   order = 3.2,
                   get = function ()
@@ -623,9 +626,9 @@ function C:OnEnable()
                 },
                 iconTextureYOffset = {
                   type = "range",
-                  name = "Text icons Y offset",
+                  name = L["Text icons Y offset"],
                   desc = "Default: "..Core.defaults.profile.iconTextureYOffset..
-                    "\nAdjust this if text icons aren't centered.",
+                    "\n"..L["Adjust this if text icons aren't centered."],
                   order = 3.4,
                   min = 0,
                   max = 12,
@@ -641,8 +644,8 @@ function C:OnEnable()
                   end,
                 },
                 messagesOnHover = {
-                  name = "Show messages on hover",
-                  desc = "When enabled, hovering over the chat reveals faded messages. When disabled, only scrolling reveals them.",
+                  name = L["Show messages on hover"],
+                  desc = L["When enabled, hovering over the chat reveals faded messages. When disabled, only scrolling reveals them."],
                   type = "toggle",
                   order = 3.3,
                   get = function ()
@@ -654,13 +657,13 @@ function C:OnEnable()
                   end,
                 },
                 scrollIndicatorHeader = {
-                  name = "Scroll Indicator",
+                  name = L["Scroll Indicator"],
                   type = "header",
                   order = 3.5,
                 },
                 hideScrollIndicator = {
-                  name = "Hide scroll indicator",
-                  desc = "Hide the \"Unread messages\" and \"Bring me to the present\" indicator completely.",
+                  name = L["Hide scroll indicator"],
+                  desc = L["Hide the \"Unread messages\" and \"Bring me to the present\" indicator completely."],
                   type = "toggle",
                   width = "full",
                   order = 3.55,
@@ -673,8 +676,8 @@ function C:OnEnable()
                   end,
                 },
                 scrollIndicatorColor = {
-                  name = "Indicator text color",
-                  desc = "Color of the \"Unread messages\" and \"Bring me to the present\" text.",
+                  name = L["Indicator text color"],
+                  desc = L["Color of the \"Unread messages\" and \"Bring me to the present\" text."],
                   type = "color",
                   hasAlpha = false,
                   width = 1,
@@ -691,8 +694,8 @@ function C:OnEnable()
                   end,
                 },
                 scrollIndicatorOpacity = {
-                  name = "Indicator text opacity",
-                  desc = "Default: "..Core.defaults.profile.scrollIndicatorOpacity.."\nOpacity of the scroll indicator text.",
+                  name = L["Indicator text opacity"],
+                  desc = "Default: "..Core.defaults.profile.scrollIndicatorOpacity.."\n"..L["Opacity of the scroll indicator text."],
                   type = "range",
                   width = 1.5,
                   order = 3.65,
@@ -709,8 +712,8 @@ function C:OnEnable()
                   end,
                 },
                 scrollIndicatorBgColor = {
-                  name = "Indicator background color",
-                  desc = "Background color behind the scroll indicator text.",
+                  name = L["Indicator background color"],
+                  desc = L["Background color behind the scroll indicator text."],
                   type = "color",
                   hasAlpha = false,
                   width = 1,
@@ -727,8 +730,8 @@ function C:OnEnable()
                   end,
                 },
                 scrollIndicatorBgOpacity = {
-                  name = "Indicator background opacity",
-                  desc = "Default: "..Core.defaults.profile.scrollIndicatorBgOpacity.."\nOpacity of the scroll indicator background.",
+                  name = L["Indicator background opacity"],
+                  desc = "Default: "..Core.defaults.profile.scrollIndicatorBgOpacity.."\n"..L["Opacity of the scroll indicator background."],
                   type = "range",
                   width = 1.5,
                   order = 3.75,
@@ -749,20 +752,20 @@ function C:OnEnable()
           },
         },
         topBar = {
-          name = "Top bar",
+          name = L["Top bar"],
           type = "group",
           order = 4,
           args = {
             section1 = {
-              name = "Appearance",
+              name = L["Appearance"],
               type = "group",
               inline = true,
               order = 1,
               args = {
                 dockFontSize = {
-                  name = "Font size",
+                  name = L["Font size"],
                   desc = "Default: "..Core.defaults.profile.dockFontSize.."\nMin: 1\nMax: 100"..
-                    "\nTab widths refit on /reload.",
+                    "\n"..L["Tab widths refit on /reload."],
                   type = "range",
                   order = 1.1,
                   min = 1,
@@ -779,8 +782,8 @@ function C:OnEnable()
                   end,
                 },
                 dockFontFlags = {
-                  name = "Font style",
-                  desc = "Add an outline to the chat tab text so it stands out instead of looking flat.",
+                  name = L["Font style"],
+                  desc = L["Add an outline to the chat tab text so it stands out instead of looking flat."],
                   type = "select",
                   order = 1.15,
                   values = FLAGS,
@@ -793,7 +796,7 @@ function C:OnEnable()
                   end,
                 },
                 dockBackgroundOpacity = {
-                  name = "Background opacity",
+                  name = L["Background opacity"],
                   desc = "Default: "..Core.defaults.profile.dockBackgroundOpacity,
                   type = "range",
                   order = 1.2,
@@ -811,8 +814,8 @@ function C:OnEnable()
                   end,
                 },
                 dockBackgroundColor = {
-                  name = "Background color",
-                  desc = "The colour of the top bar background.",
+                  name = L["Background color"],
+                  desc = L["The colour of the top bar background."],
                   type = "color",
                   hasAlpha = false,
                   order = 1.3,
@@ -829,14 +832,14 @@ function C:OnEnable()
               },
             },
             section2 = {
-              name = "Animations",
+              name = L["Animations"],
               type = "group",
               inline = true,
               order = 2,
               args = {
                 disableAnimations = {
-                  name = "Disable animations",
-                  desc = "Show and hide the top bar instantly with no fade -- the tabs become static. The timing sliders below have no effect while this is on.",
+                  name = L["Disable animations"],
+                  desc = L["Show and hide the top bar instantly with no fade -- the tabs become static. The timing sliders below have no effect while this is on."],
                   type = "toggle",
                   order = 2.0,
                   get = function ()
@@ -848,8 +851,8 @@ function C:OnEnable()
                   end,
                 },
                 tabsAlwaysVisible = {
-                  name = "Keep tabs visible",
-                  desc = "Chat tabs never fade out -- they stay on screen permanently. Overrides the fade out delay and duration below.",
+                  name = L["Keep tabs visible"],
+                  desc = L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fade out delay and duration below."],
                   type = "toggle",
                   order = 2.01,
                   get = function ()
@@ -867,7 +870,7 @@ function C:OnEnable()
                   width = "full",
                 },
                 dockHoldTime = {
-                  name = "Fade out delay",
+                  name = L["Fade out delay"],
                   desc = "Default: "..Core.defaults.profile.dockHoldTime.."\nMin: 1\nMax: 180",
                   type = "range",
                   order = 2.1,
@@ -884,7 +887,7 @@ function C:OnEnable()
                   end,
                 },
                 dockFadeOutDuration = {
-                  name = "Fade out duration",
+                  name = L["Fade out duration"],
                   desc = "Default: "..Core.defaults.profile.dockFadeOutDuration.."\nMin: 0\nMax: 30",
                   type = "range",
                   order = 2.2,
@@ -901,7 +904,7 @@ function C:OnEnable()
                   end,
                 },
                 dockFadeInDuration = {
-                  name = "Slide in duration",
+                  name = L["Slide in duration"],
                   desc = "Default: "..Core.defaults.profile.dockFadeInDuration.."\nMin: 0\nMax: 30",
                   type = "range",
                   order = 2.3,
@@ -918,8 +921,8 @@ function C:OnEnable()
                   end,
                 },
                 tabsOnHover = {
-                  name = "Show tabs on hover",
-                  desc = "When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible.",
+                  name = L["Show tabs on hover"],
+                  desc = L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."],
                   type = "toggle",
                   order = 2.02,
                   get = function ()
