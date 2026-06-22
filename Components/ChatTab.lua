@@ -200,6 +200,20 @@ function ChatTabMixin:Init(slidingMessageFrame)
     info.func = function() ShowUIPanel(ChatConfigFrame) end
     info.notCheckable = 1
     UIDropDownMenu_AddButton(info)
+
+    -- CleanerChat settings (opens the /cc options panel)
+    info = UIDropDownMenu_CreateInfo()
+    info.text = "CleanerChat settings"
+    info.notCheckable = 1
+    info.func = function()
+      local AceAddon = LibStub and LibStub("AceAddon-3.0", true)
+      local cc = AceAddon and AceAddon:GetAddon("CleanerChat", true)
+      local options = cc and cc:GetModule("Options", true)
+      if options then
+        options:OpenOptionsMenu("")
+      end
+    end
+    UIDropDownMenu_AddButton(info)
   end, "MENU")
 
   -- Listeners
