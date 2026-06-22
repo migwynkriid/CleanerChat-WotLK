@@ -308,6 +308,32 @@ function SlidingMessageFrameMixin:Init(chatFrame)
         for _, message in ipairs(self.state.messages) do
           message:FadeIn(fadeDuration)
         end
+
+        -- If there are unread messages or the overlay is visible (scrolled up),
+        -- snap to the bottom just like clicking the overlay would
+        if self.state.unreadMessages or (self.overlay and self.overlay:IsShown()) then
+          self.state.scrollAtBottom = true
+          self.state.unreadMessages = false
+          self.overlay:Hide()
+          self.overlay:HideNewMessageAlert()
+
+          local startOffset = math.max(
+            self:GetVerticalScrollRange() - self.config.height * 2,
+            self:GetVerticalScroll()
+          )
+          local endOffset = self:GetVerticalScrollRange()
+
+          LibEasing:Ease(
+            function (offset) self:SetVerticalScroll(offset) end,
+            startOffset,
+            endOffset,
+            0.3,
+            LibEasing.OutCubic,
+            function ()
+              self:SetHeight(self.config.height + self.config.overflowHeight)
+            end
+          )
+        end
       end),
       Core:Subscribe(EDIT_FOCUS_LOST, function ()
         self.state.mouseOver = false
