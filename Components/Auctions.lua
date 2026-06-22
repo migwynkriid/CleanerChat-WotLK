@@ -25,13 +25,13 @@
 --]]
 local Addon, ns = ...
 
-local Module = ns:NewModule("Auctions", "AceHook-3.0")
+local Module = ns:NewModule("Auctions")
 
 -- Addon Localization
 local L = LibStub("AceLocale-3.0"):GetLocale((...))
 
--- GLOBALS: DEFAULT_CHAT_FRAME
--- GLOBALS: AuctionFrame, AuctionHouseFrame, ChatTypeInfo
+-- GLOBALS: hooksecurefunc, StartAuction, GetAuctionSellItemInfo
+-- GLOBALS: ITEM_QUALITY_COLORS, ClickAuctionSellItemButton
 
 -- Lua API
 local rawget = rawget
@@ -39,6 +39,7 @@ local rawset = rawset
 local setmetatable = setmetatable
 local string_find = string.find
 local string_format = string.format
+local string_gsub = string.gsub
 local string_match = string.match
 
 -- WoW Globals
@@ -46,6 +47,8 @@ local G = {
 	AUCTION_REMOVED = ERR_AUCTION_REMOVED, -- "Auction cancelled."
 	AUCTION_SOLD = ERR_AUCTION_SOLD_S, -- "A buyer has been found for your auction of %s."
 	AUCTION_STARTED = ERR_AUCTION_STARTED, -- "Auction created."
+	AUCTION_WON = string_gsub(ERR_AUCTION_WON_S or "You won an auction for %s", "%.$", ""), -- "You won an auction for %s"
+	BID_PLACED = ERR_AUCTION_BID_PLACED or "Bid accepted.", -- "Bid accepted."
 	AUCTIONS = AUCTIONS -- "Auctions"
 }
 
@@ -60,131 +63,60 @@ local P = setmetatable({}, { __index = function(t,k)
 	return rawget(t,k)
 end })
 
-Module.SpecialFrameWasHidden = function(self)
-	local frame = AuctionHouseFrame or AuctionFrame
+-- Auctions don't carry item info in their "Auction created." system message, so
+-- we cache the item from the sell slot (placed via ClickAuctionSellItemButton,
+-- before StartAuction can clear it) plus the per-stack quantity (StartAuction's
+-- arg), then attach them to the "Auction created." line when it fires.
+Module.CacheSellItem = function(self)
+	local name, _, count, quality = GetAuctionSellItemInfo()
+	if (not name) then return end
 
-	if (frame and frame:IsShown()) then
-		return
-	end
-
-	if (self.queuedRemoved) then
-		local msg = (self.queuedRemoved > 1) and string_format(ns.out.auction_canceled_multiple, self.queuedRemoved) or ns.out.auction_canceled_single
-
-		self.queuedRemoved = nil
-
-		local info = ChatTypeInfo["SYSTEM"]
-
-		DEFAULT_CHAT_FRAME:AddMessage(msg, info.r, info.g, info.b)
-	end
-
-	if (self.queuedStarted) then
-		local msg = (self.queuedStarted > 1) and string_format(ns.out.auction_multiple, self.queuedStarted) or ns.out.auction_single
-
-		self.queuedStarted = nil
-
-		local info = ChatTypeInfo["SYSTEM"]
-
-		DEFAULT_CHAT_FRAME:AddMessage(msg, info.r, info.g, info.b)
-	end
+	-- Best-effort quality colouring (3.3.5 has no sell-slot item-link API).
+	local color = ITEM_QUALITY_COLORS and ITEM_QUALITY_COLORS[quality]
+	self.sellItem = (color and color.hex or "")..name.."|r"
+	self.sellCount = count or 1
 end
 
-Module.OnSpecialFrameHide = function(self, frame, ...)
-	return (self:IsEnabled()) and self:SpecialFrameWasHidden(frame, ...)
+Module.BuildAuctionLine = function(self)
+	local item = self.sellItem
+	if (not item) then
+		return ns.out.auction_created_generic
+	end
+
+	local quantity = self.postQuantity or self.sellCount or 1
+	if (quantity > 1) then
+		return string_format(ns.out.auction_created_multiple, item, quantity)
+	end
+	return string_format(ns.out.auction_created_single, item)
 end
 
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 	if (ns:IsProtectedMessage(message)) then return end
 
-	-- Auction created. Let's queue them?
+	-- Auction created. Replace the generic system line with a detailed
+	-- "+ Auction created: <item> x<qty>" line (item cached from the sell slot).
 	if (message == G.AUCTION_STARTED) then
+		return false, self:BuildAuctionLine(), author, ...
 
-		self.queuedStarted = (self.queuedStarted or 0) + 1
-
-		local frame = AuctionHouseFrame or AuctionFrame
-		if (frame and frame:IsShown()) then
-
-			if (not self:IsHooked(frame, "OnHide")) then
-				self:HookScript(frame, "OnHide", "OnSpecialFrameHide")
-			end
-
-			return true
-
-		else
-			local message = (self.queuedStarted > 1) and string_format(ns.out.auction_multiple, self.queuedStarted) or ns.out.auction_single
-
-			self.queuedStarted = nil
-
-			return false, message, author, ...
-		end
-
+	-- Auction cancelled. Show it immediately, per cancellation.
 	elseif (message == G.AUCTION_REMOVED) then
+		return false, ns.out.auction_canceled_single, author, ...
 
-		self.queuedRemoved = (self.queuedRemoved or 0) + 1
-
-		local frame = AuctionHouseFrame or AuctionFrame
-		if (frame and frame:IsShown()) then
-
-			if (not self:IsHooked(frame, "OnHide")) then
-				self:HookScript(frame, "OnHide", "OnSpecialFrameHide")
-			end
-
-			return true
-		else
-			local message = (self.queuedRemoved > 1) and string_format(ns.out.auction_canceled_multiple, self.queuedRemoved) or ns.out.auction_canceled_single
-
-			self.queuedRemoved = nil
-
-			return false, message, author, ...
-		end
+	-- Bid accepted (you placed a bid).
+	elseif (message == G.BID_PLACED) then
+		return false, ns.out.auction_bid, author, ...
 	end
 
-	-- Auction sold
+	-- Auction sold (a buyer was found for your auction).
 	local item = string_match(message, P[G.AUCTION_SOLD])
 	if (item) then
 		return false, string_format(ns.out.auction_sold, item), author, ...
 	end
 
-end
-
-Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
-
-	-- Auction created. Let's queue them?
-	if (msg == G.AUCTION_STARTED) then
-
-		self.queuedStarted = (self.queuedStarted or 0) + 1
-
-		local frame = AuctionHouseFrame or AuctionFrame
-		if (frame and frame:IsShown()) then
-
-			if (not self:IsHooked(frame, "OnHide")) then
-				self:HookScript(frame, "OnHide", "OnSpecialFrameHide")
-			end
-
-			return true
-
-		else
-			self.queuedStarted = nil
-
-			return true
-		end
-
-	elseif (msg == G.AUCTION_REMOVED) then
-
-		self.queuedRemoved = (self.queuedRemoved or 0) + 1
-
-		local frame = AuctionHouseFrame or AuctionFrame
-		if (frame and frame:IsShown()) then
-
-			if (not self:IsHooked(frame, "OnHide")) then
-				self:HookScript(frame, "OnHide", "OnSpecialFrameHide")
-			end
-
-			return true
-		else
-			self.queuedRemoved = nil
-
-			return true
-		end
+	-- Auction won (you bought/won an item).
+	local won = string_match(message, P[G.AUCTION_WON])
+	if (won) then
+		return false, string_format(ns.out.auction_won, won), author, ...
 	end
 
 end
@@ -193,27 +125,25 @@ local onChatEventProxy = function(...)
 	return Module:OnChatEvent(...)
 end
 
-local onAddMessageProxy = function(...)
-	return Module:OnAddMessage(...)
-end
-
 Module.OnEnable = function(self)
-	self.queuedStarted = nil
-	self.queuedRemoved = nil
+	-- Cache the item (before StartAuction clears the slot) + the per-stack
+	-- quantity so the "Auction created." line can show what was listed.
+	if (not self.auctionHooked) then
+		self.auctionHooked = true
+		hooksecurefunc("ClickAuctionSellItemButton", function()
+			if (Module:IsEnabled()) then Module:CacheSellItem() end
+		end)
+		hooksecurefunc("StartAuction", function(_, _, _, stackSize)
+			if (Module:IsEnabled()) then
+				Module:CacheSellItem()
+				Module.postQuantity = stackSize
+			end
+		end)
+	end
 
-	self:RegisterBlacklistFilter(onAddMessageProxy)
 	self:RegisterMessageEventFilter("CHAT_MSG_SYSTEM", onChatEventProxy)
 end
 
 Module.OnDisable = function(self)
-	self.queuedStarted = nil
-	self.queuedRemoved = nil
-
-	local frame = AuctionHouseFrame or AuctionFrame
-	if (frame and self:IsHooked(frame, "OnHide")) then
-		self:Unhook(frame, "OnHide")
-	end
-
-	self:UnregisterBlacklistFilter(onAddMessageProxy)
 	self:UnregisterMessageEventFilter("CHAT_MSG_SYSTEM", onChatEventProxy)
 end

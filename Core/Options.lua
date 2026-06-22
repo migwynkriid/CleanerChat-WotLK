@@ -167,7 +167,7 @@ local filterDB = {
 	},
 	auctions = {
 		name = L["Auctions"],
-		desc = L["Suppress auction messages while auction frame is open, display summary after."],
+		desc = L["Simplify auction house messages: listings created, cancelled, sold, won and bids placed."],
 		width = 1.5,
 		type = "toggle",
 		set = setter,

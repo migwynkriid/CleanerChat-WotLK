@@ -51,7 +51,7 @@ L["Achievements"] = true
 L["Simplify Achievement messages."] = true
 
 L["Auctions"] = true
-L["Suppress auction messages while auction frame is open, display summary after."] = true
+L["Simplify auction house messages: listings created, cancelled, sold, won and bids placed."] = true
 
 L["Chat Channel Names"] = true
 L["Abbreviate and simplify chat channel display names."] = true
