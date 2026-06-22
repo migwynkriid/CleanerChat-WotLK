@@ -496,6 +496,34 @@ function C:OnEnable()
               inline = true,
               order = 2,
               args = {
+                disableAnimations = {
+                  name = "Disable animations",
+                  desc = "Show messages instantly with no slide or fade -- the chat becomes static. The timing sliders below have no effect while this is on.",
+                  type = "toggle",
+                  width = "full",
+                  order = 2.0,
+                  get = function ()
+                    return Core.db.profile.messageAnimations == false
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.messageAnimations = not input
+                    Core:Dispatch(UpdateConfig("messageAnimations"))
+                  end,
+                },
+                messagesAlwaysVisible = {
+                  name = "Keep messages visible",
+                  desc = "Messages never fade out -- they stay on screen permanently. Overrides the fade out delay and duration below.",
+                  type = "toggle",
+                  width = "full",
+                  order = 2.05,
+                  get = function ()
+                    return Core.db.profile.messagesAlwaysVisible
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.messagesAlwaysVisible = input
+                    Core:Dispatch(UpdateConfig("messagesAlwaysVisible"))
+                  end,
+                },
                 chatHoldTime = {
                   name = "Fade out delay",
                   desc = "Default: "..Core.defaults.profile.chatHoldTime..
@@ -724,6 +752,34 @@ function C:OnEnable()
               inline = true,
               order = 2,
               args = {
+                disableAnimations = {
+                  name = "Disable animations",
+                  desc = "Show and hide the top bar instantly with no fade -- the tabs become static. The timing sliders below have no effect while this is on.",
+                  type = "toggle",
+                  width = "full",
+                  order = 2.0,
+                  get = function ()
+                    return Core.db.profile.dockAnimations == false
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.dockAnimations = not input
+                    Core:Dispatch(UpdateConfig("dockAnimations"))
+                  end,
+                },
+                tabsAlwaysVisible = {
+                  name = "Keep tabs visible",
+                  desc = "Chat tabs never fade out -- they stay on screen permanently. Overrides the fade out delay and duration below.",
+                  type = "toggle",
+                  width = "full",
+                  order = 2.05,
+                  get = function ()
+                    return Core.db.profile.tabsAlwaysVisible
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.tabsAlwaysVisible = input
+                    Core:Dispatch(UpdateConfig("tabsAlwaysVisible"))
+                  end,
+                },
                 dockHoldTime = {
                   name = "Fade out delay",
                   desc = "Default: "..Core.defaults.profile.dockHoldTime.."\nMin: 1\nMax: 180",
@@ -830,6 +886,8 @@ function C:RefreshConfig()
   -- Messages
   Core:Dispatch(UpdateConfig("messageFontSize"))
   Core:Dispatch(UpdateConfig("messageFontFlags"))
+  Core:Dispatch(UpdateConfig("messageAnimations"))
+  Core:Dispatch(UpdateConfig("messagesAlwaysVisible"))
   Core:Dispatch(UpdateConfig("chatBackgroundOpacity"))
   Core:Dispatch(UpdateConfig("chatBackgroundColor"))
   Core:Dispatch(UpdateConfig("chatFadeInDuration"))
@@ -838,6 +896,8 @@ function C:RefreshConfig()
   -- Top bar (dock)
   Core:Dispatch(UpdateConfig("dockFontSize"))
   Core:Dispatch(UpdateConfig("dockFontFlags"))
+  Core:Dispatch(UpdateConfig("dockAnimations"))
+  Core:Dispatch(UpdateConfig("tabsAlwaysVisible"))
   Core:Dispatch(UpdateConfig("dockBackgroundOpacity"))
   Core:Dispatch(UpdateConfig("dockBackgroundColor"))
   Core:Dispatch(UpdateConfig("tabsOnHover"))

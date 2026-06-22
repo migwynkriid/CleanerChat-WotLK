@@ -122,8 +122,9 @@ local MessageLineMixin = {}
 
 function MessageLineMixin:Init()
   self:SetWidth(Core.db.profile.frameWidth)
-  self:SetFadeInDuration(Core.db.profile.chatFadeInDuration)
-  self:SetFadeOutDuration(Core.db.profile.chatFadeOutDuration)
+  local animate = Core.db.profile.messageAnimations ~= false
+  self:SetFadeInDuration(animate and Core.db.profile.chatFadeInDuration or 0)
+  self:SetFadeOutDuration(animate and Core.db.profile.chatFadeOutDuration or 0)
 
   local rightBgWidth = math.min(250, Core.db.profile.frameWidth - 50)
   self:SetGradientBackground(50, rightBgWidth, Core.db.profile.chatBackgroundColor or Colors.codGray, Core.db.profile.chatBackgroundOpacity)
@@ -155,12 +156,14 @@ function MessageLineMixin:Init()
   if self.subscriptions == nil then
     self.subscriptions = {
       Core:Subscribe(UPDATE_CONFIG, function (key)
-        if key == "chatFadeInDuration" then
-          self:SetFadeInDuration(Core.db.profile.chatFadeInDuration)
+        if key == "chatFadeInDuration" or key == "messageAnimations" then
+          local animate = Core.db.profile.messageAnimations ~= false
+          self:SetFadeInDuration(animate and Core.db.profile.chatFadeInDuration or 0)
         end
 
-        if key == "chatFadeOutDuration" then
-          self:SetFadeOutDuration(Core.db.profile.chatFadeOutDuration)
+        if key == "chatFadeOutDuration" or key == "messageAnimations" then
+          local animate = Core.db.profile.messageAnimations ~= false
+          self:SetFadeOutDuration(animate and Core.db.profile.chatFadeOutDuration or 0)
         end
 
         if key == "messageLeftPadding" then

@@ -66,6 +66,8 @@ Core.defaults = {
     -- Messages
     messageFontSize = 12,
     messageFontFlags = "OUTLINE",
+    messageAnimations = true,
+    messagesAlwaysVisible = false,
     chatBackgroundOpacity = 0.4,
     chatBackgroundColor = { r = 17 / 255, g = 17 / 255, b = 17 / 255 }, -- codGray
     messageLeading = 3,
@@ -80,6 +82,8 @@ Core.defaults = {
     -- Top bar (chat tabs dock)
     dockFontSize = 12,
     dockFontFlags = "OUTLINE",
+    dockAnimations = true,
+    tabsAlwaysVisible = false,
     dockBackgroundOpacity = 0.4,
     dockBackgroundColor = { r = 0, g = 0, b = 0 }, -- black
     dockHoldTime = 10,

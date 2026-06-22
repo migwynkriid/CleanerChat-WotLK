@@ -272,7 +272,7 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 
         -- If messagesOnHover is enabled, fade in all messages
         if Core.db.profile.messagesOnHover then
-          local fadeDuration = Core.db.profile.chatFadeInDuration or 0.3
+          local fadeDuration = (Core.db.profile.messageAnimations ~= false) and (Core.db.profile.chatFadeInDuration or 0.3) or 0
           for _, message in ipairs(self.state.messages) do
             message:FadeIn(fadeDuration)
           end
@@ -284,9 +284,11 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 
         self.overlay:HideDelay(Core.db.profile.chatHoldTime)
 
-        -- Always fade out messages when mouse leaves
-        for _, message in ipairs(self.state.messages) do
-          message:HideDelay(Core.db.profile.chatHoldTime)
+        -- Fade out messages when mouse leaves, unless messages are pinned.
+        if not Core.db.profile.messagesAlwaysVisible then
+          for _, message in ipairs(self.state.messages) do
+            message:HideDelay(Core.db.profile.chatHoldTime)
+          end
         end
       end),
       -- Edit focus shows ALL messages regardless of messagesOnHover setting
@@ -302,7 +304,7 @@ function SlidingMessageFrameMixin:Init(chatFrame)
         end
         
         -- Always show ALL messages with animation when edit box is focused
-        local fadeDuration = Core.db.profile.chatFadeInDuration or 0.3
+        local fadeDuration = (Core.db.profile.messageAnimations ~= false) and (Core.db.profile.chatFadeInDuration or 0.3) or 0
         for _, message in ipairs(self.state.messages) do
           message:FadeIn(fadeDuration)
         end
@@ -312,9 +314,11 @@ function SlidingMessageFrameMixin:Init(chatFrame)
         
         self.overlay:HideDelay(Core.db.profile.chatHoldTime)
         
-        -- Start fade out timers for all messages
-        for _, message in ipairs(self.state.messages) do
-          message:HideDelay(Core.db.profile.chatHoldTime)
+        -- Start fade out timers for all messages, unless messages are pinned.
+        if not Core.db.profile.messagesAlwaysVisible then
+          for _, message in ipairs(self.state.messages) do
+            message:HideDelay(Core.db.profile.chatHoldTime)
+          end
         end
       end),
       Core:Subscribe(UPDATE_CONFIG, function (key)
@@ -366,6 +370,24 @@ function SlidingMessageFrameMixin:Init(chatFrame)
             if Core.db.profile.messagesOnHover and self.state.mouseOver then
               for _, message in ipairs(self.state.messages) do
                 message:Show()
+              end
+            end
+          end
+
+          if key == "messagesAlwaysVisible" then
+            if Core.db.profile.messagesAlwaysVisible then
+              -- Pin every message on screen and cancel any pending fade-out.
+              for _, message in ipairs(self.state.messages) do
+                if message.hideTimer then
+                  message.hideTimer:Cancel()
+                  message.hideTimer = nil
+                end
+                message:Show()
+              end
+            elseif not self.state.mouseOver then
+              -- Resume the normal fade-out behaviour.
+              for _, message in ipairs(self.state.messages) do
+                message:HideDelay(Core.db.profile.chatHoldTime)
               end
             end
           end
@@ -511,7 +533,7 @@ function SlidingMessageFrameMixin:Update(incoming)
     local startOffset = self:GetVerticalScroll()
     local endOffset = newHeight - self:GetHeight() + self.config.overflowHeight
 
-    if Core.db.profile.chatSlideInDuration > 0 then
+    if (Core.db.profile.messageAnimations ~= false) and Core.db.profile.chatSlideInDuration > 0 then
       self.state.prevEasingHandle = LibEasing:Ease(
         function (n) self:SetVerticalScroll(n) end,
         startOffset,
@@ -534,8 +556,8 @@ function SlidingMessageFrameMixin:Update(incoming)
 
   for _, message in ipairs(newMessages) do
     message:Show()
-    -- Always fade out new messages when mouse is not over
-    if not self.state.mouseOver then
+    -- Fade out new messages when mouse is not over, unless messages are pinned.
+    if not self.state.mouseOver and not Core.db.profile.messagesAlwaysVisible then
       message:HideDelay(Core.db.profile.chatHoldTime)
     end
     table.insert(self.state.messages, message)

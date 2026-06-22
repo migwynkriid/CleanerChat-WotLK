@@ -109,6 +109,16 @@ function ChatDockMixin:Init(parent)
             self:ShowTabs()
           end
         end
+
+        if key == "tabsAlwaysVisible" then
+          if Core.db.profile.tabsAlwaysVisible then
+            -- Pin the tabs on screen.
+            self:ShowTabs()
+          elseif Core.db.profile.tabsOnHover then
+            -- Resume the normal fade-out behaviour.
+            self:FadeOutTabs()
+          end
+        end
       end)
     }
   end
@@ -127,7 +137,7 @@ function ChatDockMixin:ShowTabs()
   self:Show()
 
   -- Slide/fade the tabs in over the configured duration (0 = instant).
-  local duration = Core.db.profile.dockFadeInDuration or 0
+  local duration = (Core.db.profile.dockAnimations ~= false) and (Core.db.profile.dockFadeInDuration or 0) or 0
   if duration > 0 then
     self.fadeHandle = LibEasing:Ease(
       function (a) self:SetAlpha(a) end,
@@ -147,6 +157,12 @@ end
 
 -- Fade the tab dock out after the configured hold time.
 function ChatDockMixin:FadeOutTabs()
+  -- If the user pinned the tabs, never fade them out -- keep them on screen.
+  if Core.db.profile.tabsAlwaysVisible then
+    self:ShowTabs()
+    return
+  end
+
   if self.fadeOutTimer then
     self.fadeOutTimer:Cancel()
   end
@@ -155,7 +171,7 @@ function ChatDockMixin:FadeOutTabs()
     self.fadeOutTimer = nil
     if self.state.mouseOver then return end
 
-    local duration = Core.db.profile.dockFadeOutDuration or 0.6
+    local duration = (Core.db.profile.dockAnimations ~= false) and (Core.db.profile.dockFadeOutDuration or 0.6) or 0
     if self.fadeHandle then
       LibEasing:StopEasing(self.fadeHandle)
       self.fadeHandle = nil
