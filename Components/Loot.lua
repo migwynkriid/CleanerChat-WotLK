@@ -178,7 +178,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		name, item = safeMatch(message, P[G.LOOT_ROLL_WON])
 		if (name and item) then
 			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_won_other, name, item), author, ...
+			return false, string_format(ns.out.roll_won_other, item, name), author, ...
 		end
 
 		-- "You have selected Need for: %s"
@@ -192,7 +192,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		name, item = safeMatch(message, P[G.LOOT_ROLL_NEED])
 		if (name and item) then
 			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_need_other, name, item), author, ...
+			return false, string_format(ns.out.roll_need_other, item, name), author, ...
 		end
 
 		-- "You have selected Greed for: %s"
@@ -206,7 +206,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		name, item = safeMatch(message, P[G.LOOT_ROLL_GREED])
 		if (name and item) then
 			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_greed_other, name, item), author, ...
+			return false, string_format(ns.out.roll_greed_other, item, name), author, ...
 		end
 
 		-- "You have selected Disenchant for: %s"
@@ -220,7 +220,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		name, item = safeMatch(message, P[G.LOOT_ROLL_DISENCHANT])
 		if (name and item) then
 			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_de_other, name, item), author, ...
+			return false, string_format(ns.out.roll_de_other, item, name), author, ...
 		end
 
 		-- "You passed on: %s"
@@ -234,7 +234,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		name, item = safeMatch(message, P[G.LOOT_ROLL_PASSED])
 		if (name and item) then
 			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_pass_other, name, item), author, ...
+			return false, string_format(ns.out.roll_pass_other, item, name), author, ...
 		end
 
 		-- "You automatically passed on: %s"
@@ -248,28 +248,28 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		name, item = safeMatch(message, P[G.LOOT_ROLL_PASSED_AUTO])
 		if (name and item) then
 			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_pass_other, name, item), author, ...
+			return false, string_format(ns.out.roll_pass_other, item, name), author, ...
 		end
 
 		-- "Need Roll - %d for %s by %s" (hyphen must be escaped in Lua patterns)
 		roll, item, name = string_match(message, "Need Roll %- (%d+) for (.+) by (.+)")
 		if (roll and item and name) then
 			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_result_need, tonumber(roll), name, item), author, ...
+			return false, string_format(ns.out.roll_result_need, item, tonumber(roll), name), author, ...
 		end
 
 		-- "Greed Roll - %d for %s by %s"
 		roll, item, name = string_match(message, "Greed Roll %- (%d+) for (.+) by (.+)")
 		if (roll and item and name) then
 			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_result_greed, tonumber(roll), name, item), author, ...
+			return false, string_format(ns.out.roll_result_greed, item, tonumber(roll), name), author, ...
 		end
 
 		-- "Disenchant Roll - %d for %s by %s"
 		roll, item, name = string_match(message, "Disenchant Roll %- (%d+) for (.+) by (.+)")
 		if (roll and item and name) then
 			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_result_de, tonumber(roll), name, item), author, ...
+			return false, string_format(ns.out.roll_result_de, item, tonumber(roll), name), author, ...
 		end
 
 		-- "Everyone passed on: %s"
