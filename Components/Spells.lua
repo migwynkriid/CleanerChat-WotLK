@@ -27,9 +27,6 @@ local Addon, ns = ...
 
 local Module = ns:NewModule("Spells")
 
--- Addon Localization
-local L = LibStub("AceLocale-3.0"):GetLocale((...))
-
 -- Lua API
 local rawget = rawget
 local rawset = rawset

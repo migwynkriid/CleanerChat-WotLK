@@ -84,8 +84,6 @@ local G = {
 
 }
 
-local _,playerClass = UnitClass("player")
-
 -- Convert a WoW global string to a search pattern
 local makePattern = ns.MakePattern
 

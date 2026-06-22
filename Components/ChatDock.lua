@@ -5,8 +5,6 @@ local LibEasing = Core.Libs.LibEasing
 
 local Colors = Constants.COLORS
 
-local EDIT_FOCUS_GAINED = Constants.EVENTS.EDIT_FOCUS_GAINED
-local EDIT_FOCUS_LOST = Constants.EVENTS.EDIT_FOCUS_LOST
 local MOUSE_ENTER = Constants.EVENTS.MOUSE_ENTER
 local MOUSE_LEAVE = Constants.EVENTS.MOUSE_LEAVE
 local UPDATE_CONFIG = Constants.EVENTS.UPDATE_CONFIG

@@ -33,7 +33,6 @@ local L = LibStub("AceLocale-3.0"):GetLocale((...))
 -- Libraries
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
-local AceGUI = LibStub("AceGUI-3.0")
 
 -- GLOBALS: CopyTable, ReloadUI
 
