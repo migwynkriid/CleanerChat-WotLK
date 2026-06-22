@@ -43,7 +43,6 @@ Core.defaults = {
   profile = {
     -- General
     font = "Friz Quadrata TT",
-    fontFlags = "OUTLINE",
     frameWidth = 520,
     frameHeight = 340,
     positionAnchor = {

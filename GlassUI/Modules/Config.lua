@@ -96,19 +96,6 @@ function C:OnEnable()
                     Core:Dispatch(UpdateConfig("font"))
                   end,
                 },
-                fontFlags = {
-                  name = "Font flag",
-                  type = "select",
-                  order = 3.2,
-                  values = FLAGS,
-                  get = function ()
-                    return Core.db.profile.fontFlags
-                  end,
-                  set = function (_, input)
-                    Core.db.profile.fontFlags = input
-                    Core:Dispatch(UpdateConfig("font"))
-                  end
-                }
               },
             },
             section3 = {
