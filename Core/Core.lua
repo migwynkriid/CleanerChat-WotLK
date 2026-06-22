@@ -250,7 +250,6 @@ local defaults = {
 		achievements = true,
 		auctions = true,
 		channels = true,
-		empty = true,
 		experience = true,
 		loot = true,
 		names = true,
@@ -593,6 +592,7 @@ ns.OnEnable = function(self)
 	self:GetModule("ClassColors"):Enable()
 	self:GetModule("QualityColors"):Enable()
 	self:GetModule("Blacklist"):Enable()
+	self:GetModule("Empty"):Enable()
 
 	-- Enable development version modules.
 	-- *not recommended for the public

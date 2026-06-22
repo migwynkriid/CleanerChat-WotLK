@@ -183,14 +183,6 @@ local filterDB = {
 		set = setter,
 		get = getter
 	},
-	empty = {
-		name = L["Empty Messages"],
-		desc = L["Hide chat messages that contain no text (empty or whitespace only)."],
-		width = 1.5,
-		type = "toggle",
-		set = setter,
-		get = getter
-	},
 	experience = {
 		name = L["Experience"],
 		desc = L["Abbreviate and simplify experience- and level gains."],
