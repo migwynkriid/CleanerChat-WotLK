@@ -94,6 +94,7 @@ Core.defaults = {
     mouseOverTooltips = true,
     iconTextureYOffset = 4,
     messagesOnHover = true, -- When ON (default), hovering reveals faded messages. When OFF, only scrolling reveals them.
+    showTimestamps = false, -- When ON, prepend timestamps to messages in [HH:MM] format.
 
     -- Scroll indicator ("Unread messages" / "Bring me to the present")
     scrollIndicatorColor = { r = 223 / 255, g = 186 / 255, b = 105 / 255 }, -- apache (gold)

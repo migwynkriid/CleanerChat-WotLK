@@ -74,6 +74,16 @@ local function pratTimestampProcessor(text)
 end
 
 ---
+-- Adds timestamps in [HH:MM] format if enabled in settings
+local function timestampProcessor(text)
+  if not Core.db.profile.showTimestamps then
+    return text
+  end
+  local timestamp = date("[%H:%M] ")
+  return timestamp .. text
+end
+
+---
 -- URL detection + linkification.
 -- Bare URLs in chat are not clickable, so we wrap each detected URL in a custom
 -- "url" hyperlink: |Hurl:<addr>|h<addr>|h. The Glass message overlay then makes
@@ -161,6 +171,7 @@ end
 ---
 -- Text processing pipeline
 local TEXT_PROCESSORS = {
+  timestampProcessor,
   urlProcessor,
   textureProcessor,
   pratTimestampProcessor

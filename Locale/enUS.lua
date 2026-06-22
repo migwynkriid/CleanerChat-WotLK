@@ -185,3 +185,7 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = true
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = true
 L["Tab widths refit on /reload."] = true
+
+-- Timestamps
+L["Show timestamps"] = true
+L["Prepend each message with a timestamp in [HH:MM] format."] = true

@@ -656,6 +656,18 @@ function C:OnEnable()
                     Core:Dispatch(UpdateConfig("messagesOnHover"))
                   end,
                 },
+                showTimestamps = {
+                  name = L["Show timestamps"],
+                  desc = L["Prepend each message with a timestamp in [HH:MM] format."],
+                  type = "toggle",
+                  order = 3.35,
+                  get = function ()
+                    return Core.db.profile.showTimestamps
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.showTimestamps = input
+                  end,
+                },
                 scrollIndicatorHeader = {
                   name = L["Scroll Indicator"],
                   type = "header",

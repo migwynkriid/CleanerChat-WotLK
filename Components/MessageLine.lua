@@ -335,9 +335,21 @@ end
 -- Overlay a small, transparent, clickable Button on top of each |H...|h
 -- hyperlink in the line. Plain Frames don't fire OnHyperlink* scripts on 3.3.5,
 -- so this is how links become clickable. We measure text widths with a shared
--- FontString to place each overlay. Single-line messages (the common case for
--- item links) get pixel-accurate overlays; wrapped messages fall back to a
--- full-width band over the line(s) the link spans.
+-- FontString to place each overlay.
+
+-- Strip hyperlink markup for width measurement. The |H...|h markers are not
+-- displayed, so we need to remove them to get accurate text widths.
+local function stripHyperlinks(str)
+  -- Replace |H...|h(visible)|h with just the visible text
+  return (string.gsub(str, "|H.-|h(.-)|h", "%1"))
+end
+
+-- Strip color codes for width measurement
+local function stripColors(str)
+  local s = string.gsub(str, "|c%x%x%x%x%x%x%x%x", "")
+  return (string.gsub(s, "|r", ""))
+end
+
 function MessageLineMixin:UpdateHyperlinks()
   local buttons = self.linkButtons
   if not buttons then
@@ -372,11 +384,6 @@ function MessageLineMixin:UpdateHyperlinks()
     oneLineH = GetFontHeight(self.text)
   end
 
-  -- Does the whole message fit on one line?
-  fs:SetWidth(0)
-  fs:SetText(text)
-  local singleLine = (fs:GetStringWidth() or 0) <= textWidth
-
   local count = 0
   local pos = 1
   while true do
@@ -407,25 +414,62 @@ function MessageLineMixin:UpdateHyperlinks()
     btn._text = linkText
     btn:ClearAllPoints()
 
+    -- Get prefix and link text, stripped of markup for measurement
     local prefix = string.sub(text, 1, s - 1)
+    local strippedPrefix = stripHyperlinks(prefix)
+    local cleanLinkText = stripColors(linkText)
 
-    if singleLine then
-      fs:SetWidth(0)
-      fs:SetText(prefix)
-      local px = fs:GetStringWidth() or 0
-      fs:SetText(linkText)
-      local lw = fs:GetStringWidth() or 0
-      btn:SetPoint("TOPLEFT", self.text, "TOPLEFT", px, 0)
-      btn:SetSize(math.max(4, lw), oneLineH)
+    -- Measure prefix width (unwrapped) to find X position on its final line
+    fs:SetWidth(0)
+    fs:SetText(strippedPrefix)
+    local prefixUnwrappedWidth = fs:GetStringWidth() or 0
+
+    -- Measure link width
+    fs:SetText(cleanLinkText)
+    local linkWidth = fs:GetStringWidth() or 0
+
+    -- Measure prefix height (wrapped) to find which line the link starts on
+    fs:SetWidth(textWidth)
+    if strippedPrefix ~= "" then
+      fs:SetText(strippedPrefix)
     else
-      fs:SetWidth(textWidth)
-      fs:SetText(prefix == "" and "" or prefix)
-      local startLine = 0
-      if prefix ~= "" then
-        startLine = math.max(0, math.floor((fs:GetStringHeight() or 0) / oneLineH + 0.5) - 1)
+      fs:SetText("")
+    end
+    local prefixWrappedHeight = strippedPrefix ~= "" and (fs:GetStringHeight() or oneLineH) or 0
+    local startLine = math.max(0, math.floor(prefixWrappedHeight / oneLineH + 0.5))
+    if strippedPrefix ~= "" and prefixWrappedHeight > 0 then
+      startLine = startLine - 1
+    end
+
+    -- Calculate X position on the line where the link starts
+    -- This is the remainder after wrapping
+    local xPos = 0
+    if strippedPrefix ~= "" then
+      xPos = prefixUnwrappedWidth % textWidth
+      -- If prefix ends exactly at line boundary, link starts at x=0 on next line
+      if prefixUnwrappedWidth > 0 and xPos < 1 then
+        xPos = 0
+        startLine = startLine + 1
       end
-      fs:SetText(string.sub(text, 1, e))
-      local endLine = math.max(startLine, math.floor((fs:GetStringHeight() or 0) / oneLineH + 0.5) - 1)
+    end
+
+    -- Check if the link itself fits on the remainder of the current line
+    local spaceOnLine = textWidth - xPos
+    local linkFitsOnLine = linkWidth <= spaceOnLine
+
+    if linkFitsOnLine then
+      -- Link fits on one line - use precise positioning
+      btn:SetPoint("TOPLEFT", self.text, "TOPLEFT", xPos, -startLine * oneLineH)
+      btn:SetSize(math.max(4, linkWidth), oneLineH)
+    else
+      -- Link wraps to multiple lines - calculate how many lines it spans
+      local strippedUpToEnd = stripHyperlinks(string.sub(text, 1, e))
+      fs:SetWidth(textWidth)
+      fs:SetText(strippedUpToEnd)
+      local totalHeight = fs:GetStringHeight() or oneLineH
+      local endLine = math.max(startLine, math.floor(totalHeight / oneLineH + 0.5) - 1)
+      
+      -- Use full-width band for wrapped links
       btn:SetPoint("TOPLEFT", self.text, "TOPLEFT", 0, -startLine * oneLineH)
       btn:SetSize(textWidth, oneLineH * (endLine - startLine + 1))
     end
