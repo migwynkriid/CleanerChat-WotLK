@@ -136,6 +136,15 @@ local optionDB = {
 			type = "toggle",
 			set = function(info,value) ns.db.oneLineQuestRewards = value; Options:UpdateReloadStatus() end,
 			get = function(info) return ns.db.oneLineQuestRewards end,
+		},
+		showItemDestruction = {
+			order = 107,
+			name = L["Show Item Destruction"],
+			desc = L["Display a message when you destroy (delete) an item."],
+			width = 1.5,
+			type = "toggle",
+			set = function(info,value) ns.db.showItemDestruction = value end,
+			get = function(info) return ns.db.showItemDestruction end,
 		}
 	}
 }

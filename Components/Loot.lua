@@ -9,6 +9,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale((...))
 -- GLOBALS: MerchantFrame, ChatTypeInfo, DEFAULT_CHAT_FRAME, ChatFrame1
 -- GLOBALS: hooksecurefunc, GetContainerItemLink, GetContainerItemInfo
 -- GLOBALS: TakeInboxItem, GetInboxItem, GetInboxItemLink
+-- GLOBALS: GetCursorInfo, DeleteCursorItem
 
 -- Lua API
 local ipairs = ipairs
@@ -561,6 +562,58 @@ Module.OnEnable = function(self)
 				Module:ReportMailItem(mailID, attachIndex)
 			end
 		end)
+	end
+
+	-- Track item destruction so it shows a "- item" line.
+	-- In 3.3.5, item deletion works via the DELETE_ITEM and DELETE_GOOD_ITEM
+	-- static popups. We hook the popup's OnAccept to capture the item BEFORE
+	-- DeleteCursorItem() clears the cursor.
+	if (not self.deleteHooked) then
+		self.deleteHooked = true
+
+		-- Store original OnAccept functions
+		local origDeleteItem = StaticPopupDialogs["DELETE_ITEM"] and StaticPopupDialogs["DELETE_ITEM"].OnAccept
+		local origDeleteGoodItem = StaticPopupDialogs["DELETE_GOOD_ITEM"] and StaticPopupDialogs["DELETE_GOOD_ITEM"].OnAccept
+
+		-- Helper to report deleted item
+		local function reportDeletedItem()
+			if not Module:IsEnabled() then return end
+			if (ns.db and not ns.db.showItemDestruction) then return end
+			local infoType, itemId, itemLink = GetCursorInfo()
+			if (infoType == "item") then
+				local link = itemLink
+				-- Fallback: construct link from item ID if needed
+				if (not link or type(link) ~= "string" or not string_find(link, "|H")) then
+					if (itemId) then
+						local _, constructedLink = GetItemInfo(itemId)
+						link = constructedLink
+					end
+				end
+				if (link) then
+					Module:ReportItemSold(link, 1)
+				end
+			end
+		end
+
+		-- Hook DELETE_ITEM popup (for normal items)
+		if (StaticPopupDialogs["DELETE_ITEM"]) then
+			StaticPopupDialogs["DELETE_ITEM"].OnAccept = function(self, ...)
+				reportDeletedItem()
+				if (origDeleteItem) then
+					return origDeleteItem(self, ...)
+				end
+			end
+		end
+
+		-- Hook DELETE_GOOD_ITEM popup (for higher quality items requiring "DELETE" to be typed)
+		if (StaticPopupDialogs["DELETE_GOOD_ITEM"]) then
+			StaticPopupDialogs["DELETE_GOOD_ITEM"].OnAccept = function(self, ...)
+				reportDeletedItem()
+				if (origDeleteGoodItem) then
+					return origDeleteGoodItem(self, ...)
+				end
+			end
+		end
 	end
 end
 

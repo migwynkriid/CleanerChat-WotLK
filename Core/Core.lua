@@ -244,6 +244,7 @@ local defaults = {
 	showStartupMessage = true, -- print "Use /cc for settings" on addon load
 	rawDebug = false, -- /ccdebug chat raw/event capture (persists across /reload)
 	oneLineQuestRewards = true, -- combine quest rewards (items, currency, xp) into one line
+	showItemDestruction = true, -- show "- item" when destroying items
 	filters = {
 		achievements = true,
 		auctions = true,

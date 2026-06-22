@@ -48,3 +48,6 @@ L["Simplify messages about new or improved trade skills."] = "Simplifie les mess
 
 L["One Line Quest Rewards"] = "Récompenses de quête sur une ligne"
 L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."] = "Combine les récompenses de quête (objets, monnaie, expérience) sur une seule ligne. Les gains de réputation restent séparés par faction."
+
+L["Show Item Destruction"] = "Afficher la destruction d'objets"
+L["Display a message when you destroy (delete) an item."] = "Affiche un message lorsque vous détruisez (supprimez) un objet."

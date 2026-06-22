@@ -86,6 +86,9 @@ L["Simplify messages about new or improved trade skills."] = true
 L["One Line Quest Rewards"] = true
 L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."] = true
 
+L["Show Item Destruction"] = true
+L["Display a message when you destroy (delete) an item."] = true
+
 -- Glass UI Config Strings
 -- Category/Section Names
 L["Glass"] = true
