@@ -83,17 +83,10 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 
 	-- Guild online: "|Hplayer:Name|h[Name]|h has come online."
 	-- Guild offline: "Name has gone offline." (plain text, no player link)
-	-- Ascension format: "Name Added as: (Name) has come online."
 	if (ns.db == nil or ns.db.prettifyGuildStatus) then
 		local onlineName = string_match(message, "|Hplayer:([^|]+)|h.-has come online")
 		if (onlineName) then
 			return false, string_format(ns.out.guild_online, onlineName), author, ...
-		end
-
-		-- Ascension-specific "Added as:" format - suppress entirely (already handled above or duplicate)
-		local ascensionOnline = string_match(message, "^(%S+) Added as:")
-		if (ascensionOnline and string_find(message, "has come online")) then
-			return true  -- suppress this message entirely
 		end
 
 		local offlineName = string_match(message, "^(%S+) has gone offline")
@@ -125,10 +118,26 @@ local onChatEventProxy = function(...)
 	return Module:OnChatEvent(...)
 end
 
+-- Suppress Ascension "Added as:" guild status messages that bypass CHAT_MSG_* events
+-- Format: "|cff..Name|r |cff..Added as:|r (Name) has come/gone online/offline"
+Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
+	if (ns.db and not ns.db.prettifyGuildStatus) then return end
+	if (not msg) then return end
+	if (string_find(msg, "Added as:")) then
+		return true  -- suppress this message
+	end
+end
+
+local onAddMessageProxy = function(...)
+	return Module:OnAddMessage(...)
+end
+
 Module.OnEnable = function(self)
 	self:RegisterMessageEventFilter("CHAT_MSG_SYSTEM", onChatEventProxy)
+	self:RegisterBlacklistFilter(onAddMessageProxy)
 end
 
 Module.OnDisable = function(self)
 	self:UnregisterMessageEventFilter("CHAT_MSG_SYSTEM", onChatEventProxy)
+	self:UnregisterBlacklistFilter(onAddMessageProxy)
 end
