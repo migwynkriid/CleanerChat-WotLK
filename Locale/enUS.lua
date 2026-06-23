@@ -57,8 +57,6 @@ L["Simplify auction house messages: listings created, cancelled, sold, won and b
 L["Chat Channel Names"] = true
 L["Abbreviate and simplify chat channel display names."] = true
 
-L["Empty Messages"] = true
-L["Hide chat messages that contain no text (empty or whitespace only)."] = true
 
 L["Experience"] = true
 L["Abbreviate and simplify experience- and level gains."] = true
@@ -102,9 +100,6 @@ L["General"] = true
 L["Frame Position"] = true
 L["Lock frame"] = true
 L["Unlock frame"] = true
-L["Reset config"] = true
-L["Reset all Glass settings to their default values."] = true
-L["Reset all settings to their defaults?"] = true
 L["Appearance"] = true
 L["Font"] = true
 L["Font to use throughout Glass"] = true
