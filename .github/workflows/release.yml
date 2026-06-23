@@ -240,3 +240,10 @@ jobs:
           git add CleanerChat.toc README.md
           git diff --staged --quiet || git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
           git push
+
+      - name: Discord notification on failure
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" \
+               -d "{\"embeds\": [{\"title\": \"❌ CleanerChat Build Failed\", \"description\": \"The release workflow failed on commit \`${{ github.sha }}\`\", \"color\": 15158332, \"fields\": [{\"name\": \"Branch\", \"value\": \"\`${{ github.ref_name }}\`\", \"inline\": true}, {\"name\": \"Commit\", \"value\": \"[${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\", \"inline\": true}, {\"name\": \"Run\", \"value\": \"[View Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": true}]}]}" \
+               ${{ secrets.DISCORD_WEBHOOK_URL }}
