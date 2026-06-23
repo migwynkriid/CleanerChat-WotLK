@@ -18,6 +18,7 @@ default chat frame with an immersive, modern chat UI.
 [![Ascension](https://img.shields.io/badge/tested%20on-Ascension%20WoW-e8782b?style=flat)](https://ascension.gg/)
 [![Stars](https://img.shields.io/github/stars/migwynkriid/CleanerChat-WotLK?style=flat&color=DFBA69)](https://github.com/migwynkriid/CleanerChat-WotLK/stargazers)
 [![Issues](https://img.shields.io/github/issues/migwynkriid/CleanerChat-WotLK?style=flat)](https://github.com/migwynkriid/CleanerChat-WotLK/issues)
+[![Downloads](https://img.shields.io/github/downloads/migwynkriid/CleanerChat-WotLK/total.svg?style=flat)](https://github.com/migwynkriid/CleanerChat-WotLK/releases)
 [![Last commit](https://img.shields.io/github/last-commit/migwynkriid/CleanerChat-WotLK?style=flat)](https://github.com/migwynkriid/CleanerChat-WotLK/commits)
 
 ![CleanerChat in action](https://i.imgur.com/8lj13ch.gif)
