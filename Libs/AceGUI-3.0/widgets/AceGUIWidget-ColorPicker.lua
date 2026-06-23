@@ -187,7 +187,13 @@ local function Constructor()
 	colorSwatch.background = texture
 	texture:SetWidth(16)
 	texture:SetHeight(16)
-	texture:SetColorTexture(1, 1, 1)
+	-- 3.3.5 Compatibility: SetColorTexture fallback
+	if texture.SetColorTexture then
+		texture:SetColorTexture(1, 1, 1)
+	else
+		texture:SetTexture("Interface\\Buttons\\WHITE8x8")
+		texture:SetVertexColor(1, 1, 1, 1)
+	end
 	texture:SetPoint("CENTER", colorSwatch)
 	texture:Show()
 

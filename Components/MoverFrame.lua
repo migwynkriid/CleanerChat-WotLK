@@ -34,10 +34,20 @@ function MoverFrameMixin:Init()
   -- Gold accent used by the rest of the /cc theme (#DFBA69).
   local GOLD = { 223 / 255, 186 / 255, 105 / 255 }
 
+  -- Helper to set solid color texture (3.3.5 compatibility)
+  local function SetSolidColor(texture, r, g, b, a)
+    if texture.SetColorTexture then
+      texture:SetColorTexture(r, g, b, a)
+    else
+      texture:SetTexture("Interface\\Buttons\\WHITE8x8")
+      texture:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
+    end
+  end
+
   -- Subtle dark translucent fill so the drag region is clearly visible without
   -- the garish solid-green look. Tinted very slightly gold to match the theme.
   self.bg = self:CreateTexture(nil, "BACKGROUND")
-  self.bg:SetColorTexture(GOLD[1], GOLD[2], GOLD[3], 0.10)
+  SetSolidColor(self.bg, GOLD[1], GOLD[2], GOLD[3], 0.10)
   self.bg:SetAllPoints()
 
   -- Thin gold border on all four edges (1px WHITE8x8 tinted gold).

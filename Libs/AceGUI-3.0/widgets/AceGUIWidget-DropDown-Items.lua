@@ -455,7 +455,13 @@ do
 
 		local line = self.frame:CreateTexture(nil, "OVERLAY")
 		line:SetHeight(1)
-		line:SetColorTexture(.5, .5, .5)
+		-- 3.3.5 Compatibility: SetColorTexture fallback
+		if line.SetColorTexture then
+			line:SetColorTexture(.5, .5, .5)
+		else
+			line:SetTexture("Interface\\Buttons\\WHITE8x8")
+			line:SetVertexColor(.5, .5, .5, 1)
+		end
 		line:SetPoint("LEFT", self.frame, "LEFT", 10, 0)
 		line:SetPoint("RIGHT", self.frame, "RIGHT", -10, 0)
 

@@ -23,8 +23,17 @@ function MainContainerFrameMixin:Init()
   self:SetHeight(Core.db.profile.frameHeight)
 
   --[===[@debug@
+  -- Helper to set solid color texture (3.3.5 compatibility)
+  local function SetSolidColor(texture, r, g, b, a)
+    if texture.SetColorTexture then
+      texture:SetColorTexture(r, g, b, a)
+    else
+      texture:SetTexture("Interface\\Buttons\\WHITE8x8")
+      texture:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
+    end
+  end
   self.bg = self:CreateTexture(nil, "BACKGROUND")
-  self.bg:SetColorTexture(1, 0, 0, 0)
+  SetSolidColor(self.bg, 1, 0, 0, 0)
   self.bg:SetAllPoints()
   --@end-debug@]===]
 

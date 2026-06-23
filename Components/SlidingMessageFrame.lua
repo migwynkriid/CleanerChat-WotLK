@@ -19,6 +19,16 @@ local LibEasing = Core.Libs.LibEasing
 local lodash = Core.Libs.lodash
 local drop, reduce, take = lodash.drop, lodash.reduce, lodash.take
 
+-- Helper to set solid color texture (3.3.5 compatibility)
+local function SetSolidColor(texture, r, g, b, a)
+  if texture.SetColorTexture then
+    texture:SetColorTexture(r, g, b, a)
+  else
+    texture:SetTexture("Interface\\Buttons\\WHITE8x8")
+    texture:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
+  end
+end
+
 local CreateMessageLinePool = Core.Components.CreateMessageLinePool
 local CreateScrollOverlayFrame = Core.Components.CreateScrollOverlayFrame
 
@@ -220,7 +230,7 @@ function SlidingMessageFrameMixin:Init(chatFrame)
     self.slider.bg = self.slider:CreateTexture(nil, "BACKGROUND")
   end
   self.slider.bg:SetAllPoints()
-  self.slider.bg:SetColorTexture(0, 0, 1, 0)
+  SetSolidColor(self.slider.bg, 0, 0, 1, 0)
 
   -- Pool for the message frames
   if self.messageFramePool == nil then

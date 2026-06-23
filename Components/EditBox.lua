@@ -44,10 +44,21 @@ function EditBoxMixin:Init(parent)
   self.header:SetFontObject("GlassEditBoxFont")
   self.header:SetPoint("LEFT", 8, 0)
 
+  -- Helper to set solid color texture (3.3.5 compatibility)
+  local function SetSolidColor(texture, r, g, b, a)
+    if texture.SetColorTexture then
+      texture:SetColorTexture(r, g, b, a)
+    else
+      -- Fallback for native 3.3.5
+      texture:SetTexture("Interface\\Buttons\\WHITE8x8")
+      texture:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
+    end
+  end
+
   local bg = self:CreateTexture(nil, "BACKGROUND")
   local editBoxColor = Core.db.profile.editBoxBackgroundColor or Colors.codGray
-  bg:SetColorTexture(
-    editBoxColor.r, editBoxColor.g, editBoxColor.b, Core.db.profile.editBoxBackgroundOpacity
+  SetSolidColor(
+    bg, editBoxColor.r, editBoxColor.g, editBoxColor.b, Core.db.profile.editBoxBackgroundOpacity
   )
   bg:SetAllPoints()
 
@@ -154,8 +165,8 @@ function EditBoxMixin:Init(parent)
 
     if key == "editBoxBackgroundOpacity" or key == "editBoxBackgroundColor" then
       local color = Core.db.profile.editBoxBackgroundColor or Colors.codGray
-      bg:SetColorTexture(
-        color.r, color.g, color.b, Core.db.profile.editBoxBackgroundOpacity
+      SetSolidColor(
+        bg, color.r, color.g, color.b, Core.db.profile.editBoxBackgroundOpacity
       )
     end
 

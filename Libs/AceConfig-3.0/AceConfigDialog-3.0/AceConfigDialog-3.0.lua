@@ -597,12 +597,16 @@ do
 			button:SetSize(128, 21)
 			button:SetNormalFontObject(GameFontNormal)
 			button:SetHighlightFontObject(GameFontHighlight)
-			button:SetNormalTexture(130763) -- "Interface\\Buttons\\UI-DialogBox-Button-Up"
-			button:GetNormalTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875)
-			button:SetPushedTexture(130761) -- "Interface\\Buttons\\UI-DialogBox-Button-Down"
-			button:GetPushedTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875)
-			button:SetHighlightTexture(130762) -- "Interface\\Buttons\\UI-DialogBox-Button-Highlight"
-			button:GetHighlightTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875)
+			-- 3.3.5 Compatibility: Use string paths instead of FileDataIDs
+			button:SetNormalTexture("Interface\\Buttons\\UI-DialogBox-Button-Up")
+			local normalTex = button:GetNormalTexture()
+			if normalTex then normalTex:SetTexCoord(0.0, 1.0, 0.0, 0.71875) end
+			button:SetPushedTexture("Interface\\Buttons\\UI-DialogBox-Button-Down")
+			local pushedTex = button:GetPushedTexture()
+			if pushedTex then pushedTex:SetTexCoord(0.0, 1.0, 0.0, 0.71875) end
+			button:SetHighlightTexture("Interface\\Buttons\\UI-DialogBox-Button-Highlight")
+			local highlightTex = button:GetHighlightTexture()
+			if highlightTex then highlightTex:SetTexCoord(0.0, 1.0, 0.0, 0.71875) end
 			button:SetText(newText)
 			return button
 		end

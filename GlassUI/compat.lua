@@ -4,6 +4,51 @@
 local _G = _G
 
 ---
+-- Detect if we're on native 3.3.5 vs Ascension/custom servers
+-- Ascension has retail-backported APIs; native 3.3.5 does not
+local isNative335 = true  -- Assume native 3.3.5 by default
+
+-- Check for Ascension/custom server features (retail-backported APIs)
+-- These APIs exist on Ascension but not on vanilla 3.3.5 servers
+if _G.C_ClassTalents or _G.C_Spell or _G.GetSpecialization or
+   _G.C_CurrencyInfo or _G.C_MythicPlus or _G.C_AzeriteEmpoweredItem then
+  isNative335 = false
+end
+
+-- Also check if BackdropTemplate actually exists as a real template
+-- On Ascension, this is defined by Blizzard; on native 3.3.5 it's not
+-- We test by checking if CreateFrame with BackdropTemplate would work
+-- (Don't actually create to avoid side effects - just check the global)
+if _G.BACKDROP_DIALOG_32_32 or _G.BACKDROP_TOOLTIP_16_16_5555 then
+  isNative335 = false  -- These backdrop constants exist on Ascension/retail
+end
+
+-- Expose for debugging and other code that might need it
+_G.GLASS_IS_NATIVE_335 = isNative335
+
+---
+-- Hook CreateFrame to strip BackdropTemplate on native 3.3.5
+-- In native 3.3.5, BackdropTemplate doesn't exist as an XML template
+-- but frames have SetBackdrop built-in natively
+local originalCreateFrame = _G.CreateFrame
+_G.CreateFrame = function(frameType, name, parent, template, id)
+  -- On native 3.3.5, strip out BackdropTemplate since it doesn't exist
+  if isNative335 and template then
+    -- Handle both standalone "BackdropTemplate" and comma-separated lists
+    if template == "BackdropTemplate" then
+      template = nil
+    elseif type(template) == "string" then
+      -- Remove "BackdropTemplate" from comma-separated template list
+      template = template:gsub("BackdropTemplate%s*,%s*", "")
+      template = template:gsub("%s*,%s*BackdropTemplate", "")
+      template = template:gsub("^BackdropTemplate$", "")
+      if template == "" then template = nil end
+    end
+  end
+  return originalCreateFrame(frameType, name, parent, template, id)
+end
+
+---
 -- CRITICAL: BackdropTemplateMixin must be defined FIRST
 -- Ascension's shared libraries check for this before addon code runs
 -- Must be a proper table with backdrop methods (not just empty)
@@ -238,7 +283,30 @@ end
 -- In 3.3.5, we use SetTexture with solid color files or SetVertexColor
 local frameMeta = getmetatable(CreateFrame("Frame")).__index
 
--- Add SetColorTexture method to texture objects
+-- Create a test texture to get the texture metatable and add SetColorTexture directly
+do
+  local testFrame = CreateFrame("Frame")
+  local testTexture = testFrame:CreateTexture()
+  local textureMeta = getmetatable(testTexture)
+  
+  -- Add SetColorTexture to the texture metatable's __index
+  if textureMeta and textureMeta.__index then
+    local textureIndex = textureMeta.__index
+    if type(textureIndex) == "table" and not textureIndex.SetColorTexture then
+      textureIndex.SetColorTexture = function(self, r, g, b, a)
+        -- Use solid white texture and tint it
+        self:SetTexture("Interface\\Buttons\\WHITE8x8")
+        self:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
+      end
+    end
+  end
+  
+  -- Clean up test objects
+  testTexture:Hide()
+  testFrame:Hide()
+end
+
+-- Add SetColorTexture method to texture objects (fallback for edge cases)
 local function AddSetColorTexture(texture)
   if texture and not texture.SetColorTexture then
     texture.SetColorTexture = function(self, r, g, b, a)
@@ -250,7 +318,10 @@ local function AddSetColorTexture(texture)
   return texture
 end
 
--- Hook CreateTexture to add SetColorTexture method
+-- Also provide a global helper for libraries that need it
+_G.Glass_EnsureSetColorTexture = AddSetColorTexture
+
+-- Hook CreateTexture to add SetColorTexture method (belt and suspenders)
 local originalCreateTexture = frameMeta.CreateTexture
 frameMeta.CreateTexture = function(self, name, layer, inherits, subLayer)
   local texture = originalCreateTexture(self, name, layer, inherits, subLayer)
