@@ -159,3 +159,4 @@ L["IL"] = true
 L["I"] = true
 L["G"] = true
 L["O"] = true
+L["DG"] = true

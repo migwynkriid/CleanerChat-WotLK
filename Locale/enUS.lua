@@ -13,6 +13,7 @@ L["IL"] = true 		-- Instance Leader (WoW Retail)
 L["I"] = true 		-- Instance (WoW Retail)
 L["G"] = true 		-- Guild
 L["O"] = true 		-- Officer
+L["DG"] = true 		-- Dungeon Guide (Ascension)
 
 L["Channel Name Style"] = true
 L["Choose whether to show the channel's full name or just its first letter. Requires the Chat Channel Names filter."] = true

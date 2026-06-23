@@ -107,6 +107,17 @@ Module.OnInitialize = function(self)
 	-- Guild and Officer
 	safeAddDynamicReplacement(G.CHAT_GUILD_GET, "Guild", L["G"])
 	safeAddDynamicReplacement(G.CHAT_OFFICER_GET, "Officer", L["O"])
+
+	-- Ascension-specific: Dungeon Guide (LFG party channel)
+	-- Format: |Hchannel:PARTY|h[Dungeon Guide]|h
+	table_insert(self.replacements, {"|Hchannel:PARTY|h%[Dungeon Guide%]|h", function()
+		local mode = (ns.db and ns.db.channelNameMode) or "initial"
+		if mode == "full" then
+			return "|Hchannel:PARTY|h[Dungeon Guide]|h"
+		else
+			return "|Hchannel:PARTY|h[" .. L["DG"] .. "]|h"
+		end
+	end})
 	
 	-- Raid Warning gets special formatting - red exclamation mark (no brackets)
 	if G.CHAT_RAID_WARNING_GET then
