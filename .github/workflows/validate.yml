@@ -130,3 +130,34 @@ jobs:
             exit 1
           fi
           echo "✅ Locale fallback check passed"
+
+      - name: Dead locale strings check
+        run: |
+          echo "Checking for unused locale strings..."
+          
+          # Get all keys defined in enUS.lua
+          DEFINED_KEYS=$(grep -oP 'L\["\K[^"]+' Locale/enUS.lua | sort -u)
+          DEFINED_COUNT=$(echo "$DEFINED_KEYS" | wc -l)
+          echo "Found $DEFINED_COUNT locale keys defined in enUS.lua"
+          
+          # Get all keys used in the codebase (excluding Locale folder)
+          # Look for L["..."] patterns in all Lua files except locale files
+          USED_KEYS=$(grep -rohP 'L\["\K[^"]+' --include="*.lua" . | grep -v "^Locale/" | sort -u)
+          
+          # Find keys that are defined but never used
+          UNUSED=$(comm -23 <(echo "$DEFINED_KEYS") <(echo "$USED_KEYS"))
+          UNUSED_COUNT=$(echo "$UNUSED" | grep -c . || true)
+          
+          if [[ $UNUSED_COUNT -gt 0 ]]; then
+            echo ""
+            echo "❌ Found $UNUSED_COUNT unused locale key(s):"
+            echo "$UNUSED" | while read -r key; do
+              echo "  - L[\"$key\"]"
+            done
+            echo ""
+            echo "These keys are defined in enUS.lua but not found in the codebase."
+            echo "Remove them from all locale files before merging."
+            exit 1
+          else
+            echo "✅ No unused locale strings found"
+          fi
