@@ -560,7 +560,8 @@ do
 		frame:SetFrameLevel(100) -- Lots of room to draw under it
 		frame:SetScript("OnKeyDown", function(self, key)
 			if key == "ESCAPE" then
-				if not InCombatLockdown() then
+				-- 3.3.5 Compatibility: SetPropagateKeyboardInput doesn't exist in vanilla WotLK
+				if not InCombatLockdown() and self.SetPropagateKeyboardInput then
 					self:SetPropagateKeyboardInput(false)
 				end
 				if self.cancel:IsShown() then
@@ -568,15 +569,23 @@ do
 				else -- Showing a validation error
 					self:Hide()
 				end
-			elseif not InCombatLockdown() then
+			elseif not InCombatLockdown() and self.SetPropagateKeyboardInput then
 				self:SetPropagateKeyboardInput(true)
 			end
 		end)
 
-		local border = CreateFrame("Frame", nil, frame, "DialogBorderOpaqueTemplate")
-		border:SetAllPoints(frame)
-		frame:SetFixedFrameStrata(true)
-		frame:SetFixedFrameLevel(true)
+		-- 3.3.5 Compatibility: DialogBorderOpaqueTemplate doesn't exist in vanilla WotLK
+		if _G.DialogBorderOpaqueTemplate then
+			local border = CreateFrame("Frame", nil, frame, "DialogBorderOpaqueTemplate")
+			border:SetAllPoints(frame)
+		end
+		-- 3.3.5 Compatibility: SetFixedFrameStrata/SetFixedFrameLevel don't exist in vanilla WotLK
+		if frame.SetFixedFrameStrata then
+			frame:SetFixedFrameStrata(true)
+		end
+		if frame.SetFixedFrameLevel then
+			frame:SetFixedFrameLevel(true)
+		end
 
 		local text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 		text:SetSize(290, 0)
