@@ -1,9 +1,9 @@
-name: Create Release
+name: Validate & Release
 
 on:
   push:
     branches:
-      - main
+      - '**'  # Run on all branches for validation
 
 jobs:
   release:
@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0  # Fetch all history for changelog generation
 
       # ========== VALIDATION CHECKS ==========
-      # All checks must pass before release is built
+      # All checks run on every branch
 
       - name: Install Lua and Luacheck
         run: |
@@ -156,9 +156,22 @@ jobs:
           fi
           echo "✅ Locale fallback check passed"
 
+      - name: Validation summary (non-main branches)
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "=========================================="
+          echo "✅ All validation checks passed!"
+          echo "=========================================="
+          echo ""
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Note: Releases and tags are only created on the 'main' branch."
+          echo "This branch is tagless - merge to main to create a release."
+
       # ========== BUILD RELEASE ==========
+      # Release steps only run on main branch - other branches are tagless
 
       - name: Calculate version
+        if: github.ref == 'refs/heads/main'
         id: version
         run: |
           # Count existing v2.x tags to determine next version
@@ -171,6 +184,7 @@ jobs:
           echo "Next version: v$VERSION (found $TAG_COUNT existing v2.x tags)"
 
       - name: Update TOC version
+        if: github.ref == 'refs/heads/main'
         run: |
           # Update the version in the TOC file for the release
           sed -i "s/^## Version:.*/## Version: ${{ steps.version.outputs.version }}/" CleanerChat.toc
@@ -178,6 +192,7 @@ jobs:
           grep "## Version" CleanerChat.toc
 
       - name: Update README version badge
+        if: github.ref == 'refs/heads/main'
         run: |
           # Keep the README version badge in sync with the .toc / release.
           # Matches the shields.io static badge "version-<x.y>-DFBA69".
@@ -186,6 +201,7 @@ jobs:
           grep -o "version-[0-9.]*-DFBA69" README.md || true
 
       - name: Generate changelog
+        if: github.ref == 'refs/heads/main'
         id: changelog
         run: |
           # Get commits since last tag, or all commits if no tags exist
@@ -211,6 +227,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create addon zip
+        if: github.ref == 'refs/heads/main'
         run: |
           # Create a clean directory for the addon
           mkdir -p release/CleanerChat
@@ -235,6 +252,7 @@ jobs:
           ls -la *.zip
 
       - name: Delete old releases
+        if: github.ref == 'refs/heads/main'
         uses: dev-drprasad/delete-older-releases@v0.3.4
         with:
           keep_latest: 0
@@ -243,6 +261,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.version.outputs.version }}
@@ -268,6 +287,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit updated TOC version
+        if: github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
