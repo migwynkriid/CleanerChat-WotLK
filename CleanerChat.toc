@@ -29,7 +29,3 @@ Components\Components.xml
 
 # Glass chat UI overhaul
 GlassUI.xml
-
-# Server compatibility patches (must load last)
-# Add new server support by creating files in Compatibility/Servers/
-Compatibility\Compatibility.xml

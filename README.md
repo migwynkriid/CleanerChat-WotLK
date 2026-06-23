@@ -131,18 +131,6 @@ Includes:
 - Loot roll formatting (Need / Greed / Disenchant / Pass)
 - Quest reward and crafting message formatting
 - A WotLK backport of the Glass chat UI (animation, hyperlink and texture shims)
-- **Server compatibility system** — extensible framework for custom server patches
-
-### Adding support for your server
-
-CleanerChat includes a modular server compatibility system. To add support for a custom server:
-
-1. Copy `Compatibility/Servers/_Template.lua` to a new file (e.g., `MyServer.lua`)
-2. Implement the `detect()` function to identify your server
-3. Implement the `Apply()` function with your server's patches
-4. Add your file to `Compatibility/Compatibility.xml`
-
-See the template file for detailed instructions and examples.
 
 ---
 

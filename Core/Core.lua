@@ -627,11 +627,6 @@ ns.OnEnable = function(self)
 		self:GetModule("Creatures"):Enable()
 	end
 
-	-- Apply server-specific compatibility patches
-	if (_G.CleanerChat_Compatibility) then
-		_G.CleanerChat_Compatibility:Apply(ns)
-	end
-
 	-- Print startup message (delayed so it's visible after login spam)
 	if (self.db.showStartupMessage) then
 		if (C_Timer and C_Timer.After) then

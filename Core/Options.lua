@@ -292,13 +292,8 @@ Options.GenerateOptionsMenu = function(self)
 	-- Top-level tree. The Glass UI settings are merged in as additional
 	-- categories so everything lives under /cc (Glass no longer has /glass).
 	-- The version is read live from the .toc so the header always matches it.
-	-- The detected server is appended to show which compatibility mode is active.
 	local tocVersion = GetAddOnMetadata(Addon, "Version")
-	local serverName = _G.CleanerChat_Compatibility and _G.CleanerChat_Compatibility:GetActiveServer() or nil
 	local title = tocVersion and ("CleanerChat V"..tocVersion) or "CleanerChat"
-	if serverName then
-		title = title .. " - " .. serverName
-	end
 	local options = {
 		name = title,
 		type = "group",
