@@ -167,9 +167,10 @@ jobs:
           
           # Get all keys used in the codebase (excluding Locale folder)
           # Look for L["..."] patterns in all Lua files except locale files
-          USED_KEYS=$(grep -rohP 'L\["\K[^"]+' --include="*.lua" . | grep -v "^Locale/" | sort -u)
-          # Also scan the Locale folder but exclude the key definitions (left side of =)
-          # This catches any L["key"] used on the right side or in comments
+          # Use --exclude-dir to properly skip the Locale folder
+          USED_KEYS=$(grep -rohP 'L\["\K[^"]+' --include="*.lua" --exclude-dir=Locale . | sort -u)
+          USED_COUNT=$(echo "$USED_KEYS" | wc -l)
+          echo "Found $USED_COUNT locale keys used in the codebase"
           
           # Find keys that are defined but never used
           UNUSED=$(comm -23 <(echo "$DEFINED_KEYS") <(echo "$USED_KEYS"))
