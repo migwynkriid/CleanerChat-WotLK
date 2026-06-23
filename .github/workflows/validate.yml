@@ -202,3 +202,10 @@ jobs:
             exit 1
           fi
           echo "✅ Orphan translations check passed"
+
+      - name: Discord notification on failure
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" \
+               -d "{\"embeds\": [{\"title\": \"❌ CleanerChat Validation Failed\", \"description\": \"The validation workflow failed on PR #${{ github.event.pull_request.number }}\", \"color\": 15158332, \"fields\": [{\"name\": \"PR\", \"value\": \"[#${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }})\", \"inline\": true}, {\"name\": \"Branch\", \"value\": \"\`${{ github.head_ref }}\`\", \"inline\": true}, {\"name\": \"Run\", \"value\": \"[View Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": true}]}]}" \
+               ${{ secrets.DISCORD_WEBHOOK_URL }}
