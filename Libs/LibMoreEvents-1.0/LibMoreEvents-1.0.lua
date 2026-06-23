@@ -127,8 +127,10 @@ local error = function(...)
 	end
 end
 
+-- Lua 5.1 compatible: wrap in closure since xpcall(f, err, ...) is 5.2+ only
 local _xpcall = function(func, ...)
-	return xpcall(func, error, ...)
+	local args = {...}
+	return xpcall(function() return func(unpack(args)) end, error)
 end
 
 -- Validation

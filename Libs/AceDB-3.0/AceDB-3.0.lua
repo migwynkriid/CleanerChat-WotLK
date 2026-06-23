@@ -264,7 +264,8 @@ local factionrealmKey = factionKey .. " - " .. realmKey
 local localeKey = GetLocale():lower()
 
 local regionTable = { "US", "KR", "EU", "TW", "CN" }
-local regionKey = regionTable[GetCurrentRegion()]
+-- 3.3.5 Compatibility: GetCurrentRegion() doesn't exist in vanilla WotLK
+local regionKey = GetCurrentRegion and regionTable[GetCurrentRegion()] or "US"
 local factionrealmregionKey = factionrealmKey .. " - " .. regionKey
 
 -- Actual database initialization function

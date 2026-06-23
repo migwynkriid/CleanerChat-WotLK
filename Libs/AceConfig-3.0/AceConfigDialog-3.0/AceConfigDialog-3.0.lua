@@ -33,6 +33,7 @@ local emptyTbl = {}
 
 --[[
 	 xpcall safecall implementation
+	 Compatible with Lua 5.1 (WoW 3.3.5) and Lua 5.2+ (Ascension)
 ]]
 local xpcall = xpcall
 
@@ -42,7 +43,9 @@ end
 
 local function safecall(func, ...)
 	if func then
-		return xpcall(func, errorhandler, ...)
+		-- Lua 5.1 compatible: wrap in closure since xpcall(f, err, ...) is 5.2+ only
+		local args = {...}
+		return xpcall(function() return func(unpack(args)) end, errorhandler)
 	end
 end
 
@@ -557,7 +560,8 @@ do
 		frame:SetFrameLevel(100) -- Lots of room to draw under it
 		frame:SetScript("OnKeyDown", function(self, key)
 			if key == "ESCAPE" then
-				if not InCombatLockdown() then
+				-- 3.3.5 Compatibility: SetPropagateKeyboardInput doesn't exist in vanilla WotLK
+				if not InCombatLockdown() and self.SetPropagateKeyboardInput then
 					self:SetPropagateKeyboardInput(false)
 				end
 				if self.cancel:IsShown() then
@@ -565,15 +569,23 @@ do
 				else -- Showing a validation error
 					self:Hide()
 				end
-			elseif not InCombatLockdown() then
+			elseif not InCombatLockdown() and self.SetPropagateKeyboardInput then
 				self:SetPropagateKeyboardInput(true)
 			end
 		end)
 
-		local border = CreateFrame("Frame", nil, frame, "DialogBorderOpaqueTemplate")
-		border:SetAllPoints(frame)
-		frame:SetFixedFrameStrata(true)
-		frame:SetFixedFrameLevel(true)
+		-- 3.3.5 Compatibility: DialogBorderOpaqueTemplate doesn't exist in vanilla WotLK
+		if _G.DialogBorderOpaqueTemplate then
+			local border = CreateFrame("Frame", nil, frame, "DialogBorderOpaqueTemplate")
+			border:SetAllPoints(frame)
+		end
+		-- 3.3.5 Compatibility: SetFixedFrameStrata/SetFixedFrameLevel don't exist in vanilla WotLK
+		if frame.SetFixedFrameStrata then
+			frame:SetFixedFrameStrata(true)
+		end
+		if frame.SetFixedFrameLevel then
+			frame:SetFixedFrameLevel(true)
+		end
 
 		local text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 		text:SetSize(290, 0)
@@ -585,12 +597,16 @@ do
 			button:SetSize(128, 21)
 			button:SetNormalFontObject(GameFontNormal)
 			button:SetHighlightFontObject(GameFontHighlight)
-			button:SetNormalTexture(130763) -- "Interface\\Buttons\\UI-DialogBox-Button-Up"
-			button:GetNormalTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875)
-			button:SetPushedTexture(130761) -- "Interface\\Buttons\\UI-DialogBox-Button-Down"
-			button:GetPushedTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875)
-			button:SetHighlightTexture(130762) -- "Interface\\Buttons\\UI-DialogBox-Button-Highlight"
-			button:GetHighlightTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875)
+			-- 3.3.5 Compatibility: Use string paths instead of FileDataIDs
+			button:SetNormalTexture("Interface\\Buttons\\UI-DialogBox-Button-Up")
+			local normalTex = button:GetNormalTexture()
+			if normalTex then normalTex:SetTexCoord(0.0, 1.0, 0.0, 0.71875) end
+			button:SetPushedTexture("Interface\\Buttons\\UI-DialogBox-Button-Down")
+			local pushedTex = button:GetPushedTexture()
+			if pushedTex then pushedTex:SetTexCoord(0.0, 1.0, 0.0, 0.71875) end
+			button:SetHighlightTexture("Interface\\Buttons\\UI-DialogBox-Button-Highlight")
+			local highlightTex = button:GetHighlightTexture()
+			if highlightTex then highlightTex:SetTexCoord(0.0, 1.0, 0.0, 0.71875) end
 			button:SetText(newText)
 			return button
 		end

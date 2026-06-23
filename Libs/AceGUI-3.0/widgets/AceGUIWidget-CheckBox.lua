@@ -151,21 +151,23 @@ local methods = {
 		local size
 		if type == "radio" then
 			size = 16
-			checkbg:SetTexture(130843) -- Interface\\Buttons\\UI-RadioButton
+			-- 3.3.5 Compatibility: Use string paths instead of FileDataIDs
+			checkbg:SetTexture("Interface\\Buttons\\UI-RadioButton")
 			checkbg:SetTexCoord(0, 0.25, 0, 1)
-			check:SetTexture(130843) -- Interface\\Buttons\\UI-RadioButton
+			check:SetTexture("Interface\\Buttons\\UI-RadioButton")
 			check:SetTexCoord(0.25, 0.5, 0, 1)
 			check:SetBlendMode("ADD")
-			highlight:SetTexture(130843) -- Interface\\Buttons\\UI-RadioButton
+			highlight:SetTexture("Interface\\Buttons\\UI-RadioButton")
 			highlight:SetTexCoord(0.5, 0.75, 0, 1)
 		else
 			size = 24
-			checkbg:SetTexture(130755) -- Interface\\Buttons\\UI-CheckBox-Up
+			-- 3.3.5 Compatibility: Use string paths instead of FileDataIDs
+			checkbg:SetTexture("Interface\\Buttons\\UI-CheckBox-Up")
 			checkbg:SetTexCoord(0, 1, 0, 1)
-			check:SetTexture(130751) -- Interface\\Buttons\\UI-CheckBox-Check
+			check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
 			check:SetTexCoord(0, 1, 0, 1)
 			check:SetBlendMode("BLEND")
-			highlight:SetTexture(130753) -- Interface\\Buttons\\UI-CheckBox-Highlight
+			highlight:SetTexture("Interface\\Buttons\\UI-CheckBox-Highlight")
 			highlight:SetTexCoord(0, 1, 0, 1)
 		end
 		checkbg:SetHeight(size)
@@ -251,11 +253,13 @@ local function Constructor()
 	checkbg:SetWidth(24)
 	checkbg:SetHeight(24)
 	checkbg:SetPoint("TOPLEFT")
-	checkbg:SetTexture(130755) -- Interface\\Buttons\\UI-CheckBox-Up
+	-- 3.3.5 Compatibility: Use string paths instead of FileDataIDs
+	checkbg:SetTexture("Interface\\Buttons\\UI-CheckBox-Up")
 
 	local check = frame:CreateTexture(nil, "OVERLAY")
 	check:SetAllPoints(checkbg)
-	check:SetTexture(130751) -- Interface\\Buttons\\UI-CheckBox-Check
+	-- 3.3.5 Compatibility: Use string paths instead of FileDataIDs
+	check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
 
 	local text = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	text:SetJustifyH("LEFT")
@@ -264,7 +268,8 @@ local function Constructor()
 	text:SetPoint("RIGHT")
 
 	local highlight = frame:CreateTexture(nil, "HIGHLIGHT")
-	highlight:SetTexture(130753) -- Interface\\Buttons\\UI-CheckBox-Highlight
+	-- 3.3.5 Compatibility: Use string paths instead of FileDataIDs
+	highlight:SetTexture("Interface\\Buttons\\UI-CheckBox-Highlight")
 	highlight:SetBlendMode("ADD")
 	highlight:SetAllPoints(checkbg)
 

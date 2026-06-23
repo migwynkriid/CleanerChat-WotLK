@@ -51,6 +51,7 @@ local setmetatable, getmetatable, rawset, rawget = setmetatable, getmetatable, r
 
 --[[
 	 xpcall safecall implementation
+	 Compatible with both Lua 5.1 (WoW 3.3.5) and Lua 5.2+ (Ascension)
 ]]
 local xpcall = xpcall
 
@@ -63,7 +64,9 @@ local function safecall(func, ...)
 	-- this safecall is used for optional functions like OnInitialize OnEnable etc. When they are not
 	-- present execution should continue without hinderance
 	if type(func) == "function" then
-		return xpcall(func, errorhandler, ...)
+		-- Lua 5.1 compatible: wrap in closure since xpcall(f, err, ...) is 5.2+ only
+		local args = {...}
+		return xpcall(function() return func(unpack(args)) end, errorhandler)
 	end
 end
 

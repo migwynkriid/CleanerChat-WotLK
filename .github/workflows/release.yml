@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0  # Fetch all history for changelog generation
 
       # ========== VALIDATION CHECKS ==========
-      # All checks must pass before release is built
+      # All checks run on every branch
 
       - name: Install Lua and Luacheck
         run: |
@@ -157,18 +157,19 @@ jobs:
           echo "✅ Locale fallback check passed"
 
       # ========== BUILD RELEASE ==========
+      # Only main branch creates releases (workflow trigger enforces this)
 
       - name: Calculate version
         id: version
         run: |
-          # Count existing v1.x tags to determine next version
-          TAG_COUNT=$(git tag -l 'v1.*' | wc -l)
+          # Count existing v2.x tags to determine next version
+          TAG_COUNT=$(git tag -l 'v2.*' | wc -l)
           
-          # First release will be v1.0, then v1.1, v1.2, etc.
-          VERSION="1.${TAG_COUNT}"
+          # First release will be v2.0, then v2.1, v2.2, etc.
+          VERSION="2.${TAG_COUNT}"
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Next version: v$VERSION (found $TAG_COUNT existing v1.x tags)"
+          echo "Next version: v$VERSION (found $TAG_COUNT existing v2.x tags)"
 
       - name: Update TOC version
         run: |
@@ -226,12 +227,12 @@ jobs:
                     --exclude='changelog.txt' \
                     ./ release/CleanerChat/
           
-          # Create the zip file with constant name for /releases/latest/download/CleanerChat.zip
+          # Create the zip file
           cd release
           zip -r ../CleanerChat.zip CleanerChat
           cd ..
           
-          echo "Created: CleanerChat.zip (v${{ steps.version.outputs.version }})"
+          echo "Created: CleanerChat.zip"
           ls -la *.zip
 
       - name: Delete old releases
