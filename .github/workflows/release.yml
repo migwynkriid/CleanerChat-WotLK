@@ -215,10 +215,12 @@ jobs:
           # Create a clean directory for the addon
           mkdir -p release/CleanerChat
           
-          # Copy addon files (exclude git, github, and other non-addon files)
+          # Copy addon files (exclude git, github, dev files, and other non-addon files)
           rsync -av --exclude='.git' \
                     --exclude='.github' \
                     --exclude='.gitignore' \
+                    --exclude='.luacheckrc' \
+                    --exclude='APIDocumentation' \
                     --exclude='release' \
                     --exclude='*.zip' \
                     --exclude='changelog.txt' \
