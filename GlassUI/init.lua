@@ -72,6 +72,7 @@ Core.defaults = {
     messageLeading = 3,
     messageLinePadding = 0.25,
     messageLeftPadding = 15,
+    messageHistoryLimit = 128,
 
     chatHoldTime = 14,
     chatFadeInDuration = 0.6,

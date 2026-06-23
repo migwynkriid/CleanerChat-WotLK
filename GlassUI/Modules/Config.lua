@@ -478,6 +478,23 @@ function C:OnEnable()
                   end,
                   order = 1.5,
                 },
+                messageHistoryLimit = {
+                  name = L["Message history"],
+                  desc = "Default: "..Core.defaults.profile.messageHistoryLimit.."\nMin: 128\nMax: 2048\n\n"..L["Maximum number of messages to keep in memory per chat window. Higher values use more memory."],
+                  type = "range",
+                  min = 128,
+                  max = 2048,
+                  softMin = 128,
+                  softMax = 1024,
+                  step = 64,
+                  get = function ()
+                    return Core.db.profile.messageHistoryLimit
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.messageHistoryLimit = input
+                  end,
+                  order = 1.6,
+                },
               },
             },
             section2 = {

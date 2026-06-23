@@ -630,7 +630,7 @@ function SlidingMessageFrameMixin:Update(incoming)
   end
 
   -- Release old messages
-  local historyLimit = 128
+  local historyLimit = Core.db.profile.messageHistoryLimit or 128
   if #self.state.messages > historyLimit then
     local overflow = #self.state.messages - historyLimit
     local oldMessages = take(self.state.messages, overflow)
