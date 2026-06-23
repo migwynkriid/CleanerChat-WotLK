@@ -124,6 +124,42 @@ jobs:
           fi
           echo "✅ Locale check passed"
 
+      - name: Locale fallback check
+        run: |
+          echo "Checking for untranslated fallbacks (= true)..."
+          
+          # Channel abbreviations that are allowed to stay as = true
+          ALLOWED_FALLBACKS="BGL|BG|PL|P|RL|R|IL|I|G|O"
+          
+          ERRORS=0
+          for LOCALE_FILE in Locale/*.lua; do
+            [[ "$LOCALE_FILE" == "Locale/enUS.lua" ]] && continue
+            
+            LOCALE_NAME=$(basename "$LOCALE_FILE" .lua)
+            
+            # Find lines with = true that are NOT channel abbreviations
+            # Match pattern: L["..."] = true
+            FALLBACKS=$(grep -nP 'L\["[^"]+"\]\s*=\s*true' "$LOCALE_FILE" | grep -vP "L\[\"($ALLOWED_FALLBACKS)\"\]" || true)
+            FALLBACK_COUNT=$(echo "$FALLBACKS" | grep -c . || true)
+            
+            if [[ $FALLBACK_COUNT -gt 0 ]]; then
+              echo "❌ $LOCALE_NAME: found $FALLBACK_COUNT untranslated fallback(s):"
+              echo "$FALLBACKS" | head -5
+              [[ $FALLBACK_COUNT -gt 5 ]] && echo "  ... and $((FALLBACK_COUNT - 5)) more"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "✅ $LOCALE_NAME: no fallbacks"
+            fi
+          done
+          
+          if [[ $ERRORS -gt 0 ]]; then
+            echo ""
+            echo "❌ Fallback check failed: $ERRORS locale file(s) have untranslated strings"
+            echo "All strings must have real translations, not '= true' fallbacks."
+            exit 1
+          fi
+          echo "✅ Locale fallback check passed"
+
       # ========== BUILD RELEASE ==========
 
       - name: Calculate version
