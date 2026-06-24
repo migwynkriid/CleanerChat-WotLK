@@ -321,19 +321,32 @@ jobs:
           echo "Created: CleanerChat.zip"
           ls -la *.zip
 
-      - name: Delete old releases
-        uses: dev-drprasad/delete-older-releases@v0.3.4
-        with:
-          keep_latest: 0
-          delete_tags: false
+      - name: Demote previous releases to old (pre-release)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Keep older releases instead of deleting them, so their download
+          # counts persist and the native downloads badge keeps accumulating.
+          # Each existing release is marked as a pre-release (adds the ⚠️
+          # triangle marker on GitHub) and renamed to flag it as an old version.
+          # Runs BEFORE the new release is created, so the new full release
+          # below becomes "Latest".
+          echo "Demoting existing releases to old (pre-release)..."
+          gh release list --limit 200 --json tagName --jq '.[].tagName' | while read -r TAG; do
+            [ -z "$TAG" ] && continue
+            echo "  - $TAG -> CleanerChat $TAG (old)"
+            gh release edit "$TAG" \
+              --prerelease \
+              --latest=false \
+              --title "CleanerChat $TAG (old)"
+          done
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: CleanerChat v${{ steps.version.outputs.version }}
+          make_latest: true
           body: |
             ## CleanerChat v${{ steps.version.outputs.version }}
             
