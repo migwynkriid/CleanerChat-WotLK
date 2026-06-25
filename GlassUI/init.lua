@@ -32,6 +32,7 @@ Core.Version = "DEBUG"
 --@end-debug@]===]--
 
 -- Modules
+Core:NewModule("Bubbles")
 Core:NewModule("Config", "AceConsole-3.0")
 Core:NewModule("Fonts")
 Core:NewModule("Hyperlinks")
@@ -103,6 +104,9 @@ Core.defaults = {
     scrollIndicatorBgColor = { r = 17 / 255, g = 17 / 255, b = 17 / 255 }, -- codGray (same as chat bg)
     scrollIndicatorBgOpacity = 0.65, -- slightly transparent
     hideScrollIndicator = false, -- when true, hides the "Unread messages" / "Bring me to the present" indicator
+
+    -- Chat bubbles
+    chatBubbles = false, -- When ON, replaces the default 3.3.5 chat bubble with clean text-only output using the Glass font + outline.
   }
 }
 

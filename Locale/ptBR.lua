@@ -145,6 +145,12 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = "Mostrar abas ao passar o mouse"
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "Quando ativado, as abas do chat desaparecem quando inativas e reaparecem ao passar o mouse. Quando desativado, as abas estão sempre visíveis."
 L["Tab widths refit on /reload."] = "As larguras das abas se reajustam com /reload."
+
+-- Bubbles
+L["Bubbles"] = "Balões"
+L["Replace chat bubbles"] = "Substituir balões de bate-papo"
+L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = "Substitui o balão de bate-papo padrão da Blizzard por apenas texto usando a fonte Glass com contorno, exibido acima da cabeça de quem fala."
+
 L["Show timestamps"] = "Mostrar carimbos de hora"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Adiciona a cada mensagem um carimbo de hora no formato [HH:MM]."
 

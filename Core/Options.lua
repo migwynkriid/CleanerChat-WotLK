@@ -306,7 +306,7 @@ Options.GenerateOptionsMenu = function(self)
 	if (glass and glass.configGroups) then
 		-- Order them after the Filters tab; keep Profiles last.
 		local glassOrders = {
-			general = 2, editBox = 3, messages = 4, topBar = 5, profile = 100
+			general = 2, editBox = 3, messages = 4, topBar = 5, bubbles = 6, profile = 100
 		}
 		for key,group in next,glass.configGroups do
 			if (type(group) == "table") then

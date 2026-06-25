@@ -141,6 +141,12 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = "悬停时显示标签"
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "启用后，聊天标签在空闲时消失，鼠标悬停时重新出现。禁用后，标签始终可见。"
 L["Tab widths refit on /reload."] = "标签宽度在/reload时重新调整。"
+
+-- Bubbles
+L["Bubbles"] = "聊天气泡"
+L["Replace chat bubbles"] = "替换聊天气泡"
+L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = "用仅文本输出替换默认的暴雪聊天气泡，使用 Glass 字体和描边，显示在说话者头顶上方。"
+
 L["Show timestamps"] = "显示时间戳"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "在每条消息前添加[HH:MM]格式的时间戳。"
 

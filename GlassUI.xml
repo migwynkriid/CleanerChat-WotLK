@@ -20,6 +20,7 @@
 	<Script file="Components\SlidingMessageFrame.lua"/>
 
 	<!-- Modules -->
+	<Script file="GlassUI\Modules\Bubbles.lua"/>
 	<Script file="GlassUI\Modules\Config.lua"/>
 	<Script file="GlassUI\Modules\Fonts.lua"/>
 	<Script file="GlassUI\Modules\Hyperlinks.lua"/>

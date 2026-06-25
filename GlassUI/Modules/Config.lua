@@ -955,6 +955,35 @@ function C:OnEnable()
             },
           },
         },
+        bubbles = {
+          name = L["Bubbles"],
+          type = "group",
+          order = 6,
+          args = {
+            section1 = {
+              name = L["Appearance"],
+              type = "group",
+              inline = true,
+              order = 1,
+              args = {
+                chatBubbles = {
+                  name = L["Replace chat bubbles"],
+                  desc = L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."],
+                  type = "toggle",
+                  width = "full",
+                  order = 1,
+                  get = function ()
+                    return Core.db.profile.chatBubbles
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.chatBubbles = input
+                    Core:Dispatch(UpdateConfig("chatBubbles"))
+                  end,
+                },
+              },
+            },
+          },
+        },
         profile = AceDBOptions:GetOptionsTable(Core.db)
       }
   }

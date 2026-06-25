@@ -192,6 +192,11 @@ L["Show tabs on hover"] = true
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = true
 L["Tab widths refit on /reload."] = true
 
+-- Bubbles
+L["Bubbles"] = true
+L["Replace chat bubbles"] = true
+L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = true
+
 -- Timestamps
 L["Show timestamps"] = true
 L["Prepend each message with a timestamp in [HH:MM] format."] = true
