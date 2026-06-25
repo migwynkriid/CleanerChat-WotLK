@@ -89,14 +89,21 @@ if (not _G.C_Timer) then
 
 	timerFrame:SetScript("OnUpdate", function(self, elapsed)
 		local now = GetTime()
+
+		-- Two-phase update to avoid "invalid key to 'next'".
+		-- A timer callback frequently schedules a NEW timer (rescheduling itself
+		-- or arming another), which inserts into `timers`. In Lua 5.1, adding a
+		-- new key to a table *during* pairs() iteration is undefined behavior and
+		-- throws "invalid key to 'next'". Removing existing keys is safe, so we
+		-- first walk the table to find due timers and update their scheduling
+		-- state (removals only), then fire the callbacks AFTER the loop closes --
+		-- at which point callbacks may freely add new timers.
+		local due
 		for id, timer in pairs(timers) do
 			if (timer.nextTick and now >= timer.nextTick) then
-				if (timer.callback) then
-					-- Use pcall to protect against buggy callbacks from other addons
-					-- This prevents errors in callbacks (like MRT's nil self) from
-					-- spamming the error log and breaking our timer loop
-					pcall(timer.callback)
-				end
+				due = due or {}
+				due[#due + 1] = timer
+
 				if (timer.iterations) then
 					timer.iterations = timer.iterations - 1
 					if (timer.iterations <= 0) then
@@ -111,6 +118,19 @@ if (not _G.C_Timer) then
 				end
 			end
 		end
+
+		-- Fire callbacks after iteration has finished. Safe for callbacks to add
+		-- new timers now. pcall protects against buggy callbacks from other addons
+		-- (like MRT's nil self) so they don't spam the error log or break the loop.
+		if (due) then
+			for i = 1, #due do
+				local callback = due[i].callback
+				if (callback) then
+					pcall(callback)
+				end
+			end
+		end
+
 		-- Hide frame if no timers
 		if (not next(timers)) then
 			self:Hide()
