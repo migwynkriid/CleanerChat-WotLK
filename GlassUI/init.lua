@@ -110,6 +110,10 @@ Core.defaults = {
     bubbleFont = "Friz Quadrata TT",
     bubbleFontSize = 13,
     bubbleFontFlags = "OUTLINE",
+    bubbleMaxLines = 4, -- Maximum stacked messages above a speaker's head before the oldest fades out.
+    bubbleHoldTime = 4, -- Seconds a message stays fully visible before fading out.
+    bubbleFadeInDuration = 0.3,
+    bubbleFadeOutDuration = 0.6,
   }
 }
 

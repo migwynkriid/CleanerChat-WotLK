@@ -148,6 +148,7 @@ L["Replace chat bubbles"] = "替换聊天气泡"
 L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = "用仅文本输出替换默认的暴雪聊天气泡，使用 Glass 字体和描边，显示在说话者头顶上方。"
 L["Font to use for chat bubbles."] = "用于聊天气泡的字体。"
 L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = "为聊天气泡文本添加描边，使其更突出而不显得平淡。"
+L["Maximum messages"] = "最大消息数"
 
 L["Show timestamps"] = "显示时间戳"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "在每条消息前添加[HH:MM]格式的时间戳。"

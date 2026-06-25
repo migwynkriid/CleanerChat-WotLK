@@ -1035,6 +1035,86 @@ function C:OnEnable()
                 },
               },
             },
+            section2 = {
+              name = L["Animations"],
+              type = "group",
+              inline = true,
+              order = 2,
+              args = {
+                bubbleMaxLines = {
+                  name = L["Maximum messages"],
+                  desc = "Default: "..Core.defaults.profile.bubbleMaxLines.."\nMin: 1\nMax: 10",
+                  type = "range",
+                  order = 1,
+                  min = 1,
+                  max = 10,
+                  softMin = 1,
+                  softMax = 6,
+                  step = 1,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleMaxLines
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.bubbleMaxLines = input
+                  end,
+                },
+                bubbleHoldTime = {
+                  name = L["Fade out delay"],
+                  desc = "Default: "..Core.defaults.profile.bubbleHoldTime.."\nMin: 0\nMax: 60",
+                  type = "range",
+                  order = 2,
+                  min = 0,
+                  max = 60,
+                  softMin = 1,
+                  softMax = 20,
+                  step = 0.5,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleHoldTime
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.bubbleHoldTime = input
+                  end,
+                },
+                bubbleFadeInDuration = {
+                  name = L["Fade in duration"],
+                  desc = "Default: "..Core.defaults.profile.bubbleFadeInDuration.."\nMin: 0\nMax: 10",
+                  type = "range",
+                  order = 3,
+                  min = 0,
+                  max = 10,
+                  softMin = 0,
+                  softMax = 5,
+                  step = 0.05,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleFadeInDuration
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.bubbleFadeInDuration = input
+                  end,
+                },
+                bubbleFadeOutDuration = {
+                  name = L["Fade out duration"],
+                  desc = "Default: "..Core.defaults.profile.bubbleFadeOutDuration.."\nMin: 0\nMax: 10",
+                  type = "range",
+                  order = 4,
+                  min = 0,
+                  max = 10,
+                  softMin = 0,
+                  softMax = 5,
+                  step = 0.05,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleFadeOutDuration
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.bubbleFadeOutDuration = input
+                  end,
+                },
+              },
+            },
           },
         },
         profile = AceDBOptions:GetOptionsTable(Core.db)

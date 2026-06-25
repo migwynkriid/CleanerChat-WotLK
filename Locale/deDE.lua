@@ -152,6 +152,7 @@ L["Replace chat bubbles"] = "Sprechblasen ersetzen"
 L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = "Ersetzt die standardmäßige Blizzard-Sprechblase durch reine Textausgabe in der Glass-Schriftart mit Umrandung, angezeigt über dem Kopf des Sprechers."
 L["Font to use for chat bubbles."] = "Schriftart für Sprechblasen."
 L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = "Fügt dem Sprechblasentext eine Umrandung hinzu, damit er sich abhebt und nicht flach wirkt."
+L["Maximum messages"] = "Maximale Nachrichten"
 
 L["Show timestamps"] = "Zeitstempel anzeigen"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Stellt jeder Nachricht einen Zeitstempel im Format [HH:MM] voran."

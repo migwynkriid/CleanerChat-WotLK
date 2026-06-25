@@ -150,8 +150,7 @@ L["Bubbles"] = "말풍선"
 L["Replace chat bubbles"] = "말풍선 대체"
 L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = "기본 블리자드 말풍선을 Glass 글꼴과 외곽선을 사용하는 텍스트만으로 대체하여 말하는 사람의 머리 위에 표시합니다."
 L["Font to use for chat bubbles."] = "말풍선에 사용할 글꼴."
-L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = "말풍선 텍스트에 외곽선을 추가하여 봋봋해 보이지 않고 돋보이게 합니다."
-
+L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = "말풍선 텍스트에 외곽선을 추가하여 봋봋해 보이지 않고 돋보이게 합니다."L["Maximum messages"] = "최대 메시지"
 L["Show timestamps"] = "타임스탬프 표시"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "각 메시지 앞에 [HH:MM] 형식의 타임스탬프를 추가합니다."
 
