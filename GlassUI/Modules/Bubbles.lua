@@ -15,9 +15,6 @@ local WorldFrame = WorldFrame
 -- more than enough to catch them as they appear.
 local SCAN_THROTTLE = 0.1
 
--- Default size to fall back to if the original bubble FontString has no size.
-local FALLBACK_FONT_SIZE = 13
-
 -- Identifies the default 3.3.5 chat bubble: an anonymous child of the WorldFrame
 -- whose backdrop uses Blizzard's ChatBubble background texture.
 local function IsChatBubble(frame)
@@ -43,11 +40,10 @@ local function SkinBubble(frame)
         region:SetTexture(nil)
       elseif objectType == "FontString" then
         frame.glassText = region
-        local _, size = region:GetFont()
         region:SetFont(
-          LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.font),
-          size or FALLBACK_FONT_SIZE,
-          "OUTLINE"
+          LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.bubbleFont),
+          Core.db.profile.bubbleFontSize,
+          Core.db.profile.bubbleFontFlags
         )
         region:SetShadowColor(0, 0, 0, 1)
         region:SetShadowOffset(1, -1)

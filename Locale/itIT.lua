@@ -149,6 +149,8 @@ L["Tab widths refit on /reload."] = "Le larghezze delle schede si riadattano con
 L["Bubbles"] = "Fumetti"
 L["Replace chat bubbles"] = "Sostituisci i fumetti della chat"
 L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = "Sostituisce il fumetto della chat predefinito di Blizzard con solo testo che usa il carattere Glass con contorno, mostrato sopra la testa di chi parla."
+L["Font to use for chat bubbles."] = "Carattere da usare per i fumetti della chat."
+L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = "Aggiunge un contorno al testo dei fumetti della chat in modo che risalti invece di apparire piatto."
 
 L["Show timestamps"] = "Mostra timestamp"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Antepone a ogni messaggio un timestamp nel formato [HH:MM]."

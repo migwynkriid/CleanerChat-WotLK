@@ -147,6 +147,8 @@ L["Tab widths refit on /reload."] = "標籤寬度在/reload時重新調整。"
 L["Bubbles"] = "聊天氣泡"
 L["Replace chat bubbles"] = "替換聊天氣泡"
 L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = "用僅文字輸出替換預設的暴雪聊天氣泡，使用 Glass 字型和外框，顯示在說話者頭頂上方。"
+L["Font to use for chat bubbles."] = "用於聊天氣泡的字型。"
+L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = "為聊天氣泡文字添加外框，使其更突出而不顯得平淡。"
 L["Show timestamps"] = "顯示時間戳記"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "在每條訊息前添加[HH:MM]格式的時間戳記。"
 

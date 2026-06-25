@@ -196,6 +196,8 @@ L["Tab widths refit on /reload."] = true
 L["Bubbles"] = true
 L["Replace chat bubbles"] = true
 L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = true
+L["Font to use for chat bubbles."] = true
+L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = true
 
 -- Timestamps
 L["Show timestamps"] = true

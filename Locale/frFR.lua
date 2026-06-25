@@ -150,6 +150,8 @@ L["Tab widths refit on /reload."] = "Les largeurs des onglets se réajustent ave
 L["Bubbles"] = "Bulles"
 L["Replace chat bubbles"] = "Remplacer les bulles de discussion"
 L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = "Remplace la bulle de discussion Blizzard par défaut par un affichage de texte seul utilisant la police Glass avec contour, affiché au-dessus de la tête de l'orateur."
+L["Font to use for chat bubbles."] = "Police à utiliser pour les bulles de discussion."
+L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = "Ajoute un contour au texte des bulles de discussion pour qu'il ressorte au lieu de paraître plat."
 
 L["Show timestamps"] = "Afficher les horodatages"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Préfixe chaque message avec un horodatage au format [HH:MM]."

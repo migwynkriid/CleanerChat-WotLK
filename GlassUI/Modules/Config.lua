@@ -980,6 +980,59 @@ function C:OnEnable()
                     Core:Dispatch(UpdateConfig("chatBubbles"))
                   end,
                 },
+                bubbleFont = {
+                  name = L["Font"],
+                  desc = L["Font to use for chat bubbles."],
+                  type = "select",
+                  order = 2,
+                  width = 0.5,
+                  dialogControl = "LSM30_Font",
+                  values = LSM:HashTable("font"),
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleFont
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.bubbleFont = input
+                    Core:Dispatch(UpdateConfig("bubbleFont"))
+                  end,
+                },
+                bubbleFontFlags = {
+                  name = L["Font style"],
+                  desc = L["Add an outline to the chat bubble text so it stands out instead of looking flat."],
+                  type = "select",
+                  order = 3,
+                  width = 0.5,
+                  values = FLAGS,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleFontFlags
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.bubbleFontFlags = input
+                    Core:Dispatch(UpdateConfig("bubbleFontFlags"))
+                  end,
+                },
+                bubbleFontSize = {
+                  name = L["Font size"],
+                  desc = "Default: "..Core.defaults.profile.bubbleFontSize.."\nMin: 1\nMax: 100",
+                  type = "range",
+                  order = 4,
+                  width = 0.5,
+                  min = 1,
+                  max = 100,
+                  softMin = 6,
+                  softMax = 24,
+                  step = 1,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleFontSize
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.bubbleFontSize = input
+                    Core:Dispatch(UpdateConfig("bubbleFontSize"))
+                  end,
+                },
               },
             },
           },
@@ -1042,6 +1095,9 @@ function C:RefreshConfig()
   Core:Dispatch(UpdateConfig("dockBackgroundOpacity"))
   Core:Dispatch(UpdateConfig("dockBackgroundColor"))
   Core:Dispatch(UpdateConfig("tabsOnHover"))
+
+  -- Bubbles
+  Core:Dispatch(UpdateConfig("chatBubbles"))
 end
 
 function C:OnProfileReset()

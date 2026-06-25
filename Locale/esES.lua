@@ -150,6 +150,8 @@ L["Tab widths refit on /reload."] = "Los anchos de las pestañas se reajustan co
 L["Bubbles"] = "Burbujas"
 L["Replace chat bubbles"] = "Reemplazar burbujas de chat"
 L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = "Reemplaza la burbuja de chat predeterminada de Blizzard con texto solo que usa la fuente Glass con contorno, mostrado sobre la cabeza del hablante."
+L["Font to use for chat bubbles."] = "Fuente a usar para las burbujas de chat."
+L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = "Añade un contorno al texto de las burbujas de chat para que destaque en lugar de verse plano."
 
 L["Show timestamps"] = "Mostrar marcas de tiempo"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Antepone a cada mensaje una marca de tiempo en formato [HH:MM]."

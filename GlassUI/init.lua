@@ -106,7 +106,10 @@ Core.defaults = {
     hideScrollIndicator = false, -- when true, hides the "Unread messages" / "Bring me to the present" indicator
 
     -- Chat bubbles
-    chatBubbles = false, -- When ON, replaces the default 3.3.5 chat bubble with clean text-only output using the Glass font + outline.
+    chatBubbles = false, -- When ON, replaces the default 3.3.5 chat bubble with clean text-only output above the speaker's head.
+    bubbleFont = "Friz Quadrata TT",
+    bubbleFontSize = 13,
+    bubbleFontFlags = "OUTLINE",
   }
 }
 
