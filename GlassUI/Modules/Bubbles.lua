@@ -38,11 +38,8 @@ local trackedBubbles = {}
 
 -- Applies the configured Glass font, size and outline to one of our stacked lines.
 local function ApplyLineFont(fontString)
-  fontString:SetFont(
-    LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.bubbleFont),
-    Core.db.profile.bubbleFontSize,
-    Core.db.profile.bubbleFontFlags
-  )
+  local font = LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.bubbleFont) or "Fonts\\FRIZQT__.TTF"
+  fontString:SetFont(font, Core.db.profile.bubbleFontSize or 13, Core.db.profile.bubbleFontFlags)
   fontString:SetShadowColor(0, 0, 0, 1)
   fontString:SetShadowOffset(1, -1)
 end
@@ -56,6 +53,7 @@ local function AcquireLine(frame)
   end
   local line = { fs = frame:CreateFontString(nil, "OVERLAY") }
   line.fs:SetJustifyH("CENTER")
+  ApplyLineFont(line.fs)
   return line
 end
 
@@ -101,8 +99,8 @@ end
 -- the configured maximum, starts fading out the oldest line.
 local function AddMessage(frame, text)
   local line = AcquireLine(frame)
-  line.fs:SetText(text)
   ApplyLineFont(line.fs)
+  line.fs:SetText(text)
   line.born = GetTime()
   line.forcedOutAt = nil
   line.fs:SetAlpha(0)
