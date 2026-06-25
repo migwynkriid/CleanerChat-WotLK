@@ -10,10 +10,10 @@ local CreateFrame = CreateFrame
 local WorldFrame = WorldFrame
 -- luacheck: pop
 
--- How often (in seconds) to rescan the WorldFrame for new chat bubbles while the
--- feature is enabled. Bubbles linger for a few seconds, so a light throttle is
--- more than enough to catch them as they appear.
-local SCAN_THROTTLE = 0.1
+-- How often (in seconds) to scan the WorldFrame for chat bubbles while the feature
+-- is enabled. We re-assert the font on each pass, so a snappy throttle keeps the
+-- styling from briefly flashing the default font when a bubble first appears.
+local SCAN_THROTTLE = 0.05
 
 -- Identifies the default 3.3.5 chat bubble: an anonymous child of the WorldFrame
 -- whose backdrop uses Blizzard's ChatBubble background texture.
@@ -29,9 +29,22 @@ local function IsChatBubble(frame)
   return false
 end
 
--- Strips the Blizzard bubble background/border and restyles the message text with
--- the Glass font and an outline, so only the text floats above the speaker's head.
-local function SkinBubble(frame)
+-- Applies the configured Glass font, size and outline to a bubble's text. This is
+-- re-run on every pass because WoW 3.3.5 pools chat-bubble frames and resets the
+-- text back to the default font whenever a frame is reused for a new message.
+local function ApplyBubbleFont(fontString)
+  fontString:SetFont(
+    LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.bubbleFont),
+    Core.db.profile.bubbleFontSize,
+    Core.db.profile.bubbleFontFlags
+  )
+  fontString:SetShadowColor(0, 0, 0, 1)
+  fontString:SetShadowOffset(1, -1)
+end
+
+-- One-time cleanup for a freshly detected bubble: strip Blizzard's background and
+-- border (this persists across reuse) and remember the text region for restyling.
+local function StripBubble(frame)
   for i = 1, frame:GetNumRegions() do
     local region = select(i, frame:GetRegions())
     if region then
@@ -40,13 +53,6 @@ local function SkinBubble(frame)
         region:SetTexture(nil)
       elseif objectType == "FontString" then
         frame.glassText = region
-        region:SetFont(
-          LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.bubbleFont),
-          Core.db.profile.bubbleFontSize,
-          Core.db.profile.bubbleFontFlags
-        )
-        region:SetShadowColor(0, 0, 0, 1)
-        region:SetShadowOffset(1, -1)
       end
     end
   end
@@ -55,21 +61,24 @@ local function SkinBubble(frame)
     frame:SetBackdrop(nil)
   end
 
-  frame.glassBubble = true
+  frame.glassStripped = true
 end
 
--- The WorldFrame's child count only changes when frames (bubbles, nameplates,
--- etc.) are added or removed, so we skip the work entirely while it is stable.
-local lastChildCount = 0
+-- Scans the WorldFrame's children for chat bubbles. New bubbles are stripped once;
+-- the font is then re-asserted on every visible bubble each pass so reused frames
+-- (which Blizzard resets back to the default font) keep the Glass styling.
 local function ScanBubbles()
   local count = WorldFrame:GetNumChildren()
-  if count == lastChildCount then return end
-  lastChildCount = count
-
   for i = 1, count do
     local frame = select(i, WorldFrame:GetChildren())
-    if frame and not frame.glassBubble and IsChatBubble(frame) then
-      SkinBubble(frame)
+    if frame then
+      if not frame.glassStripped and IsChatBubble(frame) then
+        StripBubble(frame)
+      end
+
+      if frame.glassStripped and frame.glassText and frame:IsShown() then
+        ApplyBubbleFont(frame.glassText)
+      end
     end
   end
 end
@@ -100,7 +109,6 @@ end
 -- scanner is hidden its OnUpdate never fires, so a disabled feature costs nothing.
 function Bubbles:Update()
   if Core.db.profile.chatBubbles then
-    lastChildCount = 0 -- force a fresh scan on the next tick
     self.scanner:Show()
   else
     self.scanner:Hide()
