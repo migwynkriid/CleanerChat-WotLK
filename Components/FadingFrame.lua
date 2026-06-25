@@ -1,10 +1,15 @@
 local Core = unpack(select(2, ...))
+local ns = select(2, ...) -- Get raw namespace for ns.Timer access
 
 -- luacheck: push ignore 113
-local C_Timer = C_Timer
 local CreateFrame = CreateFrame
 local Mixin = Mixin
 -- luacheck: pop
+
+-- Timer helper: use internal ns.Timer or native C_Timer
+local function GetTimer()
+  return ns.Timer or _G.C_Timer
+end
 
 local LibEasing = Core.Libs.LibEasing
 
@@ -205,9 +210,15 @@ function FadingFrameMixin:HideDelay(delay)
       self.hideTimer:Cancel()
     end
 
-    self.hideTimer = C_Timer.NewTimer(delay, function ()
+    local Timer = GetTimer()
+    if Timer and Timer.NewTimer then
+      self.hideTimer = Timer.NewTimer(delay, function ()
+        self:Hide()
+      end)
+    else
+      -- Fallback: hide immediately if no timer available
       self:Hide()
-    end)
+    end
   end
 end
 

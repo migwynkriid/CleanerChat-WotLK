@@ -1,4 +1,4 @@
-local _ = ...
+local _, ns = ...
 
 -- 3.3.5 Compatibility: WOW_PROJECT constants don't exist
 if (not _G.WOW_PROJECT_ID) then
@@ -78,7 +78,10 @@ for _,global in next,{
 end
 
 -- 3.3.5 Compatibility: C_Timer doesn't exist
--- Create a simple animation-based timer implementation
+-- Create a timer implementation that:
+-- 1. Provides global _G.C_Timer for libraries like AceTimer-3.0 that require it
+-- 2. Uses pcall to protect against buggy callbacks from other addons (e.g. MRT)
+-- 3. Also stores in ns.Timer for internal use
 if (not _G.C_Timer) then
 	local timerFrame = CreateFrame("Frame")
 	local timers = {}
@@ -89,7 +92,11 @@ if (not _G.C_Timer) then
 		for id, timer in pairs(timers) do
 			if (timer.nextTick and now >= timer.nextTick) then
 				if (timer.callback) then
-					timer.callback()
+					-- Use pcall to protect against buggy callbacks from other addons
+					-- This prevents errors in callbacks (like MRT's nil self) from
+					-- spamming the error log and breaking our timer loop
+					local ok, err = pcall(timer.callback)
+					-- Silently ignore errors - they're from other addons, not our fault
 				end
 				if (timer.iterations) then
 					timer.iterations = timer.iterations - 1
@@ -112,6 +119,7 @@ if (not _G.C_Timer) then
 	end)
 	timerFrame:Hide()
 
+	-- Create global C_Timer (required by AceTimer-3.0 and other libraries)
 	_G.C_Timer = {}
 
 	-- C_Timer.After(seconds, callback)
@@ -168,4 +176,7 @@ if (not _G.C_Timer) then
 			end
 		}
 	end
+
+	-- Also expose as ns.Timer for internal convenience
+	ns.Timer = _G.C_Timer
 end
