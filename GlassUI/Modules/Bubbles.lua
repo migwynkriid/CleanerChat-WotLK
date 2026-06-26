@@ -1,4 +1,5 @@
 local Core, Constants = unpack(select(2, ...))
+local _, ns = ...
 local Bubbles = Core:GetModule("Bubbles")
 
 local LSM = Core.Libs.LSM
@@ -17,12 +18,35 @@ local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local wipe = wipe
 -- luacheck: pop
 
--- DEBUG: Set to true to enable debug output
-local DEBUG_BUBBLES = true
+-- DEBUG: Controlled by /ccdebugb or the config toggle
+local function IsBubbleDebugActive()
+  return ns.db and ns.db.bubbleDebug
+end
+
 local function DebugPrint(...)
-  if DEBUG_BUBBLES and DEFAULT_CHAT_FRAME then
+  if IsBubbleDebugActive() and DEFAULT_CHAT_FRAME then
     DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00[BubbleDebug]|r " .. string.format(...))
   end
+end
+
+-- Expose bubble debug functions on the namespace for the config UI and slash command
+ns.SetBubbleDebug = function(value)
+  value = value and true or false
+  if ns.db then ns.db.bubbleDebug = value end
+  if value then
+    print("|cffff7d0aCleanerChat|r bubble debug: |cff00ff00ON|r")
+  else
+    print("|cffff7d0aCleanerChat|r bubble debug: |cffff0000OFF|r")
+  end
+end
+
+ns.GetBubbleDebug = function()
+  if ns.db then return ns.db.bubbleDebug and true or false end
+  return false
+end
+
+ns.ToggleBubbleDebug = function()
+  ns.SetBubbleDebug(not ns.GetBubbleDebug())
 end
 
 -- Assign unique IDs to frames and lines for debugging
@@ -610,14 +634,8 @@ local function ProcessFrame(frame)
     EnforceMaxLines()
   else
     -- Same message still up on the same frame.
-    -- If the line is frozen (was hidden and we froze it), DON'T re-anchor!
-    -- A frozen line should stay frozen until it dies, otherwise it gets yanked
-    -- to wherever the frame moved when it shows again.
-    if line.frozen then
-      DebugPrint("SKIP re-anchor: Line#%d is frozen, ignoring frame show", line.lineId or 0)
-      return
-    end
-    -- Line is actively anchored: keep tracking the frame position.
+    -- Even if frozen, RE-ANCHOR since the frame is showing again and tracking.
+    line.frozen = false
     local x, y = frame:GetCenter()
     if x and y then
       line.lastX, line.lastY = x, y
@@ -758,10 +776,33 @@ local function ScanBubbles()
         if frame:IsShown() then
           ProcessFrame(frame)
         elseif liveLines[frame] then
-          -- Frame just hid: freeze the line at its last shown position so it stops
-          -- following the frame (which may move to a "parking spot"). The line stays
-          -- in liveLines and continues fading normally at that frozen spot.
-          FreezeLine(liveLines[frame])
+          -- Frame is hidden but line still exists. The frame continues tracking
+          -- the unit position even when hidden. Check if it moved dramatically
+          -- (parking spot) vs still tracking normally.
+          local line = liveLines[frame]
+          local x, y = frame:GetCenter()
+          if x and y and line.lastX and line.lastY then
+            local dx = math.abs(x - line.lastX)
+            local dy = math.abs(y - line.lastY)
+            -- If frame jumped more than 200 pixels, it's probably parked - freeze
+            if dx > 200 or dy > 200 then
+              if not line.frozen then
+                DebugPrint("PARKING DETECTED: Frame#%d jumped (%d,%d) - freezing line", GetFrameId(frame), math.floor(dx), math.floor(dy))
+                FreezeLine(line)
+              end
+            else
+              -- Small movement: frame is still tracking the unit.
+              -- Position our line where the frame is (can't anchor to hidden frame).
+              line.lastX, line.lastY = x, y
+              line.fs:ClearAllPoints()
+              line.fs:SetPoint("CENTER", overlay, "BOTTOMLEFT", x, y)
+            end
+          elseif x and y then
+            -- No previous position, just track
+            line.lastX, line.lastY = x, y
+            line.fs:ClearAllPoints()
+            line.fs:SetPoint("CENTER", overlay, "BOTTOMLEFT", x, y)
+          end
         end
       end
     end

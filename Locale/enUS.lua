@@ -44,6 +44,9 @@ L["Print a message on login showing how to open CleanerChat settings."] = true
 L["Chat Debug Capture"] = true
 L["Print the raw text and underlying event for every chat line, for diagnosing filters (same as /ccdebug). Stays on across /reload."] = true
 
+L["Bubble Debug"] = true
+L["Print debug info for chat bubble tracking and positioning (same as /ccdebugb). Stays on across /reload."] = true
+
 L["Settings changed - the UI will reload when you close this window."] = true
 
 L["Filter Selection"] = true

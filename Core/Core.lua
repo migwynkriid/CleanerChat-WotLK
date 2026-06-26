@@ -240,6 +240,7 @@ local defaults = {
 	hideUIErrors = true, -- hide the server's "UI Error: an interface error occured" chat notification
 	showStartupMessage = true, -- print "Use /cc for settings" on addon load
 	rawDebug = false, -- /ccdebug chat raw/event capture (persists across /reload)
+	bubbleDebug = false, -- /ccdebugb bubble debug output (persists across /reload)
 	oneLineQuestRewards = true, -- combine quest rewards (items, currency, xp) into one line
 	showItemDestruction = true, -- show "- item" when destroying items
 	showVendorSales = true, -- show "- item" when selling to vendors
