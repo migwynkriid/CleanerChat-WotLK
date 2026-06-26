@@ -17,6 +17,26 @@ local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local wipe = wipe
 -- luacheck: pop
 
+-- DEBUG: Set to true to enable debug output
+local DEBUG_BUBBLES = true
+local function DebugPrint(...)
+  if DEBUG_BUBBLES and DEFAULT_CHAT_FRAME then
+    DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00[BubbleDebug]|r " .. string.format(...))
+  end
+end
+
+-- Assign unique IDs to frames and lines for debugging
+local nextFrameId = 1
+local nextLineId = 1
+local frameIds = setmetatable({}, { __mode = "k" })
+local function GetFrameId(frame)
+  if not frameIds[frame] then
+    frameIds[frame] = nextFrameId
+    nextFrameId = nextFrameId + 1
+  end
+  return frameIds[frame]
+end
+
 -- How often (in seconds) we scan the WorldFrame and advance the bubble fades. A
 -- small value keeps the fade animations smooth.
 local SCAN_THROTTLE = 0.03
@@ -210,6 +230,11 @@ local liveLines = {}
 -- their fade-out in place.
 local fadingLines = {}
 
+-- Tracks which speaker owns which bubble frame: [frame] = { name, colorCode }.
+-- The game pools bubble frames by speaker, so once we identify who owns a frame,
+-- subsequent messages on that frame come from the same speaker (until recycled).
+local frameSpeakers = {}
+
 -- Acquires a styled, ready-to-show line from the shared pool.
 local function AcquireLine()
   local line = table.remove(linePool)
@@ -225,10 +250,13 @@ end
 
 -- Returns a line to the pool, fully reset.
 local function ReleaseLine(line)
+  DebugPrint("RELEASE Line#%s", tostring(line.lineId))
   line.fs:Hide()
   line.fs:SetText("")
   line.fs:ClearAllPoints()
   line.born, line.forcedOutAt, line.text, line.originFrame, line.stackOffset = nil, nil, nil, nil, nil
+  line.frozenX, line.frozenY, line.lastX, line.lastY = nil, nil, nil, nil
+  line.lineId = nil
   linePool[#linePool + 1] = line
 end
 
@@ -266,14 +294,36 @@ end
 -- Builds the text shown for a freshly seen message: the raw bubble text, optionally
 -- prefixed with the class-colored speaker name. Consumes one captured author, so it
 -- must run exactly once per new message.
-local function Decorate(text)
-  if Core.db.profile.bubbleShowName then
-    local name, colorCode = ConsumeAuthor(text)
-    local prefix = BuildSpeakerPrefix(name, colorCode)
-    if prefix then
-      return prefix .. ": " .. text
+-- If text matching fails, falls back to the cached speaker for this frame.
+local function Decorate(text, frame)
+  if not Core.db.profile.bubbleShowName then
+    return text
+  end
+
+  -- Try to match this text to a recently captured chat message
+  local name, colorCode = ConsumeAuthor(text)
+
+  if name then
+    -- Found a match: cache this speaker for the frame
+    frameSpeakers[frame] = { name = name, colorCode = colorCode }
+    DebugPrint("  SPEAKER MATCH: Frame#%d matched to '%s'", GetFrameId(frame), name)
+  else
+    -- No match: use cached speaker for this frame (same person speaking again)
+    local cached = frameSpeakers[frame]
+    if cached then
+      name = cached.name
+      colorCode = cached.colorCode
+      DebugPrint("  SPEAKER CACHED: Frame#%d using cached '%s'", GetFrameId(frame), name)
+    else
+      DebugPrint("  SPEAKER UNKNOWN: Frame#%d has no match and no cache", GetFrameId(frame))
     end
   end
+
+  local prefix = BuildSpeakerPrefix(name, colorCode)
+  if prefix then
+    return prefix .. ": " .. text
+  end
+
   return text
 end
 
@@ -281,17 +331,142 @@ end
 local function AnchorToFrame(line, frame)
   line.fs:ClearAllPoints()
   line.fs:SetPoint("CENTER", frame, "CENTER", 0, 0)
+  line.frozen = false  -- Mark as actively anchored
+end
+
+-- Freezes a live line at its last known position (used when frame hides).
+-- The line stays in liveLines and continues fading, but no longer follows the frame.
+-- Only collides with lines from DIFFERENT speakers to avoid visual overlap.
+local FREEZE_COLLISION_X = 100  -- Horizontal range to check for collisions
+local FREEZE_COLLISION_Y = 50   -- Vertical range to check for collisions
+local function FreezeLine(line)
+  if line.frozen then return end  -- Already frozen
+  local x, y = line.lastX, line.lastY
+  if not x or not y then return end
+  
+  local mySpeaker = line.speakerName
+  
+  -- Check for collisions with other frozen live lines from DIFFERENT speakers
+  local offset = 0
+  for _, otherLine in pairs(liveLines) do
+    if otherLine ~= line and otherLine.frozen and otherLine.lastX and otherLine.lastY then
+      -- Only collide if speakers are different (or unknown)
+      local sameSpeaker = mySpeaker and otherLine.speakerName and (mySpeaker == otherLine.speakerName)
+      if not sameSpeaker then
+        local otherY = otherLine.lastY + (otherLine.stackOffset or 0)
+        local dx = math.abs(x - otherLine.lastX)
+        local newY = y + offset
+        local dy = math.abs(newY - otherY)
+        
+        if dx < FREEZE_COLLISION_X and dy < FREEZE_COLLISION_Y then
+          -- Push away from the other line (up if we're above, down if below)
+          if newY >= otherY then
+            -- We're above or at same level: push UP
+            offset = offset + (FREEZE_COLLISION_Y - dy) + LINE_SPACING
+          else
+            -- We're below: push DOWN
+            offset = offset - (FREEZE_COLLISION_Y - dy) - LINE_SPACING
+          end
+          DebugPrint("  -> Freeze collision with Line#%s speaker='%s' (dx=%d dy=%d), offset now %d", 
+            tostring(otherLine.lineId), otherLine.speakerName or "?", math.floor(dx), math.floor(dy), offset)
+        end
+      end
+    end
+  end
+  
+  line.stackOffset = offset
+  line.fs:ClearAllPoints()
+  line.fs:SetPoint("CENTER", overlay, "BOTTOMLEFT", x, y + offset)
+  line.frozen = true
+  DebugPrint("FREEZE Line#%s speaker='%s' at (%d,%d) with offset %d", tostring(line.lineId), mySpeaker or "?", math.floor(x), math.floor(y), offset)
+end
+
+-- Check if a position would collide with any existing frozen line (fading or frozen-live),
+-- and return the offset needed to avoid collision. Two lines "collide" if they're within
+-- threshold pixels of each other.
+local COLLISION_THRESHOLD_X = 100
+local COLLISION_THRESHOLD_Y = 50
+local function GetCollisionOffset(x, y, excludeLine)
+  local offset = 0
+  
+  -- Check against fading lines
+  for _, other in ipairs(fadingLines) do
+    if other ~= excludeLine and other.frozenX and other.frozenY then
+      local otherY = other.frozenY + (other.stackOffset or 0)
+      local dx = math.abs((x or 0) - other.frozenX)
+      local dy = math.abs((y + offset) - otherY)
+      if dx < COLLISION_THRESHOLD_X and dy < COLLISION_THRESHOLD_Y then
+        offset = offset + LINE_HEIGHT + LINE_SPACING
+        DebugPrint("  -> Collision with fading Line#%s, offset now %d", tostring(other.lineId), offset)
+      end
+    end
+  end
+  
+  -- Check against frozen live lines
+  for _, other in pairs(liveLines) do
+    if other ~= excludeLine and other.frozen and other.lastX and other.lastY then
+      local otherY = other.lastY + (other.stackOffset or 0)
+      local dx = math.abs((x or 0) - other.lastX)
+      local dy = math.abs((y + offset) - otherY)
+      if dx < COLLISION_THRESHOLD_X and dy < COLLISION_THRESHOLD_Y then
+        offset = offset + LINE_HEIGHT + LINE_SPACING
+        DebugPrint("  -> Collision with frozen-live Line#%s, offset now %d", tostring(other.lineId), offset)
+      end
+    end
+  end
+  
+  return offset
 end
 
 -- Detaches the line a frame is carrying so it finishes fading on its own. The
 -- line remembers which frame it came from and its current stack offset, so it
 -- can be repositioned when new messages push it upward.
+-- IMPORTANT: Uses lastX/lastY (captured during previous update) instead of querying
+-- the frame now, because by the time we detect text changed, the frame may have
+-- already moved to track a new speaker (WoW recycles frames).
 local function DetachLine(frame)
   local line = liveLines[frame]
   if not line then return end
+  
+  local frameId = GetFrameId(frame)
+  local lineId = line.lineId or "?"
+  local curX, curY = frame:GetCenter()
+  DebugPrint("DETACH Line#%s from Frame#%d text='%s' lastPos=(%s,%s) curPos=(%s,%s)",
+    tostring(lineId), frameId, 
+    string.sub(line.text or "", 1, 20),
+    tostring(line.lastX and math.floor(line.lastX)), tostring(line.lastY and math.floor(line.lastY)),
+    tostring(curX and math.floor(curX)), tostring(curY and math.floor(curY)))
+  
   liveLines[frame] = nil
   line.originFrame = frame
   line.stackOffset = line.stackOffset or 0
+  -- Use the position we captured BEFORE the text changed, not the current position
+  -- which may have already moved to track a different speaker
+  if line.lastX and line.lastY then
+    line.frozenX, line.frozenY = line.lastX, line.lastY
+    DebugPrint("  -> Using lastX/lastY for frozen pos")
+  else
+    -- Fallback: try current position (better than nothing)
+    local x, y = frame:GetCenter()
+    if x and y then
+      line.frozenX, line.frozenY = x, y
+      DebugPrint("  -> FALLBACK: Using current pos for frozen")
+    end
+  end
+  
+  -- Check for collision with existing fading lines and offset if needed
+  if line.frozenX and line.frozenY then
+    local collisionOffset = GetCollisionOffset(line.frozenX, line.frozenY, line)
+    if collisionOffset > 0 then
+      line.stackOffset = (line.stackOffset or 0) + collisionOffset
+      DebugPrint("  -> Added collision offset: %d, total stackOffset: %d", collisionOffset, line.stackOffset)
+    end
+  end
+  
+  DebugPrint("  -> Frozen at (%s,%s) with stackOffset=%d", 
+    tostring(line.frozenX and math.floor(line.frozenX)), 
+    tostring(line.frozenY and math.floor(line.frozenY)),
+    line.stackOffset or 0)
   fadingLines[#fadingLines + 1] = line
 end
 
@@ -305,21 +480,15 @@ local function PushUpFadingLines(frame)
   end
 end
 
--- Repositions a fading line above its origin frame (if visible) or at its last
--- known world position, applying the vertical stack offset so messages don't overlap.
+-- Repositions a fading line at its frozen screen position. Once a line is detached,
+-- it no longer tracks any frame - it stays exactly where it was when detached.
+-- This prevents lines from jumping to wrong positions when frames are recycled or
+-- when camera movement causes frame positions to shift.
 local function PositionFadingLine(line)
-  local frame = line.originFrame
   local offset = line.stackOffset or 0
   line.fs:ClearAllPoints()
-  if frame and frame:IsShown() then
-    -- Frame still visible: track it
-    line.fs:SetPoint("CENTER", frame, "CENTER", 0, offset)
-  else
-    -- Frame hidden: use last known position
-    local x, y = frame and frame:GetCenter()
-    if x and y then
-      line.fs:SetPoint("CENTER", WorldFrame, "BOTTOMLEFT", x, y + offset)
-    end
+  if line.frozenX and line.frozenY then
+    line.fs:SetPoint("CENTER", UIParent, "BOTTOMLEFT", line.frozenX, line.frozenY + offset)
   end
 end
 
@@ -410,22 +579,49 @@ local function ProcessFrame(frame)
     if line then
       -- Text changed: the game recycled this frame for a new message. Let the old
       -- line finish fading where it was last seen instead of deleting it.
+      DebugPrint("TEXT CHANGED on Frame#%d: old='%s' new='%s'", GetFrameId(frame), string.sub(line.text or "", 1, 20), string.sub(text, 1, 20))
       DetachLine(frame)
+      -- CRITICAL: Clear cached speaker when frame is recycled! Otherwise we'd
+      -- incorrectly attribute the new message to the old speaker if ConsumeAuthor fails.
+      frameSpeakers[frame] = nil
     end
     -- Push all existing fading lines from this frame upward before adding new one
     PushUpFadingLines(frame)
     line = AcquireLine()
+    line.lineId = nextLineId
+    nextLineId = nextLineId + 1
     line.text = text
     line.born = GetTime()
     line.forcedOutAt = nil
     line.stackOffset = 0
     line.originFrame = frame
-    line.fs:SetText(Decorate(text))
+    -- Capture initial position immediately
+    local x, y = frame:GetCenter()
+    if x and y then
+      line.lastX, line.lastY = x, y
+    end
+    line.fs:SetText(Decorate(text, frame))
+    -- Store the speaker info on the line so we know who owns it even after detaching
+    local speaker = frameSpeakers[frame]
+    line.speakerName = speaker and speaker.name or nil
     AnchorToFrame(line, frame)
     liveLines[frame] = line
+    DebugPrint("NEW Line#%d on Frame#%d at (%d,%d) speaker='%s' text='%s'", line.lineId, GetFrameId(frame), math.floor(x or 0), math.floor(y or 0), line.speakerName or "?", string.sub(text, 1, 30))
     EnforceMaxLines()
   else
-    -- Same message still up: keep it glued to the (possibly moving) frame.
+    -- Same message still up on the same frame.
+    -- If the line is frozen (was hidden and we froze it), DON'T re-anchor!
+    -- A frozen line should stay frozen until it dies, otherwise it gets yanked
+    -- to wherever the frame moved when it shows again.
+    if line.frozen then
+      DebugPrint("SKIP re-anchor: Line#%d is frozen, ignoring frame show", line.lineId or 0)
+      return
+    end
+    -- Line is actively anchored: keep tracking the frame position.
+    local x, y = frame:GetCenter()
+    if x and y then
+      line.lastX, line.lastY = x, y
+    end
     AnchorToFrame(line, frame)
   end
 end
@@ -435,10 +631,20 @@ local function UpdateFades(now)
   for frame, line in pairs(liveLines) do
     local alpha, dead = LineAlpha(line, now)
     if dead then
+      local state = line.frozen and "frozen" or (frame:IsShown() and "shown" or "hidden")
+      DebugPrint("DEAD (live) Line#%s on Frame#%d (%s)", tostring(line.lineId), GetFrameId(frame), state)
       ReleaseLine(line)
       liveLines[frame] = nil
     else
       line.fs:SetAlpha(alpha)
+      -- Only track position if line is still actively anchored (not frozen).
+      -- Frozen lines stay at their last-shown position.
+      if not line.frozen then
+        local x, y = frame:GetCenter()
+        if x and y then
+          line.lastX, line.lastY = x, y
+        end
+      end
     end
   end
 
@@ -447,6 +653,7 @@ local function UpdateFades(now)
     local line = fadingLines[i]
     local alpha, dead = LineAlpha(line, now)
     if dead then
+      DebugPrint("DEAD (fading) Line#%s frozen=(%s,%s)", tostring(line.lineId), tostring(line.frozenX and math.floor(line.frozenX)), tostring(line.frozenY and math.floor(line.frozenY)))
       ReleaseLine(line)
       table.remove(fadingLines, i)
     else
@@ -493,6 +700,7 @@ local function RestoreBubbles()
     ReleaseLine(fadingLines[i])
     fadingLines[i] = nil
   end
+  wipe(frameSpeakers)
   for _, frame in ipairs(trackedBubbles) do
     if frame.glassRemembered then
       RestoreBubble(frame)
@@ -500,11 +708,44 @@ local function RestoreBubbles()
   end
 end
 
+-- Debug: periodic status dump
+local lastStatusDump = 0
+local function DebugStatus()
+  if not DEBUG_BUBBLES then return end
+  local now = GetTime()
+  if now - lastStatusDump < 2 then return end -- Only dump every 2 seconds
+  lastStatusDump = now
+  
+  local liveCount = 0
+  for frame, line in pairs(liveLines) do
+    liveCount = liveCount + 1
+    local x, y = frame:GetCenter()
+    local state = line.frozen and "FROZEN" or (frame:IsShown() and "SHOWN" or "HIDDEN")
+    DebugPrint("  LIVE: Line#%s Frame#%d %s pos=(%d,%d) last=(%s,%s)", 
+      tostring(line.lineId), GetFrameId(frame), state,
+      math.floor(x or 0), math.floor(y or 0),
+      tostring(line.lastX and math.floor(line.lastX)), tostring(line.lastY and math.floor(line.lastY)))
+  end
+  
+  for i, line in ipairs(fadingLines) do
+    local frameId = line.originFrame and GetFrameId(line.originFrame) or "?"
+    DebugPrint("  FADING[%d]: Line#%s from Frame#%s frozen=(%s,%s)", 
+      i, tostring(line.lineId), tostring(frameId),
+      tostring(line.frozenX and math.floor(line.frozenX)), tostring(line.frozenY and math.floor(line.frozenY)))
+  end
+  
+  if liveCount > 0 or #fadingLines > 0 then
+    DebugPrint("STATUS: %d live, %d fading", liveCount, #fadingLines)
+  end
+end
+
 -- Scans the WorldFrame's children for chat bubbles each pass: remembers new ones,
--- refreshes the line on every shown bubble, detaches lines from bubbles the game
--- has hidden, and advances every line's fade.
+-- refreshes the line on every shown bubble, and advances every line's fade.
+-- When a frame hides, we detach its line using the LAST SHOWN position (lastX/lastY),
+-- not the current position which may have drifted to a "parking spot".
 local function ScanBubbles()
   local now = GetTime()
+  DebugStatus()
   local count = WorldFrame:GetNumChildren()
   for i = 1, count do
     local frame = select(i, WorldFrame:GetChildren())
@@ -517,8 +758,10 @@ local function ScanBubbles()
         if frame:IsShown() then
           ProcessFrame(frame)
         elseif liveLines[frame] then
-          -- The game hid this bubble: let its line fade out on the overlay.
-          DetachLine(frame)
+          -- Frame just hid: freeze the line at its last shown position so it stops
+          -- following the frame (which may move to a "parking spot"). The line stays
+          -- in liveLines and continues fading normally at that frozen spot.
+          FreezeLine(liveLines[frame])
         end
       end
     end
