@@ -1,6 +1,12 @@
 local L = LibStub("AceLocale-3.0"):NewLocale((...), "frFR")
 if (not L) then return end
 
+-- CleanerChat multi-window menu / startup message
+L["New window"] = "Nouvelle fenêtre"
+L["Delete window"] = "Supprimer la fenêtre"
+L["CleanerChat settings"] = "Paramètres de CleanerChat"
+L["Use %s for settings."] = "Utilisez %s pour les paramètres."
+
 L["Channel Name Style"] = "Style du nom de canal"
 L["Choose whether to show the channel's full name or just its first letter. Requires the Chat Channel Names filter."] = "Choisit d'afficher le nom complet du canal ou seulement sa première lettre. Nécessite le filtre \"Noms des canaux de discussion\"."
 L["Shortened (e.g. \"[G]\")"] = "Abrégé (p. ex. \"[G]\")"

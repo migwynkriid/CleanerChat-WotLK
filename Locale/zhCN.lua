@@ -1,6 +1,12 @@
 local L = LibStub("AceLocale-3.0"):NewLocale((...), "zhCN")
 if (not L) then return end
 
+-- CleanerChat multi-window menu / startup message
+L["New window"] = "新建窗口"
+L["Delete window"] = "删除窗口"
+L["CleanerChat settings"] = "CleanerChat 设置"
+L["Use %s for settings."] = "使用 %s 打开设置。"
+
 L["Channel Name Style"] = "频道名称样式"
 L["Choose whether to show the channel's full name or just its first letter. Requires the Chat Channel Names filter."] = "选择显示频道的完整名称还是仅显示首字母。需要启用“聊天频道名称”过滤器。"
 L["Shortened (e.g. \"[G]\")"] = "缩写（例如 \"[G]\"）"
