@@ -220,7 +220,7 @@ function ChatTabMixin:Init(slidingMessageFrame)
   if self.subscriptions == nil then
     self.subscriptions = {
       Core:Subscribe(UPDATE_CONFIG, function (key)
-        if key == "frameWidth" or key == "frameHeight" or key == "font" or key == "messageFontSize" then
+        if key == "frameWidth" or key == "frameHeight" or key == "dockFont" or key == "messageFontSize" then
           self:SetWidth()
         end
       end)

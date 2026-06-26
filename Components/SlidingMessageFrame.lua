@@ -359,7 +359,7 @@ function SlidingMessageFrameMixin:Init(chatFrame)
       Core:Subscribe(UPDATE_CONFIG, function (key)
         if self.state.isCombatLog == false then
           if (
-            key == "font" or
+            key == "messageFont" or
             key == "messageFontSize" or
             key == "frameWidth" or
             key == "frameHeight" or

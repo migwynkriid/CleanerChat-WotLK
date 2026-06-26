@@ -67,29 +67,6 @@ function C:OnEnable()
                 },
               }
             },
-            section2 = {
-              name = L["Appearance"],
-              type = "group",
-              inline = true,
-              order = 3,
-              args = {
-                font = {
-                  name = L["Font"],
-                  desc = L["Font to use throughout Glass"],
-                  type = "select",
-                  order = 3.1,
-                  dialogControl = "LSM30_Font",
-                  values = LSM:HashTable("font"),
-                  get = function()
-                    return Core.db.profile.font
-                  end,
-                  set = function(info, input)
-                    Core.db.profile.font = input
-                    Core:Dispatch(UpdateConfig("font"))
-                  end,
-                },
-              },
-            },
             section3 = {
               name = L["Frame"],
               type = "group",
@@ -198,6 +175,21 @@ function C:OnEnable()
               inline = true,
               order = 1,
               args = {
+                editBoxFont = {
+                  name = L["Font"],
+                  desc = L["Font to use for the edit box text."],
+                  type = "select",
+                  order = 1.0,
+                  dialogControl = "LSM30_Font",
+                  values = LSM:HashTable("font"),
+                  get = function ()
+                    return Core.db.profile.editBoxFont
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.editBoxFont = input
+                    Core:Dispatch(UpdateConfig("editBoxFont"))
+                  end,
+                },
                 editBoxFontSize = {
                   name = L["Font size"],
                   desc = "Default: "..Core.defaults.profile.editBoxFontSize.."\nMin: 1\nMax: 100",
@@ -347,6 +339,21 @@ function C:OnEnable()
               inline = true,
               order = 1,
               args = {
+                messageFont = {
+                  name = L["Font"],
+                  desc = L["Font to use for chat messages."],
+                  type = "select",
+                  order = 1.0,
+                  dialogControl = "LSM30_Font",
+                  values = LSM:HashTable("font"),
+                  get = function ()
+                    return Core.db.profile.messageFont
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.messageFont = input
+                    Core:Dispatch(UpdateConfig("messageFont"))
+                  end,
+                },
                 messageFontSize = {
                   name = L["Font size"],
                   desc = "Default: "..Core.defaults.profile.messageFontSize.."\nMin: 1\nMax: 100",
@@ -780,6 +787,21 @@ function C:OnEnable()
               inline = true,
               order = 1,
               args = {
+                dockFont = {
+                  name = L["Font"],
+                  desc = L["Font to use for the chat tab text."],
+                  type = "select",
+                  order = 1.0,
+                  dialogControl = "LSM30_Font",
+                  values = LSM:HashTable("font"),
+                  get = function ()
+                    return Core.db.profile.dockFont
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.dockFont = input
+                    Core:Dispatch(UpdateConfig("dockFont"))
+                  end,
+                },
                 dockFontSize = {
                   name = L["Font size"],
                   desc = "Default: "..Core.defaults.profile.dockFontSize.."\nMin: 1\nMax: 100"..
@@ -1155,12 +1177,12 @@ end
 
 function C:RefreshConfig()
   -- General
-  Core:Dispatch(UpdateConfig("font"))
   Core:Dispatch(UpdateConfig("frameHeight"))
   Core:Dispatch(UpdateConfig("frameWidth"))
   Core:Dispatch(UpdateConfig("framePosition"))
 
   -- Edit box
+  Core:Dispatch(UpdateConfig("editBoxFont"))
   Core:Dispatch(UpdateConfig("editBoxFontSize"))
   Core:Dispatch(UpdateConfig("editBoxFontFlags"))
   Core:Dispatch(UpdateConfig("editBoxBackgroundOpacity"))
@@ -1168,6 +1190,7 @@ function C:RefreshConfig()
   Core:Dispatch(UpdateConfig("editBoxAnchor"))
 
   -- Messages
+  Core:Dispatch(UpdateConfig("messageFont"))
   Core:Dispatch(UpdateConfig("messageFontSize"))
   Core:Dispatch(UpdateConfig("messageFontFlags"))
   Core:Dispatch(UpdateConfig("messageAnimations"))
@@ -1183,6 +1206,7 @@ function C:RefreshConfig()
   Core:Dispatch(UpdateConfig("hideScrollIndicator"))
 
   -- Top bar (dock)
+  Core:Dispatch(UpdateConfig("dockFont"))
   Core:Dispatch(UpdateConfig("dockFontSize"))
   Core:Dispatch(UpdateConfig("dockFontFlags"))
   Core:Dispatch(UpdateConfig("dockAnimations"))

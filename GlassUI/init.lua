@@ -43,7 +43,6 @@ Core:NewModule("UIManager", "AceHook-3.0")
 Core.defaults = {
   profile = {
     -- General
-    font = "Friz Quadrata TT",
     frameWidth = 520,
     frameHeight = 340,
     positionAnchor = {
@@ -53,6 +52,7 @@ Core.defaults = {
     },
 
     -- Edit box
+    editBoxFont = "Friz Quadrata TT",
     editBoxFontSize = 12,
     editBoxFontFlags = "OUTLINE",
     editBoxBackgroundOpacity = 0.6,
@@ -64,6 +64,7 @@ Core.defaults = {
     showOnEditFocus = true, -- When ON (default), opening the edit box reveals the chat messages.
 
     -- Messages
+    messageFont = "Friz Quadrata TT",
     messageFontSize = 12,
     messageFontFlags = "OUTLINE",
     messageAnimations = true,
@@ -81,6 +82,7 @@ Core.defaults = {
     chatSlideInDuration = 0.35,
 
     -- Top bar (chat tabs dock)
+    dockFont = "Friz Quadrata TT",
     dockFontSize = 12,
     dockFontFlags = "OUTLINE",
     dockAnimations = true,

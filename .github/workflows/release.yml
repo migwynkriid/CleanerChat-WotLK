@@ -67,12 +67,45 @@ jobs:
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           
           if [ -z "$LAST_TAG" ]; then
-            echo "No previous tags found, using all commits"
-            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges -20)
+            echo "No previous tags found, using recent commits"
+            COMMIT_RANGE="HEAD~20..HEAD"
           else
             echo "Last tag: $LAST_TAG"
-            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+            COMMIT_RANGE="${LAST_TAG}..HEAD"
           fi
+          
+          # Files that don't trigger releases (same as paths-ignore above)
+          IGNORED_PATTERNS='^\.github/|^\.gitignore$|^\.luacheckrc$|^APIDocumentation/|^changelog\.txt$|\.zip$|^README\.md$|^LICENSE\.txt$'
+          
+          # Build changelog, filtering out:
+          # 1. Version bump commits
+          # 2. Commits that only touched non-release files
+          COMMITS=""
+          for SHA in $(git log $COMMIT_RANGE --pretty=format:"%H" --no-merges); do
+            # Skip version bump commits
+            MSG=$(git log -1 --pretty=format:"%s" $SHA)
+            if echo "$MSG" | grep -q "chore: bump version"; then
+              continue
+            fi
+            
+            # Get files changed in this commit
+            FILES=$(git diff-tree --no-commit-id --name-only -r $SHA)
+            
+            # Check if any file is NOT ignored (i.e., would trigger a release)
+            HAS_RELEASE_FILE=false
+            for FILE in $FILES; do
+              if ! echo "$FILE" | grep -qE "$IGNORED_PATTERNS"; then
+                HAS_RELEASE_FILE=true
+                break
+              fi
+            done
+            
+            # Only include commits that touched release-triggering files
+            if [ "$HAS_RELEASE_FILE" = true ]; then
+              SHORT_SHA=$(git log -1 --pretty=format:"%h" $SHA)
+              COMMITS="${COMMITS}- ${MSG} (${SHORT_SHA})"$'\n'
+            fi
+          done
           
           # Handle empty commits
           if [ -z "$COMMITS" ]; then

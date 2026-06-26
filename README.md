@@ -9,7 +9,7 @@ default chat frame with an immersive, modern chat UI.
 
 <br />
 
-[![Version](https://img.shields.io/badge/version-2.6-DFBA69?style=for-the-badge)](CleanerChat.toc)
+[![Version](https://img.shields.io/badge/version-2.9-DFBA69?style=for-the-badge)](CleanerChat.toc)
 [![WoW](https://img.shields.io/badge/WoW-3.3.5a%20WotLK-1784b8?style=for-the-badge)](#compatibility)
 [![Interface](https://img.shields.io/badge/interface-30300-555?style=for-the-badge)](#compatibility)
 [![License](https://img.shields.io/badge/license-Custom-lightgrey?style=for-the-badge)](LICENSE.txt)
@@ -32,19 +32,6 @@ https://github.com/user-attachments/assets/39dade08-35d7-41ef-b203-68c314116d25
 <div align="center">
 
 </div>
-
----
-
-## Contents
-
-- [What it does](#what-it-does)
-- [Chat cleaning](#chat-cleaning)
-- [Chat overhaul](#chat-overhaul)
-- [Installation](#installation)
-- [Commands](#commands)
-- [Compatibility](#compatibility)
-- [Credits](#credits)
-- [License](#license)
 
 ---
 

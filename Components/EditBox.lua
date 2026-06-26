@@ -153,7 +153,7 @@ function EditBoxMixin:Init(parent)
   end)
 
   Core:Subscribe(UPDATE_CONFIG, function (key)
-    if key == "font" or key == "editBoxFontSize" then
+    if key == "editBoxFont" or key == "editBoxFontSize" then
       Ypadding = GetFontHeight(self.header) * 0.66
       self:SetHeight(GetFontHeight(self.header) + Ypadding * 2)
       self:SetTextInsets()
