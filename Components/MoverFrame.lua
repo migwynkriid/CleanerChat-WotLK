@@ -1,6 +1,5 @@
 local Core, Constants = unpack(select(2, ...))
 
-local UNLOCK_MOVER = Constants.EVENTS.UNLOCK_MOVER
 local UpdateConfig = Constants.ACTIONS.UpdateConfig
 
 local LOCK_MOVER = Constants.EVENTS.LOCK_MOVER
