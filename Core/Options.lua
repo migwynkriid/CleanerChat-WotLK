@@ -306,7 +306,7 @@ Options.GenerateOptionsMenu = function(self)
 	if (glass and glass.configGroups) then
 		-- Order them after the Filters tab; keep Profiles last.
 		local glassOrders = {
-			general = 2, editBox = 3, messages = 4, topBar = 5, profile = 100
+			general = 2, editBox = 3, messages = 4, topBar = 5, bubbles = 6, profile = 100
 		}
 		for key,group in next,glass.configGroups do
 			if (type(group) == "table") then
@@ -336,8 +336,15 @@ Options.GenerateOptionsMenu = function(self)
 					order = 1,
 					get = function() return ns.GetRawDebug and ns.GetRawDebug() end,
 					set = function(info, val) if (ns.SetRawDebug) then ns.SetRawDebug(val) end end,
-				},
-			},
+				},					bubbleDebug = {
+						name = L["Bubble Debug"],
+						desc = L["Print debug info for chat bubble tracking and positioning (same as /ccdebugb). Stays on across /reload."],
+						type = "toggle",
+						width = "full",
+						order = 2,
+						get = function() return ns.GetBubbleDebug and ns.GetBubbleDebug() end,
+						set = function(info, val) if (ns.SetBubbleDebug) then ns.SetBubbleDebug(val) end end,
+					},			},
 		}
 	end
 
@@ -453,6 +460,8 @@ Options.OnInitialize = function(self)
 	self:RegisterChatCommand("cleanerchat", "OpenOptionsMenu")
 	-- TEMPORARY DIAGNOSTIC command (see Components/_Debug.lua).
 	self:RegisterChatCommand("ccdebug", function() if (ns.ToggleRawDebug) then ns.ToggleRawDebug() end end)
+	-- Bubble debug toggle (see GlassUI/Modules/Bubbles.lua).
+	self:RegisterChatCommand("ccdebugb", function() if (ns.ToggleBubbleDebug) then ns.ToggleBubbleDebug() end end)
 end
 
 Options.OnEnable = function(self)

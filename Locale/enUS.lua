@@ -44,6 +44,9 @@ L["Print a message on login showing how to open CleanerChat settings."] = true
 L["Chat Debug Capture"] = true
 L["Print the raw text and underlying event for every chat line, for diagnosing filters (same as /ccdebug). Stays on across /reload."] = true
 
+L["Bubble Debug"] = true
+L["Print debug info for chat bubble tracking and positioning (same as /ccdebugb). Stays on across /reload."] = true
+
 L["Settings changed - the UI will reload when you close this window."] = true
 
 L["Filter Selection"] = true
@@ -193,6 +196,16 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = true
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = true
 L["Tab widths refit on /reload."] = true
+
+-- Bubbles
+L["Bubbles"] = true
+L["Replace chat bubbles"] = true
+L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = true
+L["Show speaker name"] = true
+L["Prepend the speaker's class-colored name to each chat bubble message."] = true
+L["Font to use for chat bubbles."] = true
+L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = true
+L["Maximum messages"] = true
 
 -- Timestamps
 L["Show timestamps"] = true

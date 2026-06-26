@@ -146,6 +146,15 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = "Показывать вкладки при наведении"
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "При включении вкладки чата исчезают в простое и появляются при наведении мыши. При отключении вкладки всегда видны."
 L["Tab widths refit on /reload."] = "Ширина вкладок подстраивается при /reload."
+
+-- Bubbles
+L["Bubbles"] = "Облачка"
+L["Replace chat bubbles"] = "Заменить облачка чата"
+L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."] = "Заменяет стандартное облачко чата Blizzard выводом только текста, использующим шрифт Glass с обводкой, отображаемым над головой говорящего."
+L["Font to use for chat bubbles."] = "Шрифт для облачков чата."
+L["Add an outline to the chat bubble text so it stands out instead of looking flat."] = "Добавляет обводку к тексту облачков чата, чтобы он выделялся, а не выглядел плоским."
+L["Maximum messages"] = "Максимум сообщений"
+
 L["Show timestamps"] = "Показывать время"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Добавляет к каждому сообщению метку времени в формате [ЧЧ:ММ]."
 

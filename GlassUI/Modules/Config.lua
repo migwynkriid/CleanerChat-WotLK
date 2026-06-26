@@ -977,6 +977,183 @@ function C:OnEnable()
             },
           },
         },
+        bubbles = {
+          name = L["Bubbles"],
+          type = "group",
+          order = 6,
+          args = {
+            section1 = {
+              name = L["Appearance"],
+              type = "group",
+              inline = true,
+              order = 1,
+              args = {
+                chatBubbles = {
+                  name = L["Replace chat bubbles"],
+                  desc = L["Replace the default Blizzard chat bubble with text-only output that uses the Glass font and outline, shown above the speaker's head."],
+                  type = "toggle",
+                  width = "full",
+                  order = 1,
+                  get = function ()
+                    return Core.db.profile.chatBubbles
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.chatBubbles = input
+                    Core:Dispatch(UpdateConfig("chatBubbles"))
+                  end,
+                },
+                bubbleShowName = {
+                  name = L["Show speaker name"],
+                  desc = L["Prepend the speaker's class-colored name to each chat bubble message."],
+                  type = "toggle",
+                  width = "full",
+                  order = 1.5,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleShowName
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.bubbleShowName = input
+                    Core:Dispatch(UpdateConfig("bubbleShowName"))
+                  end,
+                },
+                bubbleFont = {
+                  name = L["Font"],
+                  desc = L["Font to use for chat bubbles."],
+                  type = "select",
+                  order = 2,
+                  width = 0.5,
+                  dialogControl = "LSM30_Font",
+                  values = LSM:HashTable("font"),
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleFont
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.bubbleFont = input
+                    Core:Dispatch(UpdateConfig("bubbleFont"))
+                  end,
+                },
+                bubbleFontFlags = {
+                  name = L["Font style"],
+                  desc = L["Add an outline to the chat bubble text so it stands out instead of looking flat."],
+                  type = "select",
+                  order = 3,
+                  width = 0.5,
+                  values = FLAGS,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleFontFlags
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.bubbleFontFlags = input
+                    Core:Dispatch(UpdateConfig("bubbleFontFlags"))
+                  end,
+                },
+                bubbleFontSize = {
+                  name = L["Font size"],
+                  desc = "Default: "..Core.defaults.profile.bubbleFontSize.."\nMin: 1\nMax: 100",
+                  type = "range",
+                  order = 4,
+                  width = 0.5,
+                  min = 1,
+                  max = 100,
+                  softMin = 6,
+                  softMax = 24,
+                  step = 1,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleFontSize
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.bubbleFontSize = input
+                    Core:Dispatch(UpdateConfig("bubbleFontSize"))
+                  end,
+                },
+              },
+            },
+            section2 = {
+              name = L["Animations"],
+              type = "group",
+              inline = true,
+              order = 2,
+              args = {
+                bubbleMaxLines = {
+                  name = L["Maximum messages"],
+                  desc = "Default: "..Core.defaults.profile.bubbleMaxLines.."\nMin: 1\nMax: 10",
+                  type = "range",
+                  order = 1,
+                  min = 1,
+                  max = 10,
+                  softMin = 1,
+                  softMax = 6,
+                  step = 1,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleMaxLines
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.bubbleMaxLines = input
+                  end,
+                },
+                bubbleHoldTime = {
+                  name = L["Fade out delay"],
+                  desc = "Default: "..Core.defaults.profile.bubbleHoldTime.."\nMin: 0\nMax: 60",
+                  type = "range",
+                  order = 2,
+                  min = 0,
+                  max = 60,
+                  softMin = 1,
+                  softMax = 20,
+                  step = 0.5,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleHoldTime
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.bubbleHoldTime = input
+                  end,
+                },
+                bubbleFadeInDuration = {
+                  name = L["Fade in duration"],
+                  desc = "Default: "..Core.defaults.profile.bubbleFadeInDuration.."\nMin: 0\nMax: 10",
+                  type = "range",
+                  order = 3,
+                  min = 0,
+                  max = 10,
+                  softMin = 0,
+                  softMax = 5,
+                  step = 0.05,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleFadeInDuration
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.bubbleFadeInDuration = input
+                  end,
+                },
+                bubbleFadeOutDuration = {
+                  name = L["Fade out duration"],
+                  desc = "Default: "..Core.defaults.profile.bubbleFadeOutDuration.."\nMin: 0\nMax: 10",
+                  type = "range",
+                  order = 4,
+                  min = 0,
+                  max = 10,
+                  softMin = 0,
+                  softMax = 5,
+                  step = 0.05,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleFadeOutDuration
+                  end,
+                  set = function (info, input)
+                    Core.db.profile.bubbleFadeOutDuration = input
+                  end,
+                },
+              },
+            },
+          },
+        },
         profile = AceDBOptions:GetOptionsTable(Core.db)
       }
   }
@@ -1037,6 +1214,9 @@ function C:RefreshConfig()
   Core:Dispatch(UpdateConfig("dockBackgroundOpacity"))
   Core:Dispatch(UpdateConfig("dockBackgroundColor"))
   Core:Dispatch(UpdateConfig("tabsOnHover"))
+
+  -- Bubbles
+  Core:Dispatch(UpdateConfig("chatBubbles"))
 end
 
 function C:OnProfileReset()

@@ -32,6 +32,7 @@ Core.Version = "DEBUG"
 --@end-debug@]===]--
 
 -- Modules
+Core:NewModule("Bubbles")
 Core:NewModule("Config", "AceConsole-3.0")
 Core:NewModule("Fonts")
 Core:NewModule("Hyperlinks")
@@ -105,6 +106,17 @@ Core.defaults = {
     scrollIndicatorBgColor = { r = 17 / 255, g = 17 / 255, b = 17 / 255 }, -- codGray (same as chat bg)
     scrollIndicatorBgOpacity = 0.65, -- slightly transparent
     hideScrollIndicator = false, -- when true, hides the "Unread messages" / "Bring me to the present" indicator
+
+    -- Chat bubbles
+    chatBubbles = false, -- When ON, replaces the default 3.3.5 chat bubble with clean text-only output above the speaker's head.
+    bubbleShowName = true, -- When ON, prepend the class-colored speaker name to each replaced chat bubble message.
+    bubbleFont = "Friz Quadrata TT",
+    bubbleFontSize = 13,
+    bubbleFontFlags = "OUTLINE",
+    bubbleMaxLines = 4, -- Maximum stacked messages above a speaker's head before the oldest fades out.
+    bubbleHoldTime = 4, -- Seconds a message stays fully visible before fading out.
+    bubbleFadeInDuration = 0.3,
+    bubbleFadeOutDuration = 0.6,
   }
 }
 
