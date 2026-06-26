@@ -68,10 +68,10 @@ jobs:
           
           if [ -z "$LAST_TAG" ]; then
             echo "No previous tags found, using all commits"
-            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges -20)
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges -20 | grep -v "chore: bump version")
           else
             echo "Last tag: $LAST_TAG"
-            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges | grep -v "chore: bump version")
           fi
           
           # Handle empty commits
