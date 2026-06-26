@@ -17,12 +17,15 @@ local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local wipe = wipe
 -- luacheck: pop
 
--- How often (in seconds) we scan the WorldFrame and advance the bubble stacks. A
+-- How often (in seconds) we scan the WorldFrame and advance the bubble fades. A
 -- small value keeps the fade animations smooth.
 local SCAN_THROTTLE = 0.03
 
 -- Vertical gap (in pixels) between stacked messages above a speaker's head.
 local LINE_SPACING = 2
+
+-- Approximate height of a bubble line in pixels. Used to stack fading messages.
+local LINE_HEIGHT = 14
 
 -- Identifies the default 3.3.5 chat bubble: an anonymous child of the WorldFrame
 -- whose backdrop uses Blizzard's ChatBubble background texture.
@@ -149,24 +152,43 @@ local function ApplyLineFont(fontString)
   fontString:SetShadowOffset(1, -1)
 end
 
--- Per-frame pool of reusable FontString "lines" so we don't churn FontStrings as
--- messages come and go.
-local function AcquireLine(frame)
-  local pool = frame.glassPool
-  if pool and #pool > 0 then
-    return table.remove(pool)
+-- A private overlay that parents every bubble line. Because the lines live on our
+-- own frame -- not the game's pooled bubble frames -- a message can keep fading
+-- after the game recycles or hides the bubble it came from, which is what the old
+-- per-frame stacking could not do without desyncing.
+local overlay
+
+-- Reusable FontStrings shared across all bubbles.
+local linePool = {}
+
+-- The single line each tracked game bubble frame is currently showing: [frame] =
+-- line. One live line per frame, so messages never pile into a recycled frame.
+local liveLines = {}
+
+-- Lines that have detached from their frame (recycled or hidden) and are finishing
+-- their fade-out in place.
+local fadingLines = {}
+
+-- Acquires a styled, ready-to-show line from the shared pool.
+local function AcquireLine()
+  local line = table.remove(linePool)
+  if not line then
+    line = { fs = overlay:CreateFontString(nil, "OVERLAY") }
+    line.fs:SetJustifyH("CENTER")
   end
-  local line = { fs = frame:CreateFontString(nil, "OVERLAY") }
-  line.fs:SetJustifyH("CENTER")
   ApplyLineFont(line.fs)
+  line.fs:SetAlpha(0)
+  line.fs:Show()
   return line
 end
 
-local function ReleaseLine(frame, line)
+-- Returns a line to the pool, fully reset.
+local function ReleaseLine(line)
   line.fs:Hide()
   line.fs:SetText("")
-  frame.glassPool = frame.glassPool or {}
-  frame.glassPool[#frame.glassPool + 1] = line
+  line.fs:ClearAllPoints()
+  line.born, line.forcedOutAt, line.text, line.originFrame, line.stackOffset = nil, nil, nil, nil, nil
+  linePool[#linePool + 1] = line
 end
 
 -- Computes a line's alpha from its age and the configured fade timing. Returns the
@@ -200,43 +222,84 @@ local function LineAlpha(line, now)
   return 1 - t / fadeOut, false
 end
 
--- Adds a new message to a frame's stack (newest last) and, once the stack exceeds
--- the configured maximum, starts fading out the oldest line.
-local function AddMessage(frame, text)
-  local line = AcquireLine(frame)
-  ApplyLineFont(line.fs)
-  line.fs:SetText(text)
-  line.born = GetTime()
-  line.forcedOutAt = nil
-  line.fs:SetAlpha(0)
-  line.fs:Show()
+-- Builds the text shown for a freshly seen message: the raw bubble text, optionally
+-- prefixed with the class-colored speaker name. Consumes one captured author, so it
+-- must run exactly once per new message.
+local function Decorate(text)
+  if Core.db.profile.bubbleShowName then
+    local prefix = BuildSpeakerPrefix(ConsumeAuthor(text))
+    if prefix then
+      return prefix .. ": " .. text
+    end
+  end
+  return text
+end
 
-  local lines = frame.glassLines
-  lines[#lines + 1] = line
+-- Glues a live line to its game bubble frame so it tracks the speaker on screen.
+local function AnchorToFrame(line, frame)
+  line.fs:ClearAllPoints()
+  line.fs:SetPoint("CENTER", frame, "CENTER", 0, 0)
+end
 
-  local max = Core.db.profile.bubbleMaxLines or 4
-  if #lines > max then
-    for i = 1, #lines do
-      if not lines[i].forcedOutAt then
-        lines[i].forcedOutAt = GetTime()
-        break
-      end
+-- Detaches the line a frame is carrying so it finishes fading on its own. The
+-- line remembers which frame it came from and its current stack offset, so it
+-- can be repositioned when new messages push it upward.
+local function DetachLine(frame)
+  local line = liveLines[frame]
+  if not line then return end
+  liveLines[frame] = nil
+  line.originFrame = frame
+  line.stackOffset = line.stackOffset or 0
+  fadingLines[#fadingLines + 1] = line
+end
+
+-- Pushes up all fading lines that came from a given frame by one message height.
+-- Called when a new message appears for that speaker.
+local function PushUpFadingLines(frame)
+  for _, line in ipairs(fadingLines) do
+    if line.originFrame == frame then
+      line.stackOffset = (line.stackOffset or 0) + LINE_HEIGHT + LINE_SPACING
     end
   end
 end
 
--- Re-anchors a frame's lines so the newest sits at the bottom (nearest the head)
--- and older messages stack upward.
-local function RepositionLines(frame)
-  local lines = frame.glassLines
-  local n = #lines
-  if n == 0 then return end
+-- Repositions a fading line above its origin frame (if visible) or at its last
+-- known world position, applying the vertical stack offset so messages don't overlap.
+local function PositionFadingLine(line)
+  local frame = line.originFrame
+  local offset = line.stackOffset or 0
+  line.fs:ClearAllPoints()
+  if frame and frame:IsShown() then
+    -- Frame still visible: track it
+    line.fs:SetPoint("CENTER", frame, "CENTER", 0, offset)
+  else
+    -- Frame hidden: use last known position
+    local x, y = frame and frame:GetCenter()
+    if x and y then
+      line.fs:SetPoint("CENTER", WorldFrame, "BOTTOMLEFT", x, y + offset)
+    end
+  end
+end
 
-  lines[n].fs:ClearAllPoints()
-  lines[n].fs:SetPoint("CENTER", frame, "CENTER", 0, 0)
-  for i = n - 1, 1, -1 do
-    lines[i].fs:ClearAllPoints()
-    lines[i].fs:SetPoint("BOTTOM", lines[i + 1].fs, "TOP", 0, LINE_SPACING)
+-- Caps how many bubble lines may be visible at once. When the cap is exceeded the
+-- oldest line that isn't already fading out is forced to start fading.
+local function EnforceMaxLines()
+  local max = Core.db.profile.bubbleMaxLines or 4
+  if max < 1 then max = 1 end
+
+  local count, oldest, oldestBorn = 0, nil, nil
+  local function consider(line)
+    if line.forcedOutAt then return end
+    count = count + 1
+    if (not oldestBorn) or line.born < oldestBorn then
+      oldest, oldestBorn = line, line.born
+    end
+  end
+  for _, line in pairs(liveLines) do consider(line) end
+  for _, line in ipairs(fadingLines) do consider(line) end
+
+  if count > max and oldest then
+    oldest.forcedOutAt = GetTime()
   end
 end
 
@@ -254,20 +317,10 @@ local function HideBubbleGraphic(frame)
   end
 end
 
--- Keeps a bubble frame visible while its stack is still fading, instead of letting
--- the game hide it after its own short timeout.
-local function HookHide(frame)
-  if frame.glassHideHooked then return end
-  frame.glassHideHooked = true
-  frame.glassRealHide = frame.Hide
-  frame.Hide = function (self)
-    if self.glassActive then return end
-    return self.glassRealHide(self)
-  end
-end
-
 -- Remembers a bubble's original look the first time we see it (so it can be fully
--- restored), grabs the game's text region, and prepares the per-frame stack.
+-- restored) and grabs the game's text region. We no longer hook its lifetime or
+-- position -- the game keeps owning when each frame shows, hides and is recycled,
+-- while our own lines carry the message and fade.
 local function RememberBubble(frame)
   frame.glassBackdrop = frame:GetBackdrop()
   frame.glassBackdropColor = { frame:GetBackdropColor() }
@@ -282,73 +335,88 @@ local function RememberBubble(frame)
     end
   end
 
-  frame.glassLines = {}
-  frame.glassPool = {}
   frame.glassRemembered = true
-  HookHide(frame)
+  -- Draw our lines in the same layer the game draws bubbles in, so they stay visible.
+  if overlay then
+    overlay:SetFrameStrata(frame:GetFrameStrata())
+  end
   trackedBubbles[#trackedBubbles + 1] = frame
 end
 
--- Drives a single bubble each pass: hides the game's graphic and text, captures
--- any new message into the stack, fades existing lines, and repositions them.
-local function UpdateBubble(frame, now)
+-- Handles one shown bubble frame each pass: hides the game's own graphic and text,
+-- then makes sure the frame is showing exactly one of our lines for its current
+-- message. A changed text means the game recycled the frame for a new message, so
+-- the previous line is dropped (the game has already replaced its bubble) and a
+-- fresh line with its own timer takes over.
+local function ProcessFrame(frame)
   HideBubbleGraphic(frame)
 
   local gameText = frame.glassGameText
-  if gameText then
-    local text = gameText:GetText()
-    gameText:Hide()
-    if text and text ~= "" and text ~= frame.glassLastText then
-      frame.glassLastText = text
-      local displayText = text
-      if Core.db.profile.bubbleShowName then
-        local prefix = BuildSpeakerPrefix(ConsumeAuthor(text))
-        if prefix then
-          displayText = prefix .. ": " .. text
-        end
-      end
-      AddMessage(frame, displayText)
-    end
+  if not gameText then return end
+
+  local text = gameText:GetText()
+  gameText:Hide()
+
+  local line = liveLines[frame]
+
+  if (not text) or text == "" then
+    if line then DetachLine(frame) end
+    return
   end
 
-  local lines = frame.glassLines
-  local i = 1
-  while i <= #lines do
-    local alpha, dead = LineAlpha(lines[i], now)
-    if dead then
-      ReleaseLine(frame, lines[i])
-      table.remove(lines, i)
-    else
-      lines[i].fs:SetAlpha(alpha)
-      i = i + 1
+  if (not line) or line.text ~= text then
+    if line then
+      -- Text changed: the game recycled this frame for a new message. Let the old
+      -- line finish fading where it was last seen instead of deleting it.
+      DetachLine(frame)
     end
-  end
-
-  RepositionLines(frame)
-
-  if #lines > 0 then
-    frame.glassActive = true
+    -- Push all existing fading lines from this frame upward before adding new one
+    PushUpFadingLines(frame)
+    line = AcquireLine()
+    line.text = text
+    line.born = GetTime()
+    line.forcedOutAt = nil
+    line.stackOffset = 0
+    line.originFrame = frame
+    line.fs:SetText(Decorate(text))
+    AnchorToFrame(line, frame)
+    liveLines[frame] = line
+    EnforceMaxLines()
   else
-    -- Stack empty: let the frame hide and reset so it can be reused cleanly.
-    frame.glassActive = false
-    frame.glassLastText = nil
-    if frame.glassRealHide then
-      frame.glassRealHide(frame)
+    -- Same message still up: keep it glued to the (possibly moving) frame.
+    AnchorToFrame(line, frame)
+  end
+end
+
+-- Advances every line's fade one step and reclaims any that have fully faded.
+local function UpdateFades(now)
+  for frame, line in pairs(liveLines) do
+    local alpha, dead = LineAlpha(line, now)
+    if dead then
+      ReleaseLine(line)
+      liveLines[frame] = nil
+    else
+      line.fs:SetAlpha(alpha)
+    end
+  end
+
+  local i = 1
+  while i <= #fadingLines do
+    local line = fadingLines[i]
+    local alpha, dead = LineAlpha(line, now)
+    if dead then
+      ReleaseLine(line)
+      table.remove(fadingLines, i)
+    else
+      line.fs:SetAlpha(alpha)
+      PositionFadingLine(line)
+      i = i + 1
     end
   end
 end
 
--- Clears a frame's stack and restores it to the game's default appearance.
+-- Restores a single bubble frame to the game's default appearance.
 local function RestoreBubble(frame)
-  if frame.glassLines then
-    for _, line in ipairs(frame.glassLines) do
-      ReleaseLine(frame, line)
-    end
-    frame.glassLines = {}
-  end
-  frame.glassActive = false
-  frame.glassLastText = nil
-
   if frame.SetBackdrop then
     frame:SetBackdrop(frame.glassBackdrop)
     if frame.glassBackdrop then
@@ -372,8 +440,17 @@ local function RestoreBubble(frame)
   end
 end
 
--- Restores every bubble we have touched (used when the feature is switched off).
+-- Restores every bubble we have touched and reclaims all of our lines (used when
+-- the feature is switched off).
 local function RestoreBubbles()
+  for frame, line in pairs(liveLines) do
+    ReleaseLine(line)
+    liveLines[frame] = nil
+  end
+  for i = #fadingLines, 1, -1 do
+    ReleaseLine(fadingLines[i])
+    fadingLines[i] = nil
+  end
   for _, frame in ipairs(trackedBubbles) do
     if frame.glassRemembered then
       RestoreBubble(frame)
@@ -381,8 +458,9 @@ local function RestoreBubbles()
   end
 end
 
--- Scans the WorldFrame's children for chat bubbles, remembering new ones and
--- advancing the stack on every visible bubble each pass.
+-- Scans the WorldFrame's children for chat bubbles each pass: remembers new ones,
+-- refreshes the line on every shown bubble, detaches lines from bubbles the game
+-- has hidden, and advances every line's fade.
 local function ScanBubbles()
   local now = GetTime()
   local count = WorldFrame:GetNumChildren()
@@ -393,14 +471,26 @@ local function ScanBubbles()
         RememberBubble(frame)
       end
 
-      if frame.glassRemembered and frame:IsShown() then
-        UpdateBubble(frame, now)
+      if frame.glassRemembered then
+        if frame:IsShown() then
+          ProcessFrame(frame)
+        elseif liveLines[frame] then
+          -- The game hid this bubble: let its line fade out on the overlay.
+          DetachLine(frame)
+        end
       end
     end
   end
+
+  UpdateFades(now)
 end
 
 function Bubbles:OnInitialize()
+  -- Private parent for every bubble line, so a line can outlive the game bubble
+  -- frame it came from and keep fading after the frame is recycled or hidden.
+  overlay = CreateFrame("Frame", nil, WorldFrame)
+  overlay:SetAllPoints(WorldFrame)
+
   self.scanner = CreateFrame("Frame")
   self.scanner:Hide()
   self.scanner.elapsed = 0
