@@ -2,6 +2,8 @@ local Addon, ns = ...
 
 ns = LibStub("AceAddon-3.0"):NewAddon(ns, Addon, "LibMoreEvents-1.0", "AceConsole-3.0", "AceHook-3.0")
 
+local L = LibStub("AceLocale-3.0"):GetLocale(Addon)
+
 -- GLOBALS: CHAT_FRAMES, FCF_GetCurrentChatFrame, GetChatTypeIndex
 
 -- Lua API
@@ -631,10 +633,10 @@ ns.OnEnable = function(self)
 	if (self.db.showStartupMessage) then
 		if (C_Timer and C_Timer.After) then
 			C_Timer.After(2, function()
-				print("|cffDFBA69CleanerChat|r: Use |cffffd200/cc|r for settings.")
+				print("|cffDFBA69CleanerChat|r: " .. string_format(L["Use %s for settings."], "|cffffd200/cc|r"))
 			end)
 		else
-			print("|cffDFBA69CleanerChat|r: Use |cffffd200/cc|r for settings.")
+			print("|cffDFBA69CleanerChat|r: " .. string_format(L["Use %s for settings."], "|cffffd200/cc|r"))
 		end
 	end
 

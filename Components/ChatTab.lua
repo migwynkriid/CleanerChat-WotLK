@@ -8,6 +8,8 @@ local Colors = Constants.COLORS
 
 local UPDATE_CONFIG = Constants.EVENTS.UPDATE_CONFIG
 
+local L = LibStub("AceLocale-3.0"):GetLocale("CleanerChat")
+
 -- luacheck: push ignore 113
 local CHAT_CONFIGURATION = CHAT_CONFIGURATION
 local CLOSE_CHAT_WINDOW = CLOSE_CHAT_WINDOW
@@ -204,7 +206,7 @@ function ChatTabMixin:Init(slidingMessageFrame)
 
     -- CleanerChat settings (opens the /cc options panel)
     info = UIDropDownMenu_CreateInfo()
-    info.text = "CleanerChat settings"
+    info.text = L["CleanerChat settings"]
     info.notCheckable = 1
     info.func = function()
       local AceAddon = LibStub and LibStub("AceAddon-3.0", true)
@@ -227,7 +229,7 @@ function ChatTabMixin:Init(slidingMessageFrame)
       local _, currentWindowId = UIManager:GetWindowForChatFrame(chatFrameIndex)
 
       info = UIDropDownMenu_CreateInfo()
-      info.text = "New window"
+      info.text = L["New window"]
       info.notCheckable = 1
       info.func = function()
         UIManager:SpawnNewWindow(currentWindowId)
@@ -237,7 +239,7 @@ function ChatTabMixin:Init(slidingMessageFrame)
       -- "Delete window" — only on non-default (added) windows.
       if currentWindowId ~= "Main" then
         info = UIDropDownMenu_CreateInfo()
-        info.text = "Delete window"
+        info.text = L["Delete window"]
         info.notCheckable = 1
         info.func = function()
           UIManager:DeleteWindow(currentWindowId)
