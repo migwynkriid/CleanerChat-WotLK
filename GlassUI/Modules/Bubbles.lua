@@ -77,8 +77,29 @@ local recentMessages = {}
 -- 3.3.5 to look up an arbitrary player's class, but a speaker in say/yell range
 -- is very often one of these. Built once since the list never changes.
 local SCAN_UNITS = { "player", "target", "targettarget", "focus", "focustarget", "mouseover", "pet" }
-for i = 1, 4 do SCAN_UNITS[#SCAN_UNITS + 1] = "party"..i end
-for i = 1, 40 do SCAN_UNITS[#SCAN_UNITS + 1] = "raid"..i end
+for i = 1, 4 do
+  SCAN_UNITS[#SCAN_UNITS + 1] = "party"..i
+  SCAN_UNITS[#SCAN_UNITS + 1] = "party"..i.."target"
+  SCAN_UNITS[#SCAN_UNITS + 1] = "partypet"..i
+end
+for i = 1, 40 do
+  SCAN_UNITS[#SCAN_UNITS + 1] = "raid"..i
+  SCAN_UNITS[#SCAN_UNITS + 1] = "raid"..i.."target"
+  SCAN_UNITS[#SCAN_UNITS + 1] = "raidpet"..i
+end
+-- Nameplates: may not exist in 3.3.5 but some servers support them
+for i = 1, 40 do SCAN_UNITS[#SCAN_UNITS + 1] = "nameplate"..i end
+
+-- Cache of discovered class colors: [name] = colorCode. Once we've seen a player's
+-- class (from any unit scan), we remember it so future bubbles stay colored even
+-- if the player is no longer targetable.
+local classColorCache = {}
+
+-- Strips the realm suffix from a name (e.g. "Player-Realm" -> "Player").
+local function StripRealm(name)
+  if not name then return name end
+  return name:match("^([^%-]+)") or name
+end
 
 -- Best-effort class colour escape (e.g. "|cff69ccf0") for a player name, read
 -- from any currently readable unit that matches. Returns nil when the name can't
@@ -86,15 +107,28 @@ for i = 1, 40 do SCAN_UNITS[#SCAN_UNITS + 1] = "raid"..i end
 local function GetClassColorCode(name)
   if (not name) or (name == "") or (not RAID_CLASS_COLORS) then return nil end
 
+  local searchName = StripRealm(name)
+
+  -- Check cache first
+  if classColorCache[searchName] then
+    return classColorCache[searchName]
+  end
+
   for _, unit in ipairs(SCAN_UNITS) do
-    if UnitExists(unit) and UnitIsPlayer(unit) and UnitName(unit) == name then
-      local _, class = UnitClass(unit)
-      local color = class and RAID_CLASS_COLORS[class]
-      if color then
-        return string.format("|cff%02x%02x%02x",
-          math.floor(color.r * 255 + 0.5),
-          math.floor(color.g * 255 + 0.5),
-          math.floor(color.b * 255 + 0.5))
+    if UnitExists(unit) and UnitIsPlayer(unit) then
+      local unitName = UnitName(unit)
+      if unitName == searchName or unitName == name then
+        local _, class = UnitClass(unit)
+        local color = class and RAID_CLASS_COLORS[class]
+        if color then
+          local colorCode = string.format("|cff%02x%02x%02x",
+            math.floor(color.r * 255 + 0.5),
+            math.floor(color.g * 255 + 0.5),
+            math.floor(color.b * 255 + 0.5))
+          -- Cache for future lookups
+          classColorCache[searchName] = colorCode
+          return colorCode
+        end
       end
     end
   end
@@ -104,13 +138,15 @@ end
 
 -- Wraps a speaker's name in its class colour (or the neutral default for NPCs and
 -- unresolved players). Returns nil when there is no name to show.
-local function BuildSpeakerPrefix(name)
+local function BuildSpeakerPrefix(name, colorCode)
   if (not name) or (name == "") then return nil end
-  local code = GetClassColorCode(name) or DEFAULT_NAME_COLOR
+  local code = colorCode or GetClassColorCode(name) or DEFAULT_NAME_COLOR
   return code .. name .. "|r"
 end
 
 -- Records a chat message so a soon-to-appear bubble can be matched to its author.
+-- Captures the class color NOW (at chat event time) when the player is most likely
+-- to be queryable as a unit.
 local function RememberMessage(message, sender)
   if (not message) or (message == "") then return end
   if (not sender) or (sender == "") then return end
@@ -121,13 +157,17 @@ local function RememberMessage(message, sender)
     table.remove(recentMessages, 1)
   end
 
-  recentMessages[#recentMessages + 1] = { text = message, name = sender, time = now }
+  -- Capture class color NOW while the chat event is fresh - we're more likely to
+  -- have the player as target/mouseover/etc at this moment than when the bubble renders.
+  local colorCode = GetClassColorCode(sender)
+
+  recentMessages[#recentMessages + 1] = { text = message, name = sender, time = now, colorCode = colorCode }
 end
 
 -- Finds and consumes the author of a bubble by its exact text, preferring the
--- most recent match. Returns nil when no live capture matches.
+-- most recent match. Returns the name and cached color code, or nil when no live capture matches.
 local function ConsumeAuthor(text)
-  if not text then return nil end
+  if not text then return nil, nil end
   local now = GetTime()
 
   for i = #recentMessages, 1, -1 do
@@ -136,12 +176,13 @@ local function ConsumeAuthor(text)
       table.remove(recentMessages, i)
     elseif entry.text == text then
       local name = entry.name
+      local colorCode = entry.colorCode
       table.remove(recentMessages, i)
-      return name
+      return name, colorCode
     end
   end
 
-  return nil
+  return nil, nil
 end
 
 -- Applies the configured Glass font, size and outline to one of our stacked lines.
@@ -227,7 +268,8 @@ end
 -- must run exactly once per new message.
 local function Decorate(text)
   if Core.db.profile.bubbleShowName then
-    local prefix = BuildSpeakerPrefix(ConsumeAuthor(text))
+    local name, colorCode = ConsumeAuthor(text)
+    local prefix = BuildSpeakerPrefix(name, colorCode)
     if prefix then
       return prefix .. ": " .. text
     end
