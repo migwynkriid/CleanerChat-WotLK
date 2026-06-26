@@ -27,11 +27,13 @@ end
 _G.GLASS_IS_NATIVE_335 = isNative335
 
 ---
--- Hook CreateFrame to strip BackdropTemplate on native 3.3.5
--- In native 3.3.5, BackdropTemplate doesn't exist as an XML template
--- but frames have SetBackdrop built-in natively
+-- BackdropTemplate compatibility for native 3.3.5.
+-- In native 3.3.5, BackdropTemplate doesn't exist as an XML template (frames
+-- have SetBackdrop built-in natively), so any CreateFrame call that inherits
+-- "BackdropTemplate" -- as the embedded AceGUI widgets do -- would error. This
+-- wrapper strips it back out.
 local originalCreateFrame = _G.CreateFrame
-_G.CreateFrame = function(frameType, name, parent, template, id)
+local function GlassCreateFrame(frameType, name, parent, template, id)
   -- On native 3.3.5, strip out BackdropTemplate since it doesn't exist
   if isNative335 and template then
     -- Handle both standalone "BackdropTemplate" and comma-separated lists
@@ -46,6 +48,13 @@ _G.CreateFrame = function(frameType, name, parent, template, id)
     end
   end
   return originalCreateFrame(frameType, name, parent, template, id)
+end
+
+-- Only install the wrapper globally on native 3.3.5. On Ascension/custom
+-- servers BackdropTemplate already exists, so overwriting the secure global
+-- CreateFrame would only taint protected frames (e.g. CompactPartyFrame).
+if isNative335 then
+  _G.CreateFrame = GlassCreateFrame
 end
 
 ---
@@ -321,12 +330,9 @@ end
 -- Also provide a global helper for libraries that need it
 _G.Glass_EnsureSetColorTexture = AddSetColorTexture
 
--- Hook CreateTexture to add SetColorTexture method (belt and suspenders)
-local originalCreateTexture = frameMeta.CreateTexture
-frameMeta.CreateTexture = function(self, name, layer, inherits, subLayer)
-  local texture = originalCreateTexture(self, name, layer, inherits, subLayer)
-  return AddSetColorTexture(texture)
-end
+-- Don't override frameMeta.CreateTexture: doing so taints every texture the
+-- game's secure code creates. SetColorTexture is already added to the texture
+-- metatable above.
 
 ---
 -- StopAnimating polyfill
