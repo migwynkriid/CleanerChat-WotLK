@@ -597,6 +597,16 @@ end
 
 ns.OnEnable = function(self)
 
+	-- Sanitize nil chat args to prevent strlen crashes from malformed server messages
+	local function sanitizeSystemMessage(frame, event, ...)
+		local args = {...}
+		for i = 1, 12 do
+			if args[i] == nil then args[i] = "" end
+		end
+		return false, unpack(args)
+	end
+	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", sanitizeSystemMessage)
+
 	-- Initial caching of all chat frame message methods.
 	self:CacheAllMessageMethods()
 
