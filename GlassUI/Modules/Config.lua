@@ -11,8 +11,6 @@ local UnlockMover = Constants.ACTIONS.UnlockMover
 local LockMover = Constants.ACTIONS.LockMover
 local UpdateConfig = Constants.ACTIONS.UpdateConfig
 
-local SAVE_FRAME_POSITION = Constants.EVENTS.SAVE_FRAME_POSITION
-
 -- Multi-window: each category in /cc shows window tabs (Main, Window 2, ...).
 -- ProfileFor() resolves which window's settings a control edits from the
 -- AceConfig info path (the window-tab key is one of the path segments).
@@ -202,7 +200,7 @@ function C:OnEnable()
                 },
                 frameAnchor = {
                   name = L["Anchor"],
-                  desc = "Default: "..ProfileFor(info).positionAnchor.point,
+                  desc = function (info) return "Default: "..ProfileFor(info).positionAnchor.point end,
                   type = "select",
                   order = 4.3,
                   values = ANCHORS,
@@ -1049,10 +1047,6 @@ function C:OnEnable()
   Core.db.RegisterCallback(self, "OnProfileChanged", "RefreshConfig")
   Core.db.RegisterCallback(self, "OnProfileCopied", "RefreshConfig")
   Core.db.RegisterCallback(self, "OnProfileReset", "OnProfileReset")
-
-  Core:Subscribe(SAVE_FRAME_POSITION, function (position)
-    ProfileFor(info).positionAnchor = position
-  end)
 end
 
 function C:RefreshConfig()

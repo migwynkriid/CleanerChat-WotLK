@@ -613,7 +613,6 @@ function UIManager:SpawnNewWindow(sourceWindowId)
   }
 
   -- Create the Glass window (mover, container, dock, pool).
-  local CreateWindow = Core.Components.CreateWindow
   local newWindow = CreateWindow({
     id = windowId,
     parent = UIParent,
