@@ -107,6 +107,7 @@ Core.defaults = {
 
     -- Chat bubbles
     chatBubbles = false, -- When ON, replaces the default 3.3.5 chat bubble with clean text-only output above the speaker's head.
+    bubbleShowName = true, -- When ON, prepend the class-colored speaker name to each replaced chat bubble message.
     bubbleFont = "Friz Quadrata TT",
     bubbleFontSize = 13,
     bubbleFontFlags = "OUTLINE",

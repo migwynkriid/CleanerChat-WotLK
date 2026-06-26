@@ -980,6 +980,21 @@ function C:OnEnable()
                     Core:Dispatch(UpdateConfig("chatBubbles"))
                   end,
                 },
+                bubbleShowName = {
+                  name = L["Show speaker name"],
+                  desc = L["Prepend the speaker's class-colored name to each chat bubble message."],
+                  type = "toggle",
+                  width = "full",
+                  order = 1.5,
+                  disabled = function () return not Core.db.profile.chatBubbles end,
+                  get = function ()
+                    return Core.db.profile.bubbleShowName
+                  end,
+                  set = function (_, input)
+                    Core.db.profile.bubbleShowName = input
+                    Core:Dispatch(UpdateConfig("bubbleShowName"))
+                  end,
+                },
                 bubbleFont = {
                   name = L["Font"],
                   desc = L["Font to use for chat bubbles."],
