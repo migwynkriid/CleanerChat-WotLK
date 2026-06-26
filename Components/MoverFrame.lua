@@ -253,6 +253,23 @@ function MoverFrameMixin:Init()
   end
 end
 
+-- Clean up subscriptions and hide the frame. Called when the owning window is deleted.
+function MoverFrameMixin:Destroy()
+  -- Unsubscribe from all events
+  if self.subscriptions then
+    for _, unsubscribe in ipairs(self.subscriptions) do
+      if type(unsubscribe) == "function" then
+        unsubscribe()
+      end
+    end
+    self.subscriptions = nil
+  end
+  -- Hide and disable
+  self:Hide()
+  self:EnableMouse(false)
+  self:SetMovable(false)
+end
+
 Core.Components.CreateMoverFrame = function (name, parent, profile)
   local frame = CreateFrame("Frame", name, parent)
   local object = Mixin(frame, MoverFrameMixin)

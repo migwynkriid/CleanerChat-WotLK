@@ -690,10 +690,18 @@ function UIManager:DeleteWindow(windowId)
     end
   end
 
-  -- Hide the window's Glass frames.
+  -- Hide the window's Glass frames and clean up subscriptions.
   if window.dock then window.dock:Hide() end
   if window.container then window.container:Hide() end
-  if window.moverFrame then window.moverFrame:Hide() end
+  if window.moverFrame then
+    -- Destroy unsubscribes from LOCK_MOVER/UNLOCK_MOVER so the mover won't
+    -- reappear when the user does /cc lock after deleting this window.
+    if window.moverFrame.Destroy then
+      window.moverFrame:Destroy()
+    else
+      window.moverFrame:Hide()
+    end
+  end
 
   -- If this was the active (edit-focus) window, hand focus back to main.
   if self.activeWindow == window then
