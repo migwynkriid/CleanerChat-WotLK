@@ -16,6 +16,7 @@
 	<Script file="Spells.lua"/>
 	<Script file="Status.lua"/>
 	<Script file="Tradeskills.lua"/>
+	<Script file="VersionCheck.lua"/>
 	<Script file="_Debug.lua"/>
 
 </Ui>

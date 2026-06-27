@@ -184,6 +184,14 @@ L["Hide the Chat Menu (speech bubble) button that provides access to languages a
 L["Hide Social button"] = "소셜 버튼 숨기기"
 L["Hide the Social (friends) button that appears to the left of the chat frame."] = "채팅 프레임 왼쪽에 나타나는 소셜(친구) 버튼을 숨깁니다."
 
+-- About
+L["About"] = "정보"
+L["Author"] = "제작자"
+L["Credits"] = "크레딧"
+L["CleanerChat stands on the shoulders of two excellent addons. All credit for the original work belongs to their creators."] = "CleanerChat은 두 개의 훌륭한 애드온을 기반으로 합니다. 원래 작업에 대한 모든 공로는 그들의 제작자에게 있습니다."
+L["The immersive chat UI is built on Glass by mixxorz. This project keeps the spirit of Glass alive on 3.3.5."] = "몰입형 채팅 UI는 mixxorz의 Glass를 기반으로 합니다. 이 프로젝트는 3.3.5에서 Glass의 정신을 유지합니다."
+L["The message filtering is based on ChatCleaner by Lars Norberg (Goldpaw). Backported to 3.3.5."] = "메시지 필터링은 Lars Norberg(Goldpaw)의 ChatCleaner를 기반으로 합니다. 3.3.5로 백포트되었습니다."
+
 -- Channel abbreviations (match slash commands)
 L["BGL"] = "BGL"
 L["BG"] = "BG"

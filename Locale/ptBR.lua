@@ -185,6 +185,14 @@ L["Hide the Chat Menu (speech bubble) button that provides access to languages a
 L["Hide Social button"] = "Ocultar botão Social"
 L["Hide the Social (friends) button that appears to the left of the chat frame."] = "Oculta o botão Social (amigos) que aparece à esquerda da janela de chat."
 
+-- About
+L["About"] = "Sobre"
+L["Author"] = "Autor"
+L["Credits"] = "Créditos"
+L["CleanerChat stands on the shoulders of two excellent addons. All credit for the original work belongs to their creators."] = "CleanerChat se apoia em dois excelentes addons. Todo o crédito pelo trabalho original pertence aos seus criadores."
+L["The immersive chat UI is built on Glass by mixxorz. This project keeps the spirit of Glass alive on 3.3.5."] = "A interface de chat imersiva é construída sobre Glass de mixxorz. Este projeto mantém o espírito do Glass vivo no 3.3.5."
+L["The message filtering is based on ChatCleaner by Lars Norberg (Goldpaw). Backported to 3.3.5."] = "A filtragem de mensagens é baseada em ChatCleaner de Lars Norberg (Goldpaw). Adaptado para 3.3.5."
+
 -- Channel abbreviations (match slash commands)
 L["BGL"] = "BGL"
 L["BG"] = "BG"

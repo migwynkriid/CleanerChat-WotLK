@@ -183,6 +183,14 @@ L["Hide the Chat Menu (speech bubble) button that provides access to languages a
 L["Hide Social button"] = "隱藏社交按鈕"
 L["Hide the Social (friends) button that appears to the left of the chat frame."] = "隱藏出現在聊天框左側的社交(好友)按鈕。"
 
+-- About
+L["About"] = "關於"
+L["Author"] = "作者"
+L["Credits"] = "致謝"
+L["CleanerChat stands on the shoulders of two excellent addons. All credit for the original work belongs to their creators."] = "CleanerChat建立在兩個優秀的插件基礎上。原創作品的所有榮譽歸於它們的創建者。"
+L["The immersive chat UI is built on Glass by mixxorz. This project keeps the spirit of Glass alive on 3.3.5."] = "沉浸式聊天介面基於mixxorz的Glass。本專案在3.3.5上延續了Glass的精神。"
+L["The message filtering is based on ChatCleaner by Lars Norberg (Goldpaw). Backported to 3.3.5."] = "訊息過濾基於Lars Norberg (Goldpaw)的ChatCleaner。已移植到3.3.5。"
+
 -- Channel abbreviations (match slash commands)
 L["BGL"] = "BGL"
 L["BG"] = "BG"
