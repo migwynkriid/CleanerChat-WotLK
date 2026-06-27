@@ -11,8 +11,12 @@ local string_gsub = string.gsub
 -- WoW API
 local CreateFrame = CreateFrame
 local GetAddOnMetadata = GetAddOnMetadata
+local GetNumPartyMembers = GetNumPartyMembers
+local GetNumRaidMembers = GetNumRaidMembers
 local GetTime = GetTime
 local IsInGuild = IsInGuild
+local SendAddonMessage = SendAddonMessage
+local UnitInBattleground = UnitInBattleground
 
 -- Addon message prefix (max 16 chars)
 local ADDON_PREFIX = "CleanerChat"
@@ -65,9 +69,9 @@ local function BroadcastVersion()
     SendVersion("GUILD")
   end
   
-  -- Party/Raid
-  local numRaid = (GetNumGroupMembers or GetNumRaidMembers or function() return 0 end)()
-  local numParty = (GetNumPartyMembers or function() return 0 end)()
+  -- Party/Raid (WotLK 3.3.5 uses GetNumRaidMembers/GetNumPartyMembers)
+  local numRaid = GetNumRaidMembers and GetNumRaidMembers() or 0
+  local numParty = GetNumPartyMembers and GetNumPartyMembers() or 0
   
   if numRaid > 0 then
     SendVersion("RAID")
