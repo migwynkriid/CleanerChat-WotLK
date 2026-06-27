@@ -577,7 +577,10 @@ ns.AddQuestReward = function(self, chatFrame, rewardType, rewardText)
 	-- Schedule flush for next frame if not already scheduled
 	if (not buf.scheduled) then
 		buf.scheduled = true
-		if (C_Timer and C_Timer.After) then
+		-- Use internal ns.Timer (or native C_Timer if available) to defer flush
+		if (ns.Timer and ns.Timer.After) then
+			ns.Timer.After(0, function() flushQuestRewardBuffer(chatFrame) end)
+		elseif (C_Timer and C_Timer.After) then
 			C_Timer.After(0, function() flushQuestRewardBuffer(chatFrame) end)
 		else
 			-- Fallback: flush immediately (less ideal but works)
@@ -639,7 +642,12 @@ ns.OnEnable = function(self)
 
 	-- Print startup message (delayed so it's visible after login spam)
 	if (self.db.showStartupMessage) then
-		if (C_Timer and C_Timer.After) then
+		-- Use internal ns.Timer (or native C_Timer if available)
+		if (ns.Timer and ns.Timer.After) then
+			ns.Timer.After(2, function()
+				print("|cffDFBA69CleanerChat|r: Use |cffffd200/cc|r for settings.")
+			end)
+		elseif (C_Timer and C_Timer.After) then
 			C_Timer.After(2, function()
 				print("|cffDFBA69CleanerChat|r: Use |cffffd200/cc|r for settings.")
 			end)

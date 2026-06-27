@@ -1,4 +1,5 @@
 local Core, _, Utils = unpack(select(2, ...))
+local ns = select(2, ...) -- Get raw namespace for ns.Timer access
 local UIManager = Core:GetModule("UIManager")
 
 local CreateChatDock = Core.Components.CreateChatDock
@@ -190,7 +191,11 @@ function UIManager:OnEnable()
   -- Glass dock and shows them; it is idempotent (frames and tabs are reused).
   SetupTabs(true)
 
-  if (C_Timer and C_Timer.After) then
+  -- Use internal ns.Timer (or native C_Timer if available)
+  if (ns.Timer and ns.Timer.After) then
+    ns.Timer.After(0.5, function () SetupTabs(true) end)
+    ns.Timer.After(2, function () SetupTabs(true) end)
+  elseif (C_Timer and C_Timer.After) then
     C_Timer.After(0.5, function () SetupTabs(true) end)
     C_Timer.After(2, function () SetupTabs(true) end)
   end
@@ -208,7 +213,13 @@ function UIManager:OnEnable()
     local function ReassertTabs()
       if (reassertScheduled) then return end
       reassertScheduled = true
-      if (C_Timer and C_Timer.After) then
+      -- Use internal ns.Timer (or native C_Timer if available)
+      if (ns.Timer and ns.Timer.After) then
+        ns.Timer.After(0, function ()
+          reassertScheduled = false
+          SetupTabs(false)
+        end)
+      elseif (C_Timer and C_Timer.After) then
         C_Timer.After(0, function ()
           reassertScheduled = false
           SetupTabs(false)

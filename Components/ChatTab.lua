@@ -2,6 +2,15 @@ local Core, Constants = unpack(select(2, ...))
 
 local AceHook = Core.Libs.AceHook
 
+-- Dedicated AceHook host. We must NOT embed AceHook onto the native Blizzard
+-- chat tab frames (ChatFrameNTab): Embed() overwrites the frame's native
+-- :HookScript with AceHook's incompatible version, which breaks other addons
+-- that call tab:HookScript(...). Hooking through a separate plain-table host
+-- keeps the tab's native methods intact. Hooks are keyed by the hooked object,
+-- so a single shared host works for every tab.
+local Hooker = {}
+AceHook:Embed(Hooker)
+
 local UnlockMover = Constants.ACTIONS.UnlockMover
 
 local Colors = Constants.COLORS
@@ -78,41 +87,41 @@ function ChatTabMixin:Init(slidingMessageFrame)
     self:SetWidth(60)  -- Default width
   end
 
-  if not self:IsHooked(self, "SetAlpha") then
-    self:RawHook(self, "SetAlpha", function (alpha)
-      self.hooks[self].SetAlpha(self, 1)
+  if not Hooker:IsHooked(self, "SetAlpha") then
+    Hooker:RawHook(self, "SetAlpha", function (alpha)
+      Hooker.hooks[self].SetAlpha(self, 1)
     end, true)
   end
 
   -- Set width dynamically based on text width
-  if not self:IsHooked(self, "SetWidth") then
-    self:RawHook(self, "SetWidth", function (_, width)
+  if not Hooker:IsHooked(self, "SetWidth") then
+    Hooker:RawHook(self, "SetWidth", function (_, width)
       local textWidth = self:GetTextWidth() or 0
       local newWidth = textWidth + Constants.TEXT_XPADDING * 2
       if newWidth < 40 then
         newWidth = 60  -- Minimum width
       end
-      self.hooks[self].SetWidth(self, newWidth)
+      Hooker.hooks[self].SetWidth(self, newWidth)
     end, true)
   end
 
-  if tabText and not self:IsHooked(tabText, "SetTextColor") then
-    self:RawHook(tabText, "SetTextColor", function (...)
+  if tabText and not Hooker:IsHooked(tabText, "SetTextColor") then
+    Hooker:RawHook(tabText, "SetTextColor", function (...)
       -- Temporary chat frames retain their color
       if self.chatFrame.isTemporary then
-        self.hooks[tabText].SetTextColor(...)
+        Hooker.hooks[tabText].SetTextColor(...)
       else
-        self.hooks[tabText].SetTextColor(tabText, Colors.apache.r, Colors.apache.g, Colors.apache.b)
+        Hooker.hooks[tabText].SetTextColor(tabText, Colors.apache.r, Colors.apache.g, Colors.apache.b)
       end
     end, true)
   end
 
   -- Don't highlight when frame is already visible
   -- Note: self.glow may not exist in WotLK 3.3.5
-  if self.glow and not self:IsHooked(self.glow, "Show") then
-    self:RawHook(self.glow, "Show", function ()
+  if self.glow and not Hooker:IsHooked(self.glow, "Show") then
+    Hooker:RawHook(self.glow, "Show", function ()
       if not slidingMessageFrame:IsVisible() then
-        self.hooks[self.glow].Show(self.glow)
+        Hooker.hooks[self.glow].Show(self.glow)
       end
     end, true)
   end
@@ -243,8 +252,7 @@ Core.Components.CreateChatTab = function (slidingMessageFrame)
   end
   
   local object = Mixin(frame, ChatTabMixin)
-  AceHook:Embed(object)
-  
+
   local success = pcall(function()
     object:Init(slidingMessageFrame)
   end)
@@ -280,8 +288,8 @@ Core.Components.UpdateTabPositions = function(tabs)
       tab:SetPoint("BOTTOMLEFT", glassDock, "BOTTOMLEFT", xOffset, 0)
       
       -- Force alpha and visibility
-      if tab.hooks and tab.hooks[tab] and tab.hooks[tab].SetAlpha then
-        tab.hooks[tab].SetAlpha(tab, 1)
+      if Hooker.hooks[tab] and Hooker.hooks[tab].SetAlpha then
+        Hooker.hooks[tab].SetAlpha(tab, 1)
       else
         tab:SetAlpha(1)
       end
