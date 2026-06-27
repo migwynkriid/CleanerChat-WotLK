@@ -1248,6 +1248,89 @@ function C:OnEnable()
             },
           },
         },
+        about = {
+          name = L["About"],
+          type = "group",
+          order = 100,
+          args = {
+            version = {
+              name = function()
+                local version = GetAddOnMetadata("CleanerChat", "Version") or "?"
+                return "|cffDFBA69CleanerChat|r v" .. version
+              end,
+              type = "description",
+              order = 1,
+              fontSize = "large",
+            },
+            author = {
+              name = function()
+                local author = GetAddOnMetadata("CleanerChat", "Author") or "Unknown"
+                return L["Author"] .. ": |cffffffff" .. author .. "|r"
+              end,
+              type = "description",
+              order = 2,
+              fontSize = "medium",
+            },
+            spacer1 = {
+              name = " ",
+              type = "description",
+              order = 3,
+            },
+            githubHeader = {
+              name = "|cffDFBA69GitHub:|r",
+              type = "description",
+              order = 4,
+              fontSize = "medium",
+            },
+            githubLink = {
+              name = "",
+              type = "input",
+              order = 5,
+              width = "double",
+              get = function() return "https://github.com/migwynkriid/CleanerChat-WotLK" end,
+              set = function() end, -- read-only
+            },
+            spacer2 = {
+              name = " ",
+              type = "description",
+              order = 6,
+            },
+            creditsHeader = {
+              name = "|cffDFBA69" .. L["Credits"] .. "|r",
+              type = "description",
+              order = 7,
+              fontSize = "medium",
+            },
+            creditsDesc = {
+              name = L["CleanerChat stands on the shoulders of two excellent addons. All credit for the original work belongs to their creators."],
+              type = "description",
+              order = 8,
+              fontSize = "small",
+            },
+            spacer3 = {
+              name = " ",
+              type = "description",
+              order = 9,
+            },
+            glassCredit = {
+              name = "|cffFFFFFFGlass|r — " .. L["The immersive chat UI is built on Glass by mixxorz. This project keeps the spirit of Glass alive on 3.3.5."],
+              type = "description",
+              order = 10,
+              fontSize = "small",
+            },
+            spacer4 = {
+              name = " ",
+              type = "description",
+              order = 11,
+            },
+            chatcleanerCredit = {
+              name = "|cffFFFFFFChatCleaner|r — " .. L["The message filtering is based on ChatCleaner by Lars Norberg (Goldpaw). Backported to 3.3.5."],
+              type = "description",
+              order = 12,
+              fontSize = "small",
+            },
+          },
+        },
         profile = AceDBOptions:GetOptionsTable(Core.db)
       }
   }

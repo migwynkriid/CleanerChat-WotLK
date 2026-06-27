@@ -139,12 +139,15 @@ read_globals = {
   "UnitOnTaxi",
   "UnitGUID",
   "UnitFactionGroup",
+  "UnitInBattleground",
   "GetUnitName",
 
   -- WoW API - Player Functions
   "GetRealmName",
   "GetPlayerInfoByGUID",
   "GetNumGroupMembers",
+  "GetNumPartyMembers",
+  "GetNumRaidMembers",
   "GetNumSubgroupMembers",
   "IsInRaid",
   "IsInGroup",
@@ -152,6 +155,7 @@ read_globals = {
   "GetGuildInfo",
 
   -- WoW API - Chat Functions
+  "SendAddonMessage",
   "SendChatMessage",
   "GetChatTypeIndex",
   "ChatFrame_AddMessageEventFilter",

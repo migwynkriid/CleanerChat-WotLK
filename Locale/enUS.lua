@@ -232,3 +232,11 @@ L["Hide Chat Menu button"] = true
 L["Hide the Chat Menu (speech bubble) button that provides access to languages and emotes."] = true
 L["Hide Social button"] = true
 L["Hide the Social (friends) button that appears to the left of the chat frame."] = true
+
+-- About
+L["About"] = true
+L["Author"] = true
+L["Credits"] = true
+L["CleanerChat stands on the shoulders of two excellent addons. All credit for the original work belongs to their creators."] = true
+L["The immersive chat UI is built on Glass by mixxorz. This project keeps the spirit of Glass alive on 3.3.5."] = true
+L["The message filtering is based on ChatCleaner by Lars Norberg (Goldpaw). Backported to 3.3.5."] = true

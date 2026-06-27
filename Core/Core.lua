@@ -634,6 +634,7 @@ ns.OnEnable = function(self)
 	self:GetModule("QualityColors"):Enable()
 	self:GetModule("Blacklist"):Enable()
 	self:GetModule("Empty"):Enable()
+	self:GetModule("VersionCheck"):Enable()
 
 	-- Enable development version modules.
 	-- *not recommended for the public
