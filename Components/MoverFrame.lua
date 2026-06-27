@@ -15,6 +15,9 @@ local Mixin = Mixin
 local math_floor = math.floor
 
 function MoverFrameMixin:Init()
+  -- Reset destroyed flag in case this frame is being reused
+  self._destroyed = nil
+  
   local editBoxMargin = 35
   self:ClearAllPoints()
   self:SetPoint(
@@ -209,6 +212,9 @@ function MoverFrameMixin:Init()
   if self.subscriptions == nil then
     self.subscriptions = {
       Core:Subscribe(LOCK_MOVER, function ()
+        -- Skip if this frame has been destroyed
+        if self._destroyed then return end
+        
         self:Hide()
         self:EnableMouse(false)
         self:SetMovable(false)
@@ -222,11 +228,17 @@ function MoverFrameMixin:Init()
         }
       end),
       Core:Subscribe(UNLOCK_MOVER, function ()
+        -- Skip if this frame has been destroyed
+        if self._destroyed then return end
+        
         self:Show()
         self:EnableMouse(true)
         self:SetMovable(true)
       end),
       Core:Subscribe(UPDATE_CONFIG, function (payload)
+        -- Skip if this frame has been destroyed
+        if self._destroyed then return end
+        
         local key = type(payload) == "table" and payload.key or payload
         local targetWindowId = type(payload) == "table" and payload.windowId or nil
         
@@ -281,6 +293,9 @@ end
 
 -- Clean up subscriptions and hide the frame. Called when the owning window is deleted.
 function MoverFrameMixin:Destroy()
+  -- Mark as destroyed so any lingering event handlers can skip this frame
+  self._destroyed = true
+  
   -- Unsubscribe from all events
   if self.subscriptions then
     for _, unsubscribe in ipairs(self.subscriptions) do

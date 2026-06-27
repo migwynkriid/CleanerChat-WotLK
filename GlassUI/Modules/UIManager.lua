@@ -79,6 +79,25 @@ function UIManager:OnEnable()
   self.windows["Main"] = self.mainWindow
 
   -- Restore additional windows from saved profile (multi-window persistence)
+  -- Clean up orphaned windows first (windows with no chat frames assigned)
+  if Core.db.profile.windows then
+    local orphanedWindows = {}
+    for windowId, windowProfile in pairs(Core.db.profile.windows) do
+      if windowId ~= "Main" and type(windowProfile) == "table" then
+        -- Check if this window has any chat frames assigned
+        local hasFrames = windowProfile.chatFrames and #windowProfile.chatFrames > 0
+        if not hasFrames then
+          table.insert(orphanedWindows, windowId)
+        end
+      end
+    end
+    -- Remove orphaned window profiles
+    for _, windowId in ipairs(orphanedWindows) do
+      Core.db.profile.windows[windowId] = nil
+    end
+  end
+  
+  -- Now restore valid windows
   if Core.db.profile.windows then
     local nextNum = 2
     for windowId, windowProfile in pairs(Core.db.profile.windows) do

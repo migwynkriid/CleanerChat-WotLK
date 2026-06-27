@@ -184,6 +184,14 @@ function ChatTabMixin:Init(slidingMessageFrame)
   -- Override context menu
   UIDropDownMenu_Initialize(dropDown, function ()
     local info = UIDropDownMenu_CreateInfo()
+    
+    -- Get the UIManager module for window operations (used for multi-window features)
+    local UIManager = Core:GetModule("UIManager", true)
+    local chatFrameIndex = self.chatFrame:GetID()
+    local currentWindowId = nil
+    if UIManager then
+      _, currentWindowId = UIManager:GetWindowForChatFrame(chatFrameIndex)
+    end
 
     if self.chatFrame == DEFAULT_CHAT_FRAME then
       -- Unlock chat window
@@ -212,8 +220,9 @@ function ChatTabMixin:Init(slidingMessageFrame)
     info.notCheckable = 1
     UIDropDownMenu_AddButton(info)
 
-    -- Close chat window
-    if self.chatFrame ~= DEFAULT_CHAT_FRAME and not IsCombatLog(self.chatFrame) then
+    -- Close chat window (for non-default, non-combat-log frames in Main window only)
+    -- For detached CleanerChat windows, "Delete window" handles closing
+    if self.chatFrame ~= DEFAULT_CHAT_FRAME and not IsCombatLog(self.chatFrame) and (not currentWindowId or currentWindowId == "Main") then
       info = UIDropDownMenu_CreateInfo()
       info.text = CLOSE_CHAT_WINDOW
       info.func = FCF_PopInWindow
@@ -250,16 +259,10 @@ function ChatTabMixin:Init(slidingMessageFrame)
     end
     UIDropDownMenu_AddButton(info)
 
-    -- Get the UIManager module for window operations
-    local UIManager = Core:GetModule("UIManager", true)
-
     -- "New window" — spawn a brand-new CleanerChat window (a new chat frame
     -- rendered as its own Glass window, copying the current window's settings).
     -- Available on ANY chat tab that is not the Combat Log.
     if UIManager and not IsCombatLog(self.chatFrame) then
-      local chatFrameIndex = self.chatFrame:GetID()
-      local _, currentWindowId = UIManager:GetWindowForChatFrame(chatFrameIndex)
-
       info = UIDropDownMenu_CreateInfo()
       info.text = L["New detached window"]
       info.notCheckable = 1
