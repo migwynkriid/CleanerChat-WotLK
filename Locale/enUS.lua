@@ -228,5 +228,7 @@ L["Prepend each message with a timestamp in [HH:MM] format."] = true
 
 -- Buttons
 L["Buttons"] = true
+L["Hide Chat Menu button"] = true
+L["Hide the Chat Menu (speech bubble) button that provides access to languages and emotes."] = true
 L["Hide Social button"] = true
 L["Hide the Social (friends) button that appears to the left of the chat frame."] = true

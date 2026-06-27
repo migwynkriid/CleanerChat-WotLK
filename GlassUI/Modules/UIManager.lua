@@ -373,15 +373,14 @@ function UIManager:OnEnable()
     ChatAlertFrame:SetPoint("BOTTOMLEFT", self.container, "TOPLEFT", 15, 10)
   end
 
-  -- Hide the native chat buttons (chat menu "speech bubble", channel button and
-  -- the voice mute/deafen mic buttons). Blizzard re-shows some of these on chat
-  -- updates, so pin them hidden with a Show hook (installed once).
+  -- Hide the native chat buttons (channel button and the voice mute/deafen mic buttons).
+  -- Blizzard re-shows some of these on chat updates, so pin them hidden with a Show hook.
   -- Note: QuickJoinToastButton doesn't exist in WotLK 3.3.5
+  -- ChatFrameMenuButton is handled separately below as a toggleable option.
   if (not self.chatButtonsHidden) then
     self.chatButtonsHidden = true
     for _, buttonName in ipairs({
       "ChatFrameChannelButton",
-      "ChatFrameMenuButton",
       "ChatFrameToggleVoiceDeafenButton",
       "ChatFrameToggleVoiceMuteButton",
     }) do
@@ -423,6 +422,42 @@ function UIManager:OnEnable()
         local btn = _G["FriendsMicroButton"]
         if btn then
           if Core.db.profile.hideSocialButton then
+            btn:Hide()
+          else
+            btn:Show()
+          end
+        end
+      end
+    end)
+  end
+
+  -- Handle the Chat Menu button (speech bubble with language/emote options)
+  if not self._chatMenuButtonHooked then
+    self._chatMenuButtonHooked = true
+    local chatMenuButton = _G["ChatFrameMenuButton"]
+    if chatMenuButton then
+      -- Apply initial state
+      if Core.db.profile.hideChatMenuButton then
+        chatMenuButton:Hide()
+      else
+        chatMenuButton:Show()
+      end
+      -- Hook to enforce setting when Blizzard tries to show it
+      if _G.hooksecurefunc then
+        _G.hooksecurefunc(chatMenuButton, "Show", function(b)
+          if Core.db.profile.hideChatMenuButton then
+            b:Hide()
+          end
+        end)
+      end
+    end
+    -- Listen for setting changes
+    Core:Subscribe(UPDATE_CONFIG, function(payload)
+      local key = type(payload) == "table" and payload.key or payload
+      if key == "hideChatMenuButton" then
+        local btn = _G["ChatFrameMenuButton"]
+        if btn then
+          if Core.db.profile.hideChatMenuButton then
             btn:Hide()
           else
             btn:Show()

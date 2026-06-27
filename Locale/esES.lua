@@ -180,6 +180,8 @@ L["Prepend each message with a timestamp in [HH:MM] format."] = "Antepone a cada
 
 -- Buttons
 L["Buttons"] = "Botones"
+L["Hide Chat Menu button"] = "Ocultar botón Menú de Chat"
+L["Hide the Chat Menu (speech bubble) button that provides access to languages and emotes."] = "Oculta el botón Menú de Chat (bocadillo) que proporciona acceso a idiomas y emotes."
 L["Hide Social button"] = "Ocultar botón Social"
 L["Hide the Social (friends) button that appears to the left of the chat frame."] = "Oculta el botón Social (amigos) que aparece a la izquierda del marco del chat."
 

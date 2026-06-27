@@ -117,6 +117,7 @@ Core.defaults = {
     hideScrollIndicator = false, -- when true, hides the "Unread messages" / "Bring me to the present" indicator
 
     -- Buttons (native Blizzard chat buttons)
+    hideChatMenuButton = true, -- when true, hides the Chat Menu (speech bubble) button
     hideSocialButton = true, -- when true, hides the Social (friends) button left of chat
 
     -- Per-window settings (multi-window). The default ("Main") window uses the

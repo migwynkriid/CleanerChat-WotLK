@@ -1218,16 +1218,25 @@ function C:OnEnable()
           type = "group",
           order = 5,
           args = {
-            desc = {
-              name = "CleanerChat hides the native Blizzard chat buttons (Chat Menu, Channel, Voice) by default. Use these options to control additional buttons.",
-              type = "description",
-              order = 0,
+            hideChatMenuButton = {
+              name = L["Hide Chat Menu button"],
+              desc = L["Hide the Chat Menu (speech bubble) button that provides access to languages and emotes."],
+              type = "toggle",
+              order = 1,
+              width = "full",
+              get = function ()
+                return Core.db.profile.hideChatMenuButton
+              end,
+              set = function (_, input)
+                Core.db.profile.hideChatMenuButton = input
+                Core:Dispatch(UpdateConfig("hideChatMenuButton"))
+              end,
             },
             hideSocialButton = {
               name = L["Hide Social button"],
               desc = L["Hide the Social (friends) button that appears to the left of the chat frame."],
               type = "toggle",
-              order = 1,
+              order = 2,
               width = "full",
               get = function ()
                 return Core.db.profile.hideSocialButton

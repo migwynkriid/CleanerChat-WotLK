@@ -176,6 +176,8 @@ L["Prepend each message with a timestamp in [HH:MM] format."] = "在每条消息
 
 -- Buttons
 L["Buttons"] = "按钮"
+L["Hide Chat Menu button"] = "隐藏聊天菜单按钮"
+L["Hide the Chat Menu (speech bubble) button that provides access to languages and emotes."] = "隐藏提供语言和表情访问的聊天菜单(对话气泡)按钮。"
 L["Hide Social button"] = "隐藏社交按钮"
 L["Hide the Social (friends) button that appears to the left of the chat frame."] = "隐藏出现在聊天框左侧的社交(好友)按钮。"
 
