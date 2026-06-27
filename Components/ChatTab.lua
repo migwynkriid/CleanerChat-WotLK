@@ -102,7 +102,10 @@ function ChatTabMixin:Init(slidingMessageFrame)
   -- Set width dynamically based on text width
   if not Hooker:IsHooked(self, "SetWidth") then
     Hooker:RawHook(self, "SetWidth", function (_, width)
-      local textWidth = self:GetTextWidth() or 0
+      local textWidth = 0
+      if self.Text then
+        textWidth = self.Text:GetStringWidth() or 0
+      end
       local newWidth = textWidth + Constants.TEXT_XPADDING * 2
       if newWidth < 40 then
         newWidth = 60  -- Minimum width
@@ -119,6 +122,22 @@ function ChatTabMixin:Init(slidingMessageFrame)
       else
         Hooker.hooks[tabText].SetTextColor(tabText, Colors.apache.r, Colors.apache.g, Colors.apache.b)
       end
+    end, true)
+  end
+
+  -- Hook SetText to recalculate tab width when renamed
+  if tabText and not Hooker:IsHooked(tabText, "SetText") then
+    Hooker:RawHook(tabText, "SetText", function (fontString, text)
+      -- Call original SetText first
+      Hooker.hooks[tabText].SetText(fontString, text)
+      -- Defer width recalculation to next frame so text layout is updated
+      if not self._widthUpdateFrame then
+        self._widthUpdateFrame = CreateFrame("Frame")
+      end
+      self._widthUpdateFrame:SetScript("OnUpdate", function(frame)
+        frame:SetScript("OnUpdate", nil)
+        self:SetWidth()
+      end)
     end, true)
   end
 
