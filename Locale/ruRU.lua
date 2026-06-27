@@ -152,6 +152,28 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = "Показывать вкладки при наведении"
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "При включении вкладки чата исчезают в простое и появляются при наведении мыши. При отключении вкладки всегда видны."
 L["Tab widths refit on /reload."] = "Ширина вкладок подстраивается при /reload."
+
+-- Tab Button Style
+L["Tab Style"] = "Стиль вкладки"
+L["Choose the visual style for chat tab buttons."] = "Выберите визуальный стиль для кнопок вкладок чата."
+L["Minimal"] = "Минимальный"
+L["Tab Corner Style"] = "Стиль углов вкладки"
+L["Shape of tab button corners."] = "Форма углов кнопок вкладок."
+L["Square"] = "Квадратный"
+L["Rounded"] = "Закруглённый"
+L["Tab active color"] = "Цвет активной вкладки"
+L["Color of the selected/active tab background and text."] = "Цвет фона и текста выбранной/активной вкладки."
+L["Tab inactive color"] = "Цвет неактивной вкладки"
+L["Color of unselected tab backgrounds."] = "Цвет фона невыбранных вкладок."
+L["Tab background opacity"] = "Непрозрачность фона вкладки"
+L["Opacity of the tab background and border."] = "Непрозрачность фона и рамки вкладки."
+L["Tab spacing"] = "Расстояние между вкладками"
+L["Horizontal spacing between tab buttons."] = "Горизонтальное расстояние между кнопками вкладок."
+L["Tab border thickness"] = "Толщина рамки вкладки"
+L["Thickness of the outline border."] = "Толщина рамки контура."
+L["Tab padding"] = "Отступ вкладки"
+L["Padding from the dock edge."] = "Отступ от края дока."
+
 L["Show timestamps"] = "Показывать время"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Добавляет к каждому сообщению метку времени в формате [ЧЧ:ММ]."
 

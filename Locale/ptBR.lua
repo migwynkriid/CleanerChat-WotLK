@@ -153,6 +153,28 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = "Mostrar abas ao passar o mouse"
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "Quando ativado, as abas do chat desaparecem quando inativas e reaparecem ao passar o mouse. Quando desativado, as abas estão sempre visíveis."
 L["Tab widths refit on /reload."] = "As larguras das abas se reajustam com /reload."
+
+-- Tab Button Style
+L["Tab Style"] = "Estilo de aba"
+L["Choose the visual style for chat tab buttons."] = "Escolha o estilo visual para os botões de aba do chat."
+L["Minimal"] = "Mínimo"
+L["Tab Corner Style"] = "Estilo dos cantos das abas"
+L["Shape of tab button corners."] = "Forma dos cantos dos botões de aba."
+L["Square"] = "Quadrado"
+L["Rounded"] = "Arredondado"
+L["Tab active color"] = "Cor da aba ativa"
+L["Color of the selected/active tab background and text."] = "Cor do fundo e texto da aba selecionada/ativa."
+L["Tab inactive color"] = "Cor da aba inativa"
+L["Color of unselected tab backgrounds."] = "Cor dos fundos das abas não selecionadas."
+L["Tab background opacity"] = "Opacidade do fundo da aba"
+L["Opacity of the tab background and border."] = "Opacidade do fundo e borda da aba."
+L["Tab spacing"] = "Espaçamento das abas"
+L["Horizontal spacing between tab buttons."] = "Espaçamento horizontal entre os botões de aba."
+L["Tab border thickness"] = "Espessura da borda da aba"
+L["Thickness of the outline border."] = "Espessura da borda do contorno."
+L["Tab padding"] = "Preenchimento da aba"
+L["Padding from the dock edge."] = "Preenchimento a partir da borda do dock."
+
 L["Show timestamps"] = "Mostrar carimbos de hora"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Adiciona a cada mensagem um carimbo de hora no formato [HH:MM]."
 

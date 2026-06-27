@@ -152,6 +152,28 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = "Mostra schede al passaggio"
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "Quando attivato, le schede della chat svaniscono quando inattive e riappaiono al passaggio del mouse. Quando disattivato, le schede sono sempre visibili."
 L["Tab widths refit on /reload."] = "Le larghezze delle schede si riadattano con /reload."
+
+-- Tab Button Style
+L["Tab Style"] = "Stile scheda"
+L["Choose the visual style for chat tab buttons."] = "Scegli lo stile visivo per i pulsanti delle schede della chat."
+L["Minimal"] = "Minimale"
+L["Tab Corner Style"] = "Stile angoli scheda"
+L["Shape of tab button corners."] = "Forma degli angoli dei pulsanti delle schede."
+L["Square"] = "Quadrato"
+L["Rounded"] = "Arrotondato"
+L["Tab active color"] = "Colore scheda attiva"
+L["Color of the selected/active tab background and text."] = "Colore dello sfondo e del testo della scheda selezionata/attiva."
+L["Tab inactive color"] = "Colore scheda inattiva"
+L["Color of unselected tab backgrounds."] = "Colore degli sfondi delle schede non selezionate."
+L["Tab background opacity"] = "Opacità sfondo scheda"
+L["Opacity of the tab background and border."] = "Opacità dello sfondo e del bordo della scheda."
+L["Tab spacing"] = "Spaziatura schede"
+L["Horizontal spacing between tab buttons."] = "Spaziatura orizzontale tra i pulsanti delle schede."
+L["Tab border thickness"] = "Spessore bordo scheda"
+L["Thickness of the outline border."] = "Spessore del bordo del contorno."
+L["Tab padding"] = "Padding scheda"
+L["Padding from the dock edge."] = "Distanza dal bordo del dock."
+
 L["Show timestamps"] = "Mostra timestamp"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Antepone a ogni messaggio un timestamp nel formato [HH:MM]."
 

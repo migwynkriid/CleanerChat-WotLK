@@ -151,6 +151,28 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = "懸停時顯示標籤"
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "啟用後，聊天標籤在閒置時消失，滑鼠懸停時重新出現。停用後，標籤始終可見。"
 L["Tab widths refit on /reload."] = "標籤寬度在/reload時重新調整。"
+
+-- Tab Button Style
+L["Tab Style"] = "標籤樣式"
+L["Choose the visual style for chat tab buttons."] = "選擇聊天標籤按鈕的視覺樣式。"
+L["Minimal"] = "極簡"
+L["Tab Corner Style"] = "標籤角落樣式"
+L["Shape of tab button corners."] = "標籤按鈕角落的形狀。"
+L["Square"] = "方形"
+L["Rounded"] = "圓角"
+L["Tab active color"] = "標籤活動顏色"
+L["Color of the selected/active tab background and text."] = "選中/活動標籤的背景和文字顏色。"
+L["Tab inactive color"] = "標籤非活動顏色"
+L["Color of unselected tab backgrounds."] = "未選中標籤的背景顏色。"
+L["Tab background opacity"] = "標籤背景不透明度"
+L["Opacity of the tab background and border."] = "標籤背景和邊框的不透明度。"
+L["Tab spacing"] = "標籤間距"
+L["Horizontal spacing between tab buttons."] = "標籤按鈕之間的水平間距。"
+L["Tab border thickness"] = "標籤邊框厚度"
+L["Thickness of the outline border."] = "輪廓邊框的厚度。"
+L["Tab padding"] = "標籤內邊距"
+L["Padding from the dock edge."] = "從停靠欄邊緣的距離。"
+
 L["Show timestamps"] = "顯示時間戳記"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "在每條訊息前添加[HH:MM]格式的時間戳記。"
 

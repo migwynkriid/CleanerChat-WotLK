@@ -153,6 +153,28 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = "Mostrar pestañas al pasar el ratón"
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "Cuando está activado, las pestañas del chat se desvanecen cuando están inactivas y reaparecen al pasar el ratón. Cuando está desactivado, las pestañas siempre son visibles."
 L["Tab widths refit on /reload."] = "Los anchos de las pestañas se reajustan con /reload."
+
+-- Tab Button Style
+L["Tab Style"] = "Estilo de pestaña"
+L["Choose the visual style for chat tab buttons."] = "Elige el estilo visual para los botones de pestaña del chat."
+L["Minimal"] = "Mínimo"
+L["Tab Corner Style"] = "Estilo de esquinas de pestaña"
+L["Shape of tab button corners."] = "Forma de las esquinas de los botones de pestaña."
+L["Square"] = "Cuadrado"
+L["Rounded"] = "Redondeado"
+L["Tab active color"] = "Color de pestaña activa"
+L["Color of the selected/active tab background and text."] = "Color del fondo y texto de la pestaña seleccionada/activa."
+L["Tab inactive color"] = "Color de pestaña inactiva"
+L["Color of unselected tab backgrounds."] = "Color de los fondos de pestañas no seleccionadas."
+L["Tab background opacity"] = "Opacidad del fondo de pestaña"
+L["Opacity of the tab background and border."] = "Opacidad del fondo y borde de la pestaña."
+L["Tab spacing"] = "Espaciado de pestañas"
+L["Horizontal spacing between tab buttons."] = "Espaciado horizontal entre los botones de pestaña."
+L["Tab border thickness"] = "Grosor del borde de pestaña"
+L["Thickness of the outline border."] = "Grosor del borde del contorno."
+L["Tab padding"] = "Relleno de pestaña"
+L["Padding from the dock edge."] = "Relleno desde el borde del dock."
+
 L["Show timestamps"] = "Mostrar marcas de tiempo"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Antepone a cada mensaje una marca de tiempo en formato [HH:MM]."
 

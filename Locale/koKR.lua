@@ -152,6 +152,28 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = "호버 시 탭 표시"
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "활성화하면 채팅 탭이 유휴 상태일 때 사라지고 마우스를 올리면 다시 나타납니다. 비활성화하면 탭이 항상 표시됩니다."
 L["Tab widths refit on /reload."] = "탭 너비가 /reload 시 재조정됩니다."
+
+-- Tab Button Style
+L["Tab Style"] = "탭 스타일"
+L["Choose the visual style for chat tab buttons."] = "채팅 탭 버튼의 시각적 스타일을 선택하세요."
+L["Minimal"] = "미니멀"
+L["Tab Corner Style"] = "탭 모서리 스타일"
+L["Shape of tab button corners."] = "탭 버튼 모서리의 모양입니다."
+L["Square"] = "사각형"
+L["Rounded"] = "둥글게"
+L["Tab active color"] = "탭 활성 색상"
+L["Color of the selected/active tab background and text."] = "선택된/활성 탭의 배경 및 텍스트 색상입니다."
+L["Tab inactive color"] = "탭 비활성 색상"
+L["Color of unselected tab backgrounds."] = "선택되지 않은 탭 배경의 색상입니다."
+L["Tab background opacity"] = "탭 배경 불투명도"
+L["Opacity of the tab background and border."] = "탭 배경 및 테두리의 불투명도입니다."
+L["Tab spacing"] = "탭 간격"
+L["Horizontal spacing between tab buttons."] = "탭 버튼 간의 가로 간격입니다."
+L["Tab border thickness"] = "탭 테두리 두께"
+L["Thickness of the outline border."] = "외곽선 테두리의 두께입니다."
+L["Tab padding"] = "탭 여백"
+L["Padding from the dock edge."] = "독 가장자리로부터의 여백입니다."
+
 L["Show timestamps"] = "타임스탬프 표시"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "각 메시지 앞에 [HH:MM] 형식의 타임스탬프를 추가합니다."
 

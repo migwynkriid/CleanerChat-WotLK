@@ -153,6 +153,28 @@ L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fa
 L["Show tabs on hover"] = "Tabs bei Hover anzeigen"
 L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "Wenn aktiviert, verblassen Chat-Tabs im Leerlauf und erscheinen wieder bei Mauszeiger. Wenn deaktiviert, sind Tabs immer sichtbar."
 L["Tab widths refit on /reload."] = "Tab-Breiten passen sich bei /reload an."
+
+-- Tab Button Style
+L["Tab Style"] = "Tab-Stil"
+L["Choose the visual style for chat tab buttons."] = "Wähle den visuellen Stil für Chat-Tab-Schaltflächen."
+L["Minimal"] = "Minimal"
+L["Tab Corner Style"] = "Tab-Ecken-Stil"
+L["Shape of tab button corners."] = "Form der Tab-Schaltflächen-Ecken."
+L["Square"] = "Eckig"
+L["Rounded"] = "Abgerundet"
+L["Tab active color"] = "Tab Aktiv-Farbe"
+L["Color of the selected/active tab background and text."] = "Farbe des Hintergrunds und Textes des ausgewählten/aktiven Tabs."
+L["Tab inactive color"] = "Tab Inaktiv-Farbe"
+L["Color of unselected tab backgrounds."] = "Farbe der Hintergründe nicht ausgewählter Tabs."
+L["Tab background opacity"] = "Tab-Hintergrund-Deckkraft"
+L["Opacity of the tab background and border."] = "Deckkraft des Tab-Hintergrunds und -Rahmens."
+L["Tab spacing"] = "Tab-Abstand"
+L["Horizontal spacing between tab buttons."] = "Horizontaler Abstand zwischen Tab-Schaltflächen."
+L["Tab border thickness"] = "Tab-Rahmendicke"
+L["Thickness of the outline border."] = "Dicke des Umrissrahmens."
+L["Tab padding"] = "Tab-Innenabstand"
+L["Padding from the dock edge."] = "Abstand vom Dock-Rand."
+
 L["Show timestamps"] = "Zeitstempel anzeigen"
 L["Prepend each message with a timestamp in [HH:MM] format."] = "Stellt jeder Nachricht einen Zeitstempel im Format [HH:MM] voran."
 
