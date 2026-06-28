@@ -60,6 +60,7 @@ CleanerChat filters and reformats chat to reduce noise. Each filter can be toggl
 | **Experience & Reputation** | Cleaner XP and rep gain messages |
 | **Achievements** | Streamlined achievement notifications |
 | **Spells & Abilities** | Consolidated spell-learning messages |
+| **Player status** | Simplifies AFK, DND and rested status messages |
 | **Auctions** | Cleaner auction house notifications |
 | **Quest updates** | Simplified quest progress messages |
 | **Quest rewards** | Formats reward item messages |
@@ -67,6 +68,22 @@ CleanerChat filters and reformats chat to reduce noise. Each filter can be toggl
 | **Channel names** | Shortened channel prefixes |
 | **Player names** | Class-colored names in chat |
 | **Item quality** | Color-coded item names by rarity |
+
+### Extra formatting options
+
+Finer-grained tweaks that refine how cleaned messages look — all under `/cc → Filters`:
+
+| Option | What it does |
+| --- | --- |
+| **One line quest rewards** | Combine quest reward items, currency and XP onto a single line |
+| **Show item destruction** | Print a message when you destroy (delete) an item |
+| **Show vendor sales** | Print a message when you sell an item to a vendor |
+| **Prettify guild status** | Simplify guild online/offline messages to just the player name |
+| **Channel name style** | Show full channel names or just an initial — optionally numbered and capitalized |
+| **Capitalize player names** | Capitalize the first letter of player names in chat |
+| **Hide crafting broadcasts** | Hide the "created:" item broadcasts from other players nearby |
+| **Hide UI error messages** | Suppress the server's "an interface error occurred" chat spam |
+| **Startup message** | Toggle the login hint that shows how to open the settings |
 
 ---
 
@@ -78,10 +95,24 @@ Beyond cleaning messages, CleanerChat **replaces the default chat UI** with an i
 - **Auto-hiding tab bar** at the top that fades when idle and reveals on hover
 - **Restyled edit box** that appears instantly when you press Enter
 - **Movable frame** — drag it anywhere with `/cc lock`, then lock to save
+- **Multiple detached windows** — right-click any chat tab and pick **New detached window** to spawn an extra, independent Glass window; remove it again with **Delete window**
+- **Per-window settings** — every `/cc` category has its own **Main / Window 2 / …** tabs, so each window is styled and positioned independently
+- **Customizable tabs** — tab style, corner style, active / inactive colors, background opacity, border thickness, spacing and padding
 - **Combat log** rendered inside the same UI
 - **Clickable links** — item, spell, quest and similar links open their tooltip / preview
 - **URL detection** — web links in chat become clickable and open a small box you can copy from (Ctrl+C)
-- **Fully configurable** — fonts, background **colors** & opacity, fade/slide timings, frame size & position, plus a dedicated **Top bar** section, all under `/cc`
+- **Scroll indicator** — a subtle overlay shown while you're scrolled up in the history
+- **Top-bar buttons** — optionally hide the **Chat Menu** and/or **Social** buttons
+- **Fully configurable** — fonts, background **colors** & opacity, fade/slide timings, message history, frame size & position, tab styling, plus a dedicated **Top bar** section, all under `/cc`
+
+---
+
+## Update notifications
+
+CleanerChat quietly shares its version number with other CleanerChat users in your guild, party,
+raid or battleground. If someone nearby is running a newer release, you'll get a single,
+non-spammy chat notice that an update is available. Nothing is ever downloaded or installed
+automatically — it's just a heads-up so you know when to grab the latest version.
 
 ---
 
@@ -100,6 +131,8 @@ Beyond cleaning messages, CleanerChat **replaces the default chat UI** with an i
 | `/cc` &nbsp;·&nbsp; `/cleanerchat` | Open the options panel. Filters **and** chat-UI settings are organized into categories (Filters, General, Edit box, Messages, Top bar, Profiles). |
 | `/cc lock` | Unlock the chat frame to drag it; lock it again to save the position. |
 | `/ccdebug` | Toggle raw chat / event capture for diagnosing filters (also a checkbox under **General**). |
+
+You can also **right-click any chat tab** for quick actions — open **CleanerChat settings**, spawn a **New detached window**, or **Delete window** (on added windows).
 
 ---
 
