@@ -236,3 +236,17 @@ function Core:Dispatch(messageType, payload)
     listener(payload)
   end
 end
+
+-- Resolve an UPDATE_CONFIG payload to the changed key for a given window.
+-- The payload is either a bare key (legacy) or { key = ..., windowId = ... }.
+-- Returns the key string, or nil when the update targets a different window and
+-- this listener should ignore it. Centralizes the unwrap + window-match
+-- boilerplate that was duplicated in every config subscriber.
+function Core:ResolveConfigKey(payload, myWindowId)
+  local key = type(payload) == "table" and payload.key or payload
+  local targetWindowId = type(payload) == "table" and payload.windowId or nil
+  if targetWindowId and myWindowId and targetWindowId ~= myWindowId then
+    return nil
+  end
+  return key
+end

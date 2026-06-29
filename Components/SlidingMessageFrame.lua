@@ -1,4 +1,4 @@
-local Core, Constants = unpack(select(2, ...))
+local Core, Constants, Utils = unpack(select(2, ...))
 local TP = Core:GetModule("TextProcessing")
 
 local AceHook = Core.Libs.AceHook
@@ -19,15 +19,8 @@ local LibEasing = Core.Libs.LibEasing
 local lodash = Core.Libs.lodash
 local drop, reduce, take = lodash.drop, lodash.reduce, lodash.take
 
--- Helper to set solid color texture (3.3.5 compatibility)
-local function SetSolidColor(texture, r, g, b, a)
-  if texture.SetColorTexture then
-    texture:SetColorTexture(r, g, b, a)
-  else
-    texture:SetTexture("Interface\\Buttons\\WHITE8x8")
-    texture:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
-  end
-end
+-- Solid colour texture helper (shared; SetColorTexture polyfilled in compat).
+local SetSolidColor = Utils.SetSolidColor
 
 local CreateMessageLinePool = Core.Components.CreateMessageLinePool
 local CreateScrollOverlayFrame = Core.Components.CreateScrollOverlayFrame
@@ -376,15 +369,9 @@ function SlidingMessageFrameMixin:Init(chatFrame)
         end
       end),
       Core:Subscribe(UPDATE_CONFIG, function (payload)
-        -- Payload is now { key = "...", windowId = "..." }
-        local key = type(payload) == "table" and payload.key or payload
-        local targetWindowId = type(payload) == "table" and payload.windowId or nil
+        local key = Core:ResolveConfigKey(payload, self.window and self.window.id or "Main")
         
-        -- If a specific window was targeted, only update if we match
-        local myWindowId = self.window and self.window.id or "Main"
-        if targetWindowId and targetWindowId ~= myWindowId then
-          return
-        end
+        if key == nil then return end
         
         if self.state.isCombatLog == false then
           if (

@@ -3,11 +3,7 @@ local _, ns = ...
 local Module = ns:NewModule("Quests")
 
 -- Lua API
-local rawget = rawget
-local rawset = rawset
-local setmetatable = setmetatable
 local string_format = string.format
-local string_gsub = string.gsub
 local string_match = string.match
 
 -- WoW Globals (keep as nil if missing - empty string patterns match everything!)
@@ -27,19 +23,11 @@ local G = {
 -- Convert a WoW global string to a search pattern
 local makePattern = ns.MakePattern
 
--- Search Pattern Cache.
--- This will generate the pattern on the first lookup.
-local P = setmetatable({}, { __index = function(t,k)
-	if (k == nil) or (k == "") then return nil end
-	rawset(t,k,makePattern(k))
-	return rawget(t,k)
-end })
+-- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
+local P = ns.MakePatternCache()
 
--- Safe pattern match that handles nil patterns
-local safeMatch = function(msg, pattern)
-	if (not pattern) then return nil end
-	return string_match(msg, pattern)
-end
+-- Safe pattern match that tolerates a nil pattern (shared helper).
+local safeMatch = ns.SafeMatch
 
 -- A real quest completion is ALWAYS the entire system line ("<name> completed."),
 -- so we anchor the pattern to the whole message with ^...$. Without anchoring,
@@ -58,13 +46,13 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 	-- to make sure they don't fire as completed quests.
 	name = safeMatch(message, P[G.SET_COMPLETE])
 	if (name) then
-		name = string_gsub(name, "[%[/%]]", "")
+		name = ns.StripBrackets(name)
 		return false, string_format(ns.out.set_complete, G.COMPLETE, name), author, ...
 	end
 
 	name = safeMatch(message, P[G.QUEST_ACCEPTED])
 	if (name) then
-		name = string_gsub(name, "[%[/%]]", "")
+		name = ns.StripBrackets(name)
 		return false, string_format(ns.out.quest_accepted, G.ACCEPTED, name), author, ...
 	end
 
@@ -77,7 +65,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 
 		name = QUEST_COMPLETE_ANCHORED and string_match(message, QUEST_COMPLETE_ANCHORED)
 		if (name) then
-			name = string_gsub(name, "[%[/%]]", "")
+			name = ns.StripBrackets(name)
 			return false, string_format(ns.out.quest_complete, G.COMPLETE, name), author, ...
 		end
 	end

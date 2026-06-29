@@ -131,62 +131,43 @@ local blacklist = setmetatable({}, {
 	end
 })
 
-local replacements = setmetatable({}, {
-	__call = function(self, msg, ...)
-		if not msg then return msg end
+-- Factory for a callable replacement-set container. Invoking the returned table
+-- runs `msg` through every registered set, where a set is either a table of
+-- { pattern, replacement } pairs or a function. Both the regular and the
+-- special (blacklist-ignoring) groups are built from this, so their iteration
+-- logic can never drift apart.
+local function makeReplacementSet()
+	return setmetatable({}, {
+		__call = function(self, msg, ...)
+			if not msg then return msg end
 
-		-- Iterate all registered replacement sets.
-		for i,set in next,self do
+			-- Iterate all registered replacement sets.
+			for i,set in next,self do
 
-			-- Check if the module has supplied
-			-- a table of string replacements or a func.
-			if (type(set) == "table") then
+				-- Check if the module has supplied
+				-- a table of string replacements or a func.
+				if (type(set) == "table") then
 
-				-- The module has supplied a table, iterate it.
-				for k,data in ipairs(set) do
-					if data[1] and data[2] and (string_match(msg, data[1])) then
-						-- string_gsub handles function replacements by passing captures
-						msg = string_gsub(msg, data[1], data[2])
+					-- The module has supplied a table, iterate it.
+					for k,data in ipairs(set) do
+						if data[1] and data[2] and (string_match(msg, data[1])) then
+							-- string_gsub handles function replacements by passing captures
+							msg = string_gsub(msg, data[1], data[2])
+						end
 					end
+
+				elseif (type(set) == "function") then
+					msg = set(msg, ...) or msg
 				end
-
-			elseif (type(set) == "function") then
-				msg = set(msg, ...) or msg
 			end
+
+			return msg, ...
 		end
+	})
+end
 
-		return msg, ...
-	end
-})
-
-local specialreplacements
-specialreplacements = setmetatable({}, {
-	__call = function(self, msg, ...)
-		if not msg then return msg end
-
-		-- Iterate all registered replacement sets.
-		for i,set in next,self do
-
-			-- Check if the module has supplied
-			-- a table of string replacements or a func.
-			if (type(set) == "table") then
-
-				-- The module has supplied a table, iterate it.
-				for k,data in ipairs(set) do
-					if data[1] and data[2] and (string_match(msg, data[1])) then
-						-- string_gsub handles function replacements by passing captures
-						msg = string_gsub(msg, data[1], data[2])
-					end
-				end
-
-			elseif (type(set) == "function") then
-				msg = set(msg, ...) or msg
-			end
-		end
-
-		return msg, ...
-	end
-})
+local replacements = makeReplacementSet()
+local specialreplacements = makeReplacementSet()
 
 local modulePrototype = {
 
@@ -491,68 +472,44 @@ end
 -- Quest Reward Buffering System
 -- When oneLineQuestRewards is enabled, collect items, currency, and XP
 -- that fire in the same frame (e.g. quest turn-in) and output as one line.
-local questRewardBuffer = {} -- [chatFrame] = { items = {}, xp = nil, money = nil, scheduled = false }
+-- Batching (per chat frame + next-frame flush) is handled by ns.CreateFrameBuffer.
+local questRewardBuffer = ns.CreateFrameBuffer(
+	function()
+		return { items = {}, xp = nil, money = nil }
+	end,
+	function(chatFrame, buf)
+		-- Build the combined output
+		local parts = {}
 
-local function getQuestRewardBuffer(chatFrame)
-	local buf = questRewardBuffer[chatFrame]
-	if (not buf) then
-		buf = { items = {}, xp = nil, money = nil, scheduled = false }
-		questRewardBuffer[chatFrame] = buf
-	end
-	return buf
-end
-
-local function flushQuestRewardBuffer(chatFrame)
-	local buf = questRewardBuffer[chatFrame]
-	if (not buf) then return end
-
-	buf.scheduled = false
-
-	-- Snapshot and reset first, so anything printed below starts a fresh batch.
-	local items, xp, money = buf.items, buf.xp, buf.money
-	buf.items = {}
-	buf.xp = nil
-	buf.money = nil
-
-	-- Build the combined output
-	local parts = {}
-
-	-- Add items (already formatted with color and count)
-	for _, itemText in ipairs(items) do
-		parts[#parts + 1] = itemText
-	end
-
-	-- Add money (already formatted)
-	if (money) then
-		parts[#parts + 1] = money
-	end
-
-	-- Add XP
-	if (xp) then
-		parts[#parts + 1] = xp
-	end
-
-	if (#parts > 0) then
-		local text = ns.out.quest_rewards_combined
-		if (text) then
-			text = string_format(text, table_concat(parts, ", "))
-		else
-			-- Fallback if output format not yet loaded
-			text = "|cff00ff00+|r " .. table_concat(parts, ", ")
+		-- Add items (already formatted with color and count)
+		for _, itemText in ipairs(buf.items) do
+			parts[#parts + 1] = itemText
 		end
 
-		-- Match the colour these messages normally display with.
-		local info = ChatTypeInfo and ChatTypeInfo["LOOT"]
-		local r, g, b
-		if (info) then r, g, b = info.r, info.g, info.b end
+		-- Add money (already formatted)
+		if (buf.money) then
+			parts[#parts + 1] = buf.money
+		end
 
-		if (r) then
-			chatFrame:AddMessage(text, r, g, b)
-		else
-			chatFrame:AddMessage(text)
+		-- Add XP
+		if (buf.xp) then
+			parts[#parts + 1] = buf.xp
+		end
+
+		if (#parts > 0) then
+			local text = ns.out.quest_rewards_combined
+			if (text) then
+				text = string_format(text, table_concat(parts, ", "))
+			else
+				-- Fallback if output format not yet loaded
+				text = "|cff00ff00+|r " .. table_concat(parts, ", ")
+			end
+
+			-- Match the colour these messages normally display with.
+			ns.PrintToFrame(chatFrame, text, "LOOT")
 		end
 	end
-end
+)
 
 -- Public API for modules to add rewards to the buffer
 ns.AddQuestReward = function(self, chatFrame, rewardType, rewardText)
@@ -564,7 +521,7 @@ ns.AddQuestReward = function(self, chatFrame, rewardType, rewardText)
 		return false
 	end
 
-	local buf = getQuestRewardBuffer(chatFrame)
+	local buf = questRewardBuffer.Get(chatFrame)
 
 	if (rewardType == "item") then
 		buf.items[#buf.items + 1] = rewardText
@@ -576,19 +533,8 @@ ns.AddQuestReward = function(self, chatFrame, rewardType, rewardText)
 		return false
 	end
 
-	-- Schedule flush for next frame if not already scheduled
-	if (not buf.scheduled) then
-		buf.scheduled = true
-		-- Use internal ns.Timer (or native C_Timer if available) to defer flush
-		if (ns.Timer and ns.Timer.After) then
-			ns.Timer.After(0, function() flushQuestRewardBuffer(chatFrame) end)
-		elseif (C_Timer and C_Timer.After) then
-			C_Timer.After(0, function() flushQuestRewardBuffer(chatFrame) end)
-		else
-			-- Fallback: flush immediately (less ideal but works)
-			flushQuestRewardBuffer(chatFrame)
-		end
-	end
+	-- Defer the combined flush to the next frame (idempotent per frame).
+	questRewardBuffer.Schedule(chatFrame)
 
 	return true -- Reward was buffered
 end

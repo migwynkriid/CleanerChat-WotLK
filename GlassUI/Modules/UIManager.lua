@@ -417,7 +417,7 @@ function UIManager:OnEnable()
     end
     -- Listen for setting changes
     Core:Subscribe(UPDATE_CONFIG, function(payload)
-      local key = type(payload) == "table" and payload.key or payload
+      local key = Core:ResolveConfigKey(payload)
       if key == "hideSocialButton" then
         local btn = _G["FriendsMicroButton"]
         if btn then
@@ -453,7 +453,7 @@ function UIManager:OnEnable()
     end
     -- Listen for setting changes
     Core:Subscribe(UPDATE_CONFIG, function(payload)
-      local key = type(payload) == "table" and payload.key or payload
+      local key = Core:ResolveConfigKey(payload)
       if key == "hideChatMenuButton" then
         local btn = _G["ChatFrameMenuButton"]
         if btn then

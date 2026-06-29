@@ -750,4 +750,9 @@ files = {
   ["Components/Tradeskills.lua"] = {
     ignore = { "212" },  -- Chat filter callback signature
   },
+
+  -- Unit tests run under the busted framework (describe/it/assert/before_each).
+  ["spec/*.lua"] = {
+    std = "+busted",
+  },
 }

@@ -2,12 +2,6 @@ local _, ns = ...
 
 local Module = ns:NewModule("Spells")
 
--- Lua API
-local rawget = rawget
-local rawset = rawset
-local setmetatable = setmetatable
-local string_match = string.match
-
 -- WoW Globals (with 3.3.5 fallbacks)
 local G = {
 	LEARN_ABILITY = ERR_LEARN_ABILITY_S or "You have learned a new ability: %s.",
@@ -16,22 +10,11 @@ local G = {
 	SPELL_UNLEARNED = ERR_SPELL_UNLEARNED_S or "You have unlearned %s."
 }
 
--- Convert a WoW global string to a search pattern
-local makePattern = ns.MakePattern
+-- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
+local P = ns.MakePatternCache()
 
--- Search Pattern Cache.
--- This will generate the pattern on the first lookup.
-local P = setmetatable({}, { __index = function(t,k)
-	if (k == nil) or (k == "") then return nil end
-	rawset(t,k,makePattern(k))
-	return rawget(t,k)
-end })
-
--- Safe pattern match that handles nil patterns
-local safeMatch = function(msg, pattern)
-	if (not pattern) then return nil end
-	return string_match(msg, pattern)
-end
+-- Safe pattern match that tolerates a nil pattern (shared helper).
+local safeMatch = ns.SafeMatch
 
 Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
 

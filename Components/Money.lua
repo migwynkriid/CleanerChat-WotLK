@@ -8,8 +8,6 @@ local Module = ns:NewModule("Money", "LibMoreEvents-1.0")
 local math_abs = math.abs
 local math_floor = math.floor
 local math_mod = math.fmod
-local rawget = rawget
-local rawset = rawset
 local setmetatable = setmetatable
 local string_find = string.find
 local string_format = string.format
@@ -55,16 +53,8 @@ local Coin = setmetatable({}, { __index = function(t,k)
 	end
 end })
 
--- Convert a WoW global string to a search pattern
-local makePattern = ns.MakePattern
-
--- Search Pattern Cache.
--- This will generate the pattern on the first lookup.
-local P = setmetatable({}, { __index = function(t,k)
-	if (k == nil) or (k == "") then return nil end
-	rawset(t,k,makePattern(k))
-	return rawget(t,k)
-end })
+-- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
+local P = ns.MakePatternCache()
 
 -- Remove large number formatting
 local simplifyNumbers = function(message)

@@ -4,9 +4,6 @@ local Module = ns:NewModule("Experience")
 
 -- Lua API
 local next = next
-local rawget = rawget
-local rawset = rawset
-local setmetatable = setmetatable
 local string_find = string.find
 local string_format = string.format
 local string_gsub = string.gsub
@@ -48,22 +45,11 @@ local G = {
 }
 
 
--- Convert a WoW global string to a search pattern
-local makePattern = ns.MakePattern
+-- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
+local P = ns.MakePatternCache()
 
--- Search Pattern Cache.
--- This will generate the pattern on the first lookup.
-local P = setmetatable({}, { __index = function(t,k)
-	if (k == nil) or (k == "") then return nil end
-	rawset(t,k,makePattern(k))
-	return rawget(t,k)
-end })
-
--- Safe pattern match that handles nil patterns
-local safeMatch = function(msg, pattern)
-	if (not pattern) then return nil end
-	return string_match(msg, pattern)
-end
+-- Safe pattern match that tolerates a nil pattern (shared helper).
+local safeMatch = ns.SafeMatch
 
 -- Special handling for LEVEL_UP. We capture the entire colored, clickable level link.
 if (G.LEVEL_UP) then
@@ -118,7 +104,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		if (G.LEVEL_UP) then
 			value = safeMatch(message, P[G.LEVEL_UP])
 			if (value) then
-				value = string_gsub(value, "[%[/%]]", "")
+				value = ns.StripBrackets(value)
 				return false, string_format(ns.out.xp_levelup, value), author, ...
 			end
 		end

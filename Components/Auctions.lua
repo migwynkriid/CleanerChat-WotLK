@@ -6,9 +6,6 @@ local Module = ns:NewModule("Auctions")
 -- GLOBALS: ITEM_QUALITY_COLORS, ClickAuctionSellItemButton
 
 -- Lua API
-local rawget = rawget
-local rawset = rawset
-local setmetatable = setmetatable
 local string_format = string.format
 local string_gsub = string.gsub
 local string_match = string.match
@@ -23,16 +20,8 @@ local G = {
 	AUCTIONS = AUCTIONS -- "Auctions"
 }
 
--- Convert a WoW global string to a search pattern
-local makePattern = ns.MakePattern
-
--- Search Pattern Cache.
--- This will generate the pattern on the first lookup.
-local P = setmetatable({}, { __index = function(t,k)
-	if (k == nil) or (k == "") then return nil end
-	rawset(t,k,makePattern(k))
-	return rawget(t,k)
-end })
+-- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
+local P = ns.MakePatternCache()
 
 -- Auctions don't carry item info in their "Auction created." system message, so
 -- we cache the item from the sell slot (placed via ClickAuctionSellItemButton,

@@ -56,6 +56,12 @@ jobs:
             exit $EXIT_CODE
           fi
 
+      - name: Install busted (unit test framework)
+        run: sudo luarocks install busted
+
+      - name: Run unit tests (busted)
+        run: busted spec --verbose
+
       - name: TOC file validation
         run: |
           echo "Validating TOC file references..."

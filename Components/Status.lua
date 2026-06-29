@@ -3,9 +3,6 @@ local _, ns = ...
 local Module = ns:NewModule("Status")
 
 -- Lua API
-local rawget = rawget
-local rawset = rawset
-local setmetatable = setmetatable
 local string_find = string.find
 local string_format = string.format
 local string_gsub = string.gsub
@@ -22,16 +19,8 @@ local MARKED_DND = MARKED_DND -- "You are now DND: %s."
 local EXHAUSTION_NORMAL = ERR_EXHAUSTION_NORMAL -- "You feel normal."
 local EXHAUSTION_WELLRESTED = ERR_EXHAUSTION_WELLRESTED -- "You feel well rested."
 
--- Convert a WoW global string to a search pattern
-local makePattern = ns.MakePattern
-
--- Search Pattern Cache.
--- This will generate the pattern on the first lookup.
-local P = setmetatable({}, { __index = function(t,k)
-	if (k == nil) or (k == "") then return nil end
-	rawset(t,k,makePattern(k))
-	return rawget(t,k)
-end })
+-- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
+local P = ns.MakePatternCache()
 
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 

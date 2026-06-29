@@ -6,9 +6,6 @@ local Module = ns:NewModule("Reputation")
 
 -- Lua API
 local next = next
-local rawget = rawget
-local rawset = rawset
-local setmetatable = setmetatable
 local string_format = string.format
 local string_match = string.match
 local table_concat = table.concat
@@ -24,16 +21,8 @@ local G = {
 	REPUTATION = REPUTATION
 }
 
--- Convert a WoW global string to a search pattern
-local makePattern = ns.MakePattern
-
--- Search Pattern Cache.
--- This will generate the pattern on the first lookup.
-local P = setmetatable({}, { __index = function(t,k)
-	if (k == nil) or (k == "") then return nil end
-	rawset(t,k,makePattern(k))
-	return rawget(t,k)
-end })
+-- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
+local P = ns.MakePatternCache()
 
 local fix = function(...)
 	local string,number,n
@@ -53,47 +42,23 @@ end
 -- faction, all within the same frame. Instead of printing a separate
 -- "+N Reputation: Faction" line for each, we collect every gain that shares the
 -- same amount and emit a single "+N Reputation: A, B, C" line per amount. Gains
--- are buffered per chat frame and flushed on the next frame via C_Timer.
-local repPending = {} -- [chatFrame] = { order = {value,...}, byValue = {[value]={faction,...}}, scheduled = bool }
-
-local function getRepBuffer(chatFrame)
-	local buf = repPending[chatFrame]
-	if (not buf) then
-		buf = { order = {}, byValue = {}, scheduled = false }
-		repPending[chatFrame] = buf
-	end
-	return buf
-end
-
-local function flushRepBuffer(chatFrame)
-	local buf = repPending[chatFrame]
-	if (not buf) then return end
-
-	buf.scheduled = false
-
-	-- Snapshot and reset first, so anything printed below starts a fresh batch.
-	local order, byValue = buf.order, buf.byValue
-	buf.order = {}
-	buf.byValue = {}
-
-	-- Match the colour these messages normally display with.
-	local info = ChatTypeInfo and ChatTypeInfo["COMBAT_FACTION_CHANGE"]
-	local r, g, b
-	if (info) then r, g, b = info.r, info.g, info.b end
-
-	for i = 1, #order do
-		local value = order[i]
-		local factions = byValue[value]
-		if (factions) then
-			local text = string_format(ns.out.standing, value, G.REPUTATION, table_concat(factions, ", "))
-			if (r) then
-				chatFrame:AddMessage(text, r, g, b)
-			else
-				chatFrame:AddMessage(text)
+-- are buffered per chat frame and flushed on the next frame (ns.CreateFrameBuffer).
+local repBuffer = ns.CreateFrameBuffer(
+	function()
+		return { order = {}, byValue = {} } -- order = {value,...}, byValue = {[value]={faction,...}}
+	end,
+	function(chatFrame, buf)
+		for i = 1, #buf.order do
+			local value = buf.order[i]
+			local factions = buf.byValue[value]
+			if (factions) then
+				local text = string_format(ns.out.standing, value, G.REPUTATION, table_concat(factions, ", "))
+				-- Match the colour these messages normally display with.
+				ns.PrintToFrame(chatFrame, text, "COMBAT_FACTION_CHANGE")
 			end
 		end
 	end
-end
+)
 
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 	local faction,value
@@ -105,16 +70,13 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 			-- a single "+N Reputation: A, B, C" line. Buffer per frame and flush on
 			-- the next frame; suppress the individual line here.
 			if (C_Timer and C_Timer.After and chatFrame and chatFrame.AddMessage) then
-				local buf = getRepBuffer(chatFrame)
+				local buf = repBuffer.Get(chatFrame)
 				if (not buf.byValue[value]) then
 					buf.byValue[value] = {}
 					buf.order[#buf.order + 1] = value
 				end
 				table_insert(buf.byValue[value], faction)
-				if (not buf.scheduled) then
-					buf.scheduled = true
-					C_Timer.After(0, function() flushRepBuffer(chatFrame) end)
-				end
+				repBuffer.Schedule(chatFrame)
 				return true
 			end
 			return false, string_format(ns.out.standing, value, G.REPUTATION, faction), author, ...

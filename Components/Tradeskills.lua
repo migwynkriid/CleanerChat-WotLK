@@ -4,9 +4,6 @@ local Module = ns:NewModule("Tradeskills")
 
 -- Lua API
 local ipairs = ipairs
-local rawget = rawget
-local rawset = rawset
-local setmetatable = setmetatable
 local string_format = string.format
 local string_match = string.match
 local tonumber = tonumber
@@ -25,22 +22,11 @@ local G = {
 	UNLEARNED = TRADE_SKILLS_UNLEARNED_TAB or "Unlearned" -- "Unlearned"
 }
 
--- Convert a WoW global string to a search pattern
-local makePattern = ns.MakePattern
+-- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
+local P = ns.MakePatternCache()
 
--- Search Pattern Cache.
--- This will generate the pattern on the first lookup.
-local P = setmetatable({}, { __index = function(t,k)
-	if (k == nil) or (k == "") then return nil end
-	rawset(t,k,makePattern(k))
-	return rawget(t,k)
-end })
-
--- Safe pattern match that handles nil patterns
-local safeMatch = function(msg, pattern)
-	if (not pattern) then return nil end
-	return string_match(msg, pattern)
-end
+-- Safe pattern match that tolerates a nil pattern (shared helper).
+local safeMatch = ns.SafeMatch
 
 -- Anchored patterns for "<player> creates <item>." craft broadcasts.
 -- On Ascension these are printed DIRECTLY to the chat frame (no CHAT_MSG_*

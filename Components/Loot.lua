@@ -10,9 +10,6 @@ local Module = ns:NewModule("Loot")
 
 -- Lua API
 local ipairs = ipairs
-local rawget = rawget
-local rawset = rawset
-local setmetatable = setmetatable
 local string_find = string.find
 local string_format = string.format
 local string_gsub = string.gsub
@@ -61,19 +58,38 @@ local G = {
 -- Convert a WoW global string to a search pattern
 local makePattern = ns.MakePattern
 
--- Search Pattern Cache.
--- This will generate the pattern on the first lookup.
-local P = setmetatable({}, { __index = function(t,k)
-	if (k == nil) or (k == "") then return nil end
-	rawset(t,k,makePattern(k))
-	return rawget(t,k)
-end })
+-- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
+local P = ns.MakePatternCache()
 
--- Safe pattern match that handles nil patterns
-local safeMatch = function(msg, pattern)
-	if (not pattern) then return nil end
-	return string_match(msg, pattern)
-end
+-- Safe pattern match that tolerates a nil pattern (shared helper).
+local safeMatch = ns.SafeMatch
+
+-- Loot roll lines, evaluated in order. "self" entries capture only the item;
+-- "other" entries capture the player name + item. The output arg order for
+-- "other" lines varies (the won line is name-first; the rest are item-first),
+-- so it's flagged per entry. Replaces ~12 near-identical match/format blocks.
+local ROLL_ACTIONS = {
+	{ pattern = G.LOOT_ROLL_YOU_WON,          kind = "self",  out = "roll_won_self" },
+	{ pattern = G.LOOT_ROLL_WON,              kind = "other", out = "roll_won_other", nameFirst = true },
+	{ pattern = G.LOOT_ROLL_NEED_SELF,        kind = "self",  out = "roll_need_self" },
+	{ pattern = G.LOOT_ROLL_NEED,             kind = "other", out = "roll_need_other" },
+	{ pattern = G.LOOT_ROLL_GREED_SELF,       kind = "self",  out = "roll_greed_self" },
+	{ pattern = G.LOOT_ROLL_GREED,            kind = "other", out = "roll_greed_other" },
+	{ pattern = G.LOOT_ROLL_DISENCHANT_SELF,  kind = "self",  out = "roll_de_self" },
+	{ pattern = G.LOOT_ROLL_DISENCHANT,       kind = "other", out = "roll_de_other" },
+	{ pattern = G.LOOT_ROLL_PASSED_SELF,      kind = "self",  out = "roll_pass_self" },
+	{ pattern = G.LOOT_ROLL_PASSED,           kind = "other", out = "roll_pass_other" },
+	{ pattern = G.LOOT_ROLL_PASSED_SELF_AUTO, kind = "self",  out = "roll_pass_self" },
+	{ pattern = G.LOOT_ROLL_PASSED_AUTO,      kind = "other", out = "roll_pass_other" },
+}
+
+-- "<action> Roll - <roll> for <item> by <name>" result lines (Ascension).
+-- Captures: roll, item, name. Output arg order: item, roll, name.
+local ROLL_RESULTS = {
+	{ pattern = "Need Roll %- (%d+) for (.+) by (.+)",       out = "roll_result_need" },
+	{ pattern = "Greed Roll %- (%d+) for (.+) by (.+)",      out = "roll_result_greed" },
+	{ pattern = "Disenchant Roll %- (%d+) for (.+) by (.+)", out = "roll_result_de" },
+}
 
 Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
 
@@ -152,119 +168,41 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 
 	elseif (event == "CHAT_MSG_LOOT") then
 
-		-- Handle loot roll messages first
-		local item, name, roll
-
-		-- "You won: %s"
-		item = safeMatch(message, P[G.LOOT_ROLL_YOU_WON])
-		if (item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_won_self, item), author, ...
+		-- Handle loot roll messages first (table-driven; see ROLL_ACTIONS).
+		for _, rule in ipairs(ROLL_ACTIONS) do
+			local pat = P[rule.pattern]
+			if (pat) then
+				if (rule.kind == "self") then
+					local item = safeMatch(message, pat)
+					if (item) then
+						return false, string_format(ns.out[rule.out], ns.StripBrackets(item)), author, ...
+					end
+				else
+					local name, item = safeMatch(message, pat)
+					if (name and item) then
+						item = ns.StripBrackets(item)
+						if (rule.nameFirst) then
+							return false, string_format(ns.out[rule.out], name, item), author, ...
+						else
+							return false, string_format(ns.out[rule.out], item, name), author, ...
+						end
+					end
+				end
+			end
 		end
 
-		-- "%s won: %s"
-		name, item = safeMatch(message, P[G.LOOT_ROLL_WON])
-		if (name and item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_won_other, name, item), author, ...
-		end
-
-		-- "You have selected Need for: %s"
-		item = safeMatch(message, P[G.LOOT_ROLL_NEED_SELF])
-		if (item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_need_self, item), author, ...
-		end
-
-		-- "%s has selected Need for: %s"
-		name, item = safeMatch(message, P[G.LOOT_ROLL_NEED])
-		if (name and item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_need_other, item, name), author, ...
-		end
-
-		-- "You have selected Greed for: %s"
-		item = safeMatch(message, P[G.LOOT_ROLL_GREED_SELF])
-		if (item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_greed_self, item), author, ...
-		end
-
-		-- "%s has selected Greed for: %s"
-		name, item = safeMatch(message, P[G.LOOT_ROLL_GREED])
-		if (name and item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_greed_other, item, name), author, ...
-		end
-
-		-- "You have selected Disenchant for: %s"
-		item = safeMatch(message, P[G.LOOT_ROLL_DISENCHANT_SELF])
-		if (item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_de_self, item), author, ...
-		end
-
-		-- "%s has selected Disenchant for: %s"
-		name, item = safeMatch(message, P[G.LOOT_ROLL_DISENCHANT])
-		if (name and item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_de_other, item, name), author, ...
-		end
-
-		-- "You passed on: %s"
-		item = safeMatch(message, P[G.LOOT_ROLL_PASSED_SELF])
-		if (item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_pass_self, item), author, ...
-		end
-
-		-- "%s passed on: %s"
-		name, item = safeMatch(message, P[G.LOOT_ROLL_PASSED])
-		if (name and item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_pass_other, item, name), author, ...
-		end
-
-		-- "You automatically passed on: %s"
-		item = safeMatch(message, P[G.LOOT_ROLL_PASSED_SELF_AUTO])
-		if (item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_pass_self, item), author, ...
-		end
-
-		-- "%s automatically passed on: %s"
-		name, item = safeMatch(message, P[G.LOOT_ROLL_PASSED_AUTO])
-		if (name and item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_pass_other, item, name), author, ...
-		end
-
-		-- "Need Roll - %d for %s by %s" (hyphen must be escaped in Lua patterns)
-		roll, item, name = string_match(message, "Need Roll %- (%d+) for (.+) by (.+)")
-		if (roll and item and name) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_result_need, item, tonumber(roll), name), author, ...
-		end
-
-		-- "Greed Roll - %d for %s by %s"
-		roll, item, name = string_match(message, "Greed Roll %- (%d+) for (.+) by (.+)")
-		if (roll and item and name) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_result_greed, item, tonumber(roll), name), author, ...
-		end
-
-		-- "Disenchant Roll - %d for %s by %s"
-		roll, item, name = string_match(message, "Disenchant Roll %- (%d+) for (.+) by (.+)")
-		if (roll and item and name) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_result_de, item, tonumber(roll), name), author, ...
+		-- "<action> Roll - <roll> for <item> by <name>" result lines.
+		for _, rule in ipairs(ROLL_RESULTS) do
+			local roll, item, name = string_match(message, rule.pattern)
+			if (roll and item and name) then
+				return false, string_format(ns.out[rule.out], ns.StripBrackets(item), tonumber(roll), name), author, ...
+			end
 		end
 
 		-- "Everyone passed on: %s"
-		item = safeMatch(message, P[G.LOOT_ROLL_ALL_PASSED])
-		if (item) then
-			item = string_gsub(item, "[%[/%]]", "")
-			return false, string_format(ns.out.roll_all_passed, item), author, ...
+		local allPassed = safeMatch(message, P[G.LOOT_ROLL_ALL_PASSED])
+		if (allPassed) then
+			return false, string_format(ns.out.roll_all_passed, ns.StripBrackets(allPassed)), author, ...
 		end
 
 		-- Handle regular loot patterns
@@ -439,7 +377,7 @@ Module.ReportItemSold = function(self, link, count)
 
 	-- Match the loot styling: strip the [] from the link (keeps the |H..|h
 	-- hyperlink + quality colour so the line stays clickable and coloured).
-	local item = string_gsub(link, "[%[/%]]", "")
+	local item = ns.StripBrackets(link)
 
 	local msg
 	if (count and count > 1) then
@@ -448,15 +386,7 @@ Module.ReportItemSold = function(self, link, count)
 		msg = string_format(ns.out.item_deficit, item)
 	end
 
-	local info = ChatTypeInfo and ChatTypeInfo["LOOT"]
-	local r = info and info.r or 1
-	local g = info and info.g or 1
-	local b = info and info.b or 1
-
-	local chatFrame = DEFAULT_CHAT_FRAME or ChatFrame1
-	if (chatFrame) and (chatFrame.AddMessage) then
-		chatFrame:AddMessage(msg, r, g, b)
-	end
+	ns.PrintToFrame(DEFAULT_CHAT_FRAME or ChatFrame1, msg, "LOOT")
 end
 
 -- Taking an item from the mailbox is silent on 3.3.5 (no loot chat message),
@@ -471,7 +401,7 @@ Module.ReportMailItem = function(self, mailID, attachIndex)
 	local _, _, count = GetInboxItem(mailID, attachIndex)
 
 	-- Strip the [] from the link (keeps the |H hyperlink + quality colour).
-	local item = string_gsub(link, "[%[/%]]", "")
+	local item = ns.StripBrackets(link)
 
 	local msg
 	if (count and count > 1) then
@@ -480,15 +410,7 @@ Module.ReportMailItem = function(self, mailID, attachIndex)
 		msg = string_format(ns.out.item_single, item)
 	end
 
-	local info = ChatTypeInfo and ChatTypeInfo["LOOT"]
-	local r = info and info.r or 1
-	local g = info and info.g or 1
-	local b = info and info.b or 1
-
-	local chatFrame = DEFAULT_CHAT_FRAME or ChatFrame1
-	if (chatFrame) and (chatFrame.AddMessage) then
-		chatFrame:AddMessage(msg, r, g, b)
-	end
+	ns.PrintToFrame(DEFAULT_CHAT_FRAME or ChatFrame1, msg, "LOOT")
 end
 
 local onAddMessageProxy = function(...)

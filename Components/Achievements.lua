@@ -3,11 +3,7 @@ local _, ns = ...
 local Module = ns:NewModule("Achievements")
 
 -- Lua API
-local rawget = rawget
-local rawset = rawset
-local setmetatable = setmetatable
 local string_format = string.format
-local string_gsub = string.gsub
 local string_match = string.match
 
 -- WoW Globals
@@ -15,16 +11,8 @@ local G = {
 	ACHIEVEMENT_BROADCAST = ACHIEVEMENT_BROADCAST -- "%s has earned the achievement %s!"
 }
 
--- Convert a WoW global string to a search pattern
-local makePattern = ns.MakePattern
-
--- Search Pattern Cache.
--- This will generate the pattern on the first lookup.
-local P = setmetatable({}, { __index = function(t,k)
-	if (k == nil) or (k == "") then return nil end
-	rawset(t,k,makePattern(k))
-	return rawget(t,k)
-end })
+-- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
+local P = ns.MakePatternCache()
 
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 	if (ns:IsProtectedMessage(message)) then return end
@@ -43,8 +31,8 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		self.lastMessage = message
 
 		-- kill brackets
-		player_name = string_gsub(player_name, "[%[/%]]", "")
-		achievement = string_gsub(achievement, "[%[/%]]", "")
+		player_name = ns.StripBrackets(player_name)
+		achievement = ns.StripBrackets(achievement)
 
 		return false, string_format(ns.out.achievement, player_name, achievement), author, ...
 	end
