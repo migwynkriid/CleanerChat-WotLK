@@ -4,7 +4,9 @@ Simple container widget that creates a visible "box" with an optional title.
 -------------------------------------------------------------------------------]]
 local Type, Version = "InlineGroup", 22
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
-if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
+if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then
+	return
+end
 
 -- Lua APIs
 local pairs = pairs
@@ -24,13 +26,14 @@ local methods = {
 
 	-- ["OnRelease"] = nil,
 
-	["SetTitle"] = function(self,title)
+	["SetTitle"] = function(self, title)
 		self.titletext:SetText(title)
 	end,
 
-
 	["LayoutFinished"] = function(self, width, height)
-		if self.noAutoHeight then return end
+		if self.noAutoHeight then
+			return
+		end
 		self:SetHeight((height or 0) + 40)
 	end,
 
@@ -52,17 +55,19 @@ local methods = {
 		end
 		content:SetHeight(contentheight)
 		content.height = contentheight
-	end
+	end,
 }
 
 --[[-----------------------------------------------------------------------------
 Constructor
 -------------------------------------------------------------------------------]]
-local PaneBackdrop  = {
+local PaneBackdrop = {
 	bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-	tile = true, tileSize = 16, edgeSize = 16,
-	insets = { left = 3, right = 3, top = 5, bottom = 3 }
+	tile = true,
+	tileSize = 16,
+	edgeSize = 16,
+	insets = { left = 3, right = 3, top = 5, bottom = 3 },
 }
 
 local function Constructor()
@@ -89,10 +94,10 @@ local function Constructor()
 	content:SetPoint("BOTTOMRIGHT", -10, 10)
 
 	local widget = {
-		frame     = frame,
-		content   = content,
+		frame = frame,
+		content = content,
 		titletext = titletext,
-		type      = Type
+		type = Type,
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func

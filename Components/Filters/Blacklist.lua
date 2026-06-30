@@ -9,26 +9,32 @@ local string_match = string.match
 
 -- Build blacklist table safely (some globals may be nil in 3.3.5)
 local B = {}
-if ERR_NOT_IN_INSTANCE_GROUP then B[ERR_NOT_IN_INSTANCE_GROUP] = true end
-if ERR_NOT_IN_RAID then B[ERR_NOT_IN_RAID] = true end
-if ERR_QUEST_ALREADY_ON then B[ERR_QUEST_ALREADY_ON] = true end
+if ERR_NOT_IN_INSTANCE_GROUP then
+	B[ERR_NOT_IN_INSTANCE_GROUP] = true
+end
+if ERR_NOT_IN_RAID then
+	B[ERR_NOT_IN_RAID] = true
+end
+if ERR_QUEST_ALREADY_ON then
+	B[ERR_QUEST_ALREADY_ON] = true
+end
 
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 	-- Death message: |cff71d5ff|Hdeath:...|h[You died.]|h|r
-	if (string_find(message, "|Hdeath:")) then
+	if string_find(message, "|Hdeath:") then
 		return false, ns.out.died, author, ...
 	end
 
 	-- Durability loss: "Your equipped items suffer a 10% durability loss."
 	-- Comes through CHAT_MSG_COMBAT_MISC_INFO
-	if (event == "CHAT_MSG_COMBAT_MISC_INFO") then
+	if event == "CHAT_MSG_COMBAT_MISC_INFO" then
 		local durability = string_match(message, "suffer a (%d+)%% durability loss")
-		if (durability) then
+		if durability then
 			return false, string_format(ns.out.durability_loss, tonumber(durability)), author, ...
 		end
 	end
 
-	if (B[message]) then
+	if B[message] then
 		-- These problems mostly occur in battlegrounds and other PvP.
 		return IsInInstance()
 	end
@@ -52,22 +58,28 @@ local prevErrorHandler
 local function ccErrorHandler(err, ...)
 	local is3481 = (type(err) == "string") and string_find(err, "ChatFrame.lua:3481", 1, true) and true or false
 	lastErrorWas3481 = is3481
-	if (is3481 and ns.db and ns.db.hideUIErrors) then
+	if is3481 and ns.db and ns.db.hideUIErrors then
 		return -- swallow ONLY the benign 3481 assert; do not report it
 	end
-	if (prevErrorHandler) then return prevErrorHandler(err, ...) end
+	if prevErrorHandler then
+		return prevErrorHandler(err, ...)
+	end
 end
 
 local function installErrorWatcher()
-	if (not _G.seterrorhandler) then return end
+	if not _G.seterrorhandler then
+		return
+	end
 	local cur = _G.geterrorhandler and _G.geterrorhandler()
-	if (cur == ccErrorHandler) then return end -- already on top
+	if cur == ccErrorHandler then
+		return
+	end -- already on top
 	prevErrorHandler = cur
 	_G.seterrorhandler(ccErrorHandler)
 end
 
 installErrorWatcher()
-if (_G.CreateFrame) then
+if _G.CreateFrame then
 	local watcher = _G.CreateFrame("Frame")
 	watcher:RegisterEvent("PLAYER_LOGIN")
 	watcher:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -79,9 +91,15 @@ end
 -- error was the benign 3481 assert. Toggled by "Hide UI Error Messages" (/cc),
 -- default on. Real errors keep their notification, so they're not missed.
 Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
-	if (not ns.db) or (not ns.db.hideUIErrors) then return end
-	if (not msg) then return end
-	if (not lastErrorWas3481) then return end
+	if (not ns.db) or not ns.db.hideUIErrors then
+		return
+	end
+	if not msg then
+		return
+	end
+	if not lastErrorWas3481 then
+		return
+	end
 
 	if (string_find(msg, "Huierror", 1, true)) or (string_find(msg, "an interface error occ", 1, true)) then
 		return true

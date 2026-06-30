@@ -69,6 +69,24 @@ jobs:
             exit $EXIT_CODE
           fi
 
+      - name: Install StyLua
+        run: |
+          curl -L https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip -o stylua.zip
+          unzip stylua.zip
+          chmod +x stylua
+          sudo mv stylua /usr/local/bin/
+
+      - name: Check Lua formatting
+        run: |
+          echo "Checking Lua formatting with StyLua..."
+          if stylua --check .; then
+            echo "✅ Lua formatting check passed"
+          else
+            echo ""
+            echo "❌ Lua formatting issues found! Run 'stylua .' locally to fix."
+            exit 1
+          fi
+
       - name: Install busted (unit test framework)
         run: |
           if ! command -v busted &> /dev/null; then

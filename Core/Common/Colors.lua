@@ -19,9 +19,9 @@ local ColorTemplate = {}
 -- into our own custom color table format.
 local createColor = function(...)
 	local tbl
-	if (select("#", ...) == 1) then
+	if select("#", ...) == 1 then
 		local old = ...
-		if (old.r) then
+		if old.r then
 			tbl = {}
 			tbl[1] = old.r or 1
 			tbl[2] = old.g or 1
@@ -33,10 +33,10 @@ local createColor = function(...)
 		tbl = { ... }
 	end
 	-- Do NOT use a metatable, just embed.
-	for name,method in pairs(ColorTemplate) do
+	for name, method in pairs(ColorTemplate) do
 		tbl[name] = method
 	end
-	if (#tbl == 3) then
+	if #tbl == 3 then
 		tbl.colorCode = tbl:GenerateHexColorMarkup()
 		tbl.colorCodeClean = tbl:GenerateHexColor()
 	end
@@ -46,15 +46,19 @@ end
 -- Convert a whole Blizzard color table
 local createColorGroup = function(group)
 	local tbl = {}
-	for i,v in pairs(group) do
+	for i, v in pairs(group) do
 		tbl[i] = createColor(v)
 	end
 	return tbl
 end
 
 -- Assign proxies to the color table, for modules to use
-Colors.CreateColor = function(_, ...) return createColor(...) end
-Colors.CreateColorGroup = function(_, ...) return createColorGroup(...) end
+Colors.CreateColor = function(_, ...)
+	return createColor(...)
+end
+Colors.CreateColorGroup = function(_, ...)
+	return createColorGroup(...)
+end
 
 -- Color Template
 -----------------------------------------------------------------
@@ -66,11 +70,16 @@ ColorTemplate.GetRGB = function(self)
 end
 
 ColorTemplate.GetRGBAsBytes = function(self)
-	return self[1]*255, self[2]*255, self[3]*255
+	return self[1] * 255, self[2] * 255, self[3] * 255
 end
 
 ColorTemplate.GenerateHexColor = function(self)
-	return string_format("ff%02x%02x%02x", math_floor(self[1]*255), math_floor(self[2]*255), math_floor(self[3]*255))
+	return string_format(
+		"ff%02x%02x%02x",
+		math_floor(self[1] * 255),
+		math_floor(self[2] * 255),
+		math_floor(self[3] * 255)
+	)
 end
 
 ColorTemplate.GenerateHexColorMarkup = function(self)
@@ -79,50 +88,50 @@ end
 
 -- Color Table
 -----------------------------------------------------------------
-Colors.normal = createColor(229/255, 178/255, 38/255)
-Colors.highlight = createColor(250/255, 250/255, 250/255)
-Colors.title = createColor(255/255, 234/255, 137/255)
-Colors.white = createColor(220/255, 220/255, 220/255)
-Colors.offwhite = createColor(196/255, 196/255, 196/255)
-Colors.green = createColor(25/255, 178/255, 25/255)
-Colors.red = createColor(204/255, 25/255, 25/255)
-Colors.darkred = createColor(179/255, 25/255, 25/255)
-Colors.palered = createColor(204/255, 68/255, 68/255)
-Colors.brightred = createColor(249/255, 68/255, 68/255)
-Colors.pink = createColor(255/255, 128/255, 255/255)
-Colors.gray = createColor(128/255, 128/255, 128/255)
-Colors.darkgray = createColor(89/255, 79/255, 69/255)
-Colors.verydarkgray = createColor(69/255, 59/255, 49/255)
-Colors.ui = createColor(192/255, 192/255, 192/255)
-Colors.aura = createColor(251/255, 120/255, 29/255)
+Colors.normal = createColor(229 / 255, 178 / 255, 38 / 255)
+Colors.highlight = createColor(250 / 255, 250 / 255, 250 / 255)
+Colors.title = createColor(255 / 255, 234 / 255, 137 / 255)
+Colors.white = createColor(220 / 255, 220 / 255, 220 / 255)
+Colors.offwhite = createColor(196 / 255, 196 / 255, 196 / 255)
+Colors.green = createColor(25 / 255, 178 / 255, 25 / 255)
+Colors.red = createColor(204 / 255, 25 / 255, 25 / 255)
+Colors.darkred = createColor(179 / 255, 25 / 255, 25 / 255)
+Colors.palered = createColor(204 / 255, 68 / 255, 68 / 255)
+Colors.brightred = createColor(249 / 255, 68 / 255, 68 / 255)
+Colors.pink = createColor(255 / 255, 128 / 255, 255 / 255)
+Colors.gray = createColor(128 / 255, 128 / 255, 128 / 255)
+Colors.darkgray = createColor(89 / 255, 79 / 255, 69 / 255)
+Colors.verydarkgray = createColor(69 / 255, 59 / 255, 49 / 255)
+Colors.ui = createColor(192 / 255, 192 / 255, 192 / 255)
+Colors.aura = createColor(251 / 255, 120 / 255, 29 / 255)
 
 -- MFM anchor coloring
 Colors.anchor = {}
-Colors.anchor.general = createColor(128/255, 255/255, 128/255)
-Colors.anchor.actionbars = createColor(64/255, 192/255, 255/255)
-Colors.anchor.unitframes = createColor(255/255, 160/255, 64/255)
-Colors.anchor.floaters = createColor(255/255, 192/255, 128/255)
+Colors.anchor.general = createColor(128 / 255, 255 / 255, 128 / 255)
+Colors.anchor.actionbars = createColor(64 / 255, 192 / 255, 255 / 255)
+Colors.anchor.unitframes = createColor(255 / 255, 160 / 255, 64 / 255)
+Colors.anchor.floaters = createColor(255 / 255, 192 / 255, 128 / 255)
 
 -- Item Rarity (safely handle potentially nil entries)
 Colors.blizzquality = {}
-if (ITEM_QUALITY_COLORS) then
+if ITEM_QUALITY_COLORS then
 	for i, color in pairs(ITEM_QUALITY_COLORS) do
-		if (color) then
+		if color then
 			Colors.blizzquality[i] = createColor(color)
 		end
 	end
 end
 Colors.quality = {}
-Colors.quality[0] = createColor(157/255, 157/255, 157/255) -- Poor
-Colors.quality[1] = createColor(240/255, 240/255, 240/255) -- Common
-Colors.quality[2] = createColor(30/255, 198/255, 0/255) -- Uncommon
+Colors.quality[0] = createColor(157 / 255, 157 / 255, 157 / 255) -- Poor
+Colors.quality[1] = createColor(240 / 255, 240 / 255, 240 / 255) -- Common
+Colors.quality[2] = createColor(30 / 255, 198 / 255, 0 / 255) -- Uncommon
 --Colors.quality[2] = createColor(30/255, 178/255, 0/255) -- Uncommon
-Colors.quality[3] = createColor(0/255, 112/255, 221/255) -- Rare
-Colors.quality[4] = createColor(163/255, 53/255, 238/255) -- Epic
-Colors.quality[5] = createColor(225/255, 96/255, 0/255) -- Legendary
-Colors.quality[6] = createColor(229/255, 204/255, 127/255) -- Artifact
-Colors.quality[7] = createColor(79/255, 196/255, 225/255) -- Heirloom
-Colors.quality[8] = createColor(79/255, 196/255, 225/255) -- Blizzard
+Colors.quality[3] = createColor(0 / 255, 112 / 255, 221 / 255) -- Rare
+Colors.quality[4] = createColor(163 / 255, 53 / 255, 238 / 255) -- Epic
+Colors.quality[5] = createColor(225 / 255, 96 / 255, 0 / 255) -- Legendary
+Colors.quality[6] = createColor(229 / 255, 204 / 255, 127 / 255) -- Artifact
+Colors.quality[7] = createColor(79 / 255, 196 / 255, 225 / 255) -- Heirloom
+Colors.quality[8] = createColor(79 / 255, 196 / 255, 225 / 255) -- Blizzard
 
 Colors.quality.Poor = Colors.quality[0]
 Colors.quality.Common = Colors.quality[1]
@@ -136,57 +145,57 @@ Colors.quality.WoWToken = Colors.quality[8]
 Colors.quality.Blizard = Colors.quality[8]
 
 -- Unit specifics
-Colors.health = createColor(245/255, 0/255, 45/255)
-Colors.cast = createColor(70/255, 255/255, 131/255)
-Colors.disconnected = createColor(120/255, 120/255, 120/255)
-Colors.tapped = createColor(121/255, 101/255, 96/255)
-Colors.dead = createColor(121/255, 101/255, 96/255)
+Colors.health = createColor(245 / 255, 0 / 255, 45 / 255)
+Colors.cast = createColor(70 / 255, 255 / 255, 131 / 255)
+Colors.disconnected = createColor(120 / 255, 120 / 255, 120 / 255)
+Colors.tapped = createColor(121 / 255, 101 / 255, 96 / 255)
+Colors.dead = createColor(121 / 255, 101 / 255, 96 / 255)
 
 -- xp, rep and artifact coloring
-Colors.xp = createColor(116/255, 23/255, 229/255) -- xp bar
-Colors.xpValue = createColor(145/255, 77/255, 229/255) -- xp bar text
-Colors.rested = createColor(163/255, 23/255, 229/255) -- xp bar while being rested
-Colors.restedValue = createColor(203/255, 77/255, 229/255) -- xp bar text while being rested
-Colors.restedBonus = createColor(69/255, 17/255, 134/255) -- rested bonus bar
+Colors.xp = createColor(116 / 255, 23 / 255, 229 / 255) -- xp bar
+Colors.xpValue = createColor(145 / 255, 77 / 255, 229 / 255) -- xp bar text
+Colors.rested = createColor(163 / 255, 23 / 255, 229 / 255) -- xp bar while being rested
+Colors.restedValue = createColor(203 / 255, 77 / 255, 229 / 255) -- xp bar text while being rested
+Colors.restedBonus = createColor(69 / 255, 17 / 255, 134 / 255) -- rested bonus bar
 Colors.artifact = Colors.quality.Artifact -- artifact or azerite power bar
 
 -- Difficulty
 Colors.quest = {}
-Colors.quest.red = createColor(204/255, 26/255, 26/255)
-Colors.quest.orange = createColor(255/255, 106/255, 26/255)
-Colors.quest.yellow = createColor(255/255, 178/255, 38/255)
-Colors.quest.green = createColor(89/255, 201/255, 89/255)
-Colors.quest.gray = createColor(120/255, 120/255, 120/255)
+Colors.quest.red = createColor(204 / 255, 26 / 255, 26 / 255)
+Colors.quest.orange = createColor(255 / 255, 106 / 255, 26 / 255)
+Colors.quest.yellow = createColor(255 / 255, 178 / 255, 38 / 255)
+Colors.quest.green = createColor(89 / 255, 201 / 255, 89 / 255)
+Colors.quest.gray = createColor(120 / 255, 120 / 255, 120 / 255)
 
 -- Unit Class
 -- Original colors at https://wow.gamepedia.com/Class#Class_colors
 -- *Note that for classic, SHAMAN and PALADIN are the same.
 -- Create safely - RAID_CLASS_COLORS might be incomplete in 3.3.5
 Colors.blizzclass = {}
-if (RAID_CLASS_COLORS) then
+if RAID_CLASS_COLORS then
 	for class, color in pairs(RAID_CLASS_COLORS) do
-		if (color) then
+		if color then
 			Colors.blizzclass[class] = createColor(color)
 		end
 	end
 end
 Colors.class = {}
-Colors.class.DEATHKNIGHT = createColor(176/255, 31/255, 79/255)
-Colors.class.DEMONHUNTER = createColor(163/255, 48/255, 201/255)
+Colors.class.DEATHKNIGHT = createColor(176 / 255, 31 / 255, 79 / 255)
+Colors.class.DEMONHUNTER = createColor(163 / 255, 48 / 255, 201 / 255)
 --Colors.class.DRUID = createColor(225/255, 125/255, 35/255)
-Colors.class.DRUID = createColor(245/255, 145/255, 55/255)
-Colors.class.EVOKER = createColor(51/255, 147/255, 127/255)
-Colors.class.HUNTER = createColor(191/255, 232/255, 115/255)
-Colors.class.MAGE = createColor(105/255, 204/255, 240/255)
-Colors.class.MONK = createColor(0/255, 255/255, 150/255)
+Colors.class.DRUID = createColor(245 / 255, 145 / 255, 55 / 255)
+Colors.class.EVOKER = createColor(51 / 255, 147 / 255, 127 / 255)
+Colors.class.HUNTER = createColor(191 / 255, 232 / 255, 115 / 255)
+Colors.class.MAGE = createColor(105 / 255, 204 / 255, 240 / 255)
+Colors.class.MONK = createColor(0 / 255, 255 / 255, 150 / 255)
 --Colors.class.PALADIN = createColor(225/255, 160/255, 226/255)
-Colors.class.PALADIN = createColor(245/255, 185/255, 226/255)
-Colors.class.PRIEST = createColor(176/255, 200/255, 225/255)
-Colors.class.ROGUE = createColor(255/255, 225/255, 95/255)
-Colors.class.SHAMAN = createColor(32/255, 122/255, 222/255)
+Colors.class.PALADIN = createColor(245 / 255, 185 / 255, 226 / 255)
+Colors.class.PRIEST = createColor(176 / 255, 200 / 255, 225 / 255)
+Colors.class.ROGUE = createColor(255 / 255, 225 / 255, 95 / 255)
+Colors.class.SHAMAN = createColor(32 / 255, 122 / 255, 222 / 255)
 --Colors.class.WARLOCK = createColor(148/255, 130/255, 201/255)
-Colors.class.WARLOCK = createColor(128/255, 110/255, 181/255)
-Colors.class.WARRIOR = createColor(229/255, 156/255, 110/255)
-Colors.class.UNKNOWN = createColor(195/255, 202/255, 217/255)
+Colors.class.WARLOCK = createColor(128 / 255, 110 / 255, 181 / 255)
+Colors.class.WARRIOR = createColor(229 / 255, 156 / 255, 110 / 255)
+Colors.class.UNKNOWN = createColor(195 / 255, 202 / 255, 217 / 255)
 
 ns.Private.Colors = Colors

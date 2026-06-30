@@ -71,11 +71,11 @@ do
 		this:GetParent():StopMovingOrSizing()
 	end
 
-	local function SetTitle(self,title)
+	local function SetTitle(self, title)
 		self.titletext:SetText(title)
 	end
 
-	local function SetStatusText(self,text)
+	local function SetStatusText(self, text)
 		-- self.statustext:SetText(text)
 	end
 
@@ -115,10 +115,10 @@ do
 		self:SetWidth(status.width or 700)
 		self:SetHeight(status.height or 500)
 		if status.top and status.left then
-			frame:SetPoint("TOP",UIParent,"BOTTOM",0,status.top)
-			frame:SetPoint("LEFT",UIParent,"LEFT",status.left,0)
+			frame:SetPoint("TOP", UIParent, "BOTTOM", 0, status.top)
+			frame:SetPoint("LEFT", UIParent, "LEFT", status.left, 0)
 		else
-			frame:SetPoint("CENTER",UIParent,"CENTER")
+			frame:SetPoint("CENTER", UIParent, "CENTER")
 		end
 	end
 
@@ -131,7 +131,6 @@ do
 		content:SetWidth(contentwidth)
 		content.width = contentwidth
 	end
-
 
 	local function OnHeightSet(self, height)
 		local content = self.content
@@ -151,13 +150,13 @@ do
 	end
 
 	local function Constructor()
-		local frame = CreateFrame("Frame",nil,UIParent)
+		local frame = CreateFrame("Frame", nil, UIParent)
 		local self = {}
 		self.type = "Window"
 
 		self.Hide = Hide
 		self.Show = Show
-		self.SetTitle =  SetTitle
+		self.SetTitle = SetTitle
 		self.OnRelease = OnRelease
 		self.OnAcquire = OnAcquire
 		self.SetStatusText = SetStatusText
@@ -173,19 +172,19 @@ do
 		frame.obj = self
 		frame:SetWidth(700)
 		frame:SetHeight(500)
-		frame:SetPoint("CENTER",UIParent,"CENTER",0,0)
+		frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 		frame:EnableMouse()
 		frame:SetMovable(true)
 		frame:SetResizable(true)
 		frame:SetFrameStrata("FULLSCREEN_DIALOG")
 		frame:SetScript("OnMouseDown", frameOnMouseDown)
 
-		frame:SetScript("OnShow",frameOnShow)
-		frame:SetScript("OnHide",frameOnClose)
+		frame:SetScript("OnShow", frameOnShow)
+		frame:SetScript("OnHide", frameOnClose)
 		if frame.SetResizeBounds then -- WoW 10.0
-			frame:SetResizeBounds(240,240)
+			frame:SetResizeBounds(240, 240)
 		else
-			frame:SetMinResize(240,240)
+			frame:SetMinResize(240, 240)
 		end
 		frame:SetToplevel(true)
 
@@ -199,7 +198,7 @@ do
 		dialogbg:SetTexture("Interface\\Tooltips\\UI-Tooltip-Background")
 		dialogbg:SetPoint("TOPLEFT", 8, -24)
 		dialogbg:SetPoint("BOTTOMRIGHT", -6, 8)
-		dialogbg:SetVertexColor(0, 0, 0, .75)
+		dialogbg:SetVertexColor(0, 0, 0, 0.75)
 
 		local topleft = frame:CreateTexture(nil, "BORDER")
 		topleft:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
@@ -273,16 +272,16 @@ do
 		title:SetPoint("TOPLEFT", titlebg)
 		title:SetPoint("BOTTOMRIGHT", titlebg)
 		title:EnableMouse()
-		title:SetScript("OnMouseDown",titleOnMouseDown)
+		title:SetScript("OnMouseDown", titleOnMouseDown)
 		title:SetScript("OnMouseUp", frameOnMouseUp)
 		self.title = title
 
-		local sizer_se = CreateFrame("Frame",nil,frame)
-		sizer_se:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",0,0)
+		local sizer_se = CreateFrame("Frame", nil, frame)
+		sizer_se:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
 		sizer_se:SetWidth(25)
 		sizer_se:SetHeight(25)
 		sizer_se:EnableMouse()
-		sizer_se:SetScript("OnMouseDown",sizerseOnMouseDown)
+		sizer_se:SetScript("OnMouseDown", sizerseOnMouseDown)
 		sizer_se:SetScript("OnMouseUp", sizerOnMouseUp)
 		self.sizer_se = sizer_se
 
@@ -293,7 +292,7 @@ do
 		line1:SetPoint("BOTTOMRIGHT", -8, 8)
 		-- 3.3.5 Compatibility: Use string paths instead of FileDataIDs
 		line1:SetTexture("Interface\\Tooltips\\UI-Tooltip-Border")
-		local x = 0.1 * 14/17
+		local x = 0.1 * 14 / 17
 		line1:SetTexCoord(0.05 - x, 0.5, 0.05, 0.5 + x, 0.05, 0.5 - x, 0.5 + x, 0.5)
 
 		local line2 = sizer_se:CreateTexture(nil, "BACKGROUND")
@@ -303,37 +302,37 @@ do
 		line2:SetPoint("BOTTOMRIGHT", -8, 8)
 		-- 3.3.5 Compatibility: Use string paths instead of FileDataIDs
 		line2:SetTexture("Interface\\Tooltips\\UI-Tooltip-Border")
-		x = 0.1 * 8/17
+		x = 0.1 * 8 / 17
 		line2:SetTexCoord(0.05 - x, 0.5, 0.05, 0.5 + x, 0.05, 0.5 - x, 0.5 + x, 0.5)
 
-		local sizer_s = CreateFrame("Frame",nil,frame)
-		sizer_s:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-25,0)
-		sizer_s:SetPoint("BOTTOMLEFT",frame,"BOTTOMLEFT",0,0)
+		local sizer_s = CreateFrame("Frame", nil, frame)
+		sizer_s:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -25, 0)
+		sizer_s:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 0)
 		sizer_s:SetHeight(25)
 		sizer_s:EnableMouse()
-		sizer_s:SetScript("OnMouseDown",sizersOnMouseDown)
+		sizer_s:SetScript("OnMouseDown", sizersOnMouseDown)
 		sizer_s:SetScript("OnMouseUp", sizerOnMouseUp)
 		self.sizer_s = sizer_s
 
-		local sizer_e = CreateFrame("Frame",nil,frame)
-		sizer_e:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",0,25)
-		sizer_e:SetPoint("TOPRIGHT",frame,"TOPRIGHT",0,0)
+		local sizer_e = CreateFrame("Frame", nil, frame)
+		sizer_e:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 25)
+		sizer_e:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
 		sizer_e:SetWidth(25)
 		sizer_e:EnableMouse()
-		sizer_e:SetScript("OnMouseDown",sizereOnMouseDown)
+		sizer_e:SetScript("OnMouseDown", sizereOnMouseDown)
 		sizer_e:SetScript("OnMouseUp", sizerOnMouseUp)
 		self.sizer_e = sizer_e
 
 		--Container Support
-		local content = CreateFrame("Frame",nil,frame)
+		local content = CreateFrame("Frame", nil, frame)
 		self.content = content
 		content.obj = self
-		content:SetPoint("TOPLEFT",frame,"TOPLEFT",12,-32)
-		content:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-12,13)
+		content:SetPoint("TOPLEFT", frame, "TOPLEFT", 12, -32)
+		content:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -12, 13)
 
 		AceGUI:RegisterAsContainer(self)
 		return self
 	end
 
-	AceGUI:RegisterWidgetType(Type,Constructor,Version)
+	AceGUI:RegisterWidgetType(Type, Constructor, Version)
 end

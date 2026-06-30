@@ -1,4 +1,5 @@
---[[ $Id: AceGUIWidget-DropDown-Items.lua 1272 2022-08-29 15:56:35Z nevcairiel $ ]]--
+--[[ $Id: AceGUIWidget-DropDown-Items.lua 1272 2022-08-29 15:56:35Z nevcairiel $ ]]
+--
 
 local AceGUI = LibStub("AceGUI-3.0")
 
@@ -9,11 +10,11 @@ local select, assert = select, assert
 local PlaySound = PlaySound
 local CreateFrame = CreateFrame
 
-local function fixlevels(parent,...)
+local function fixlevels(parent, ...)
 	local i = 1
 	local child = select(i, ...)
 	while child do
-		child:SetFrameLevel(parent:GetFrameLevel()+1)
+		child:SetFrameLevel(parent:GetFrameLevel() + 1)
 		fixlevels(child, child:GetChildren())
 		i = i + 1
 		child = select(i, ...)
@@ -126,7 +127,7 @@ function ItemBase.SetDisabled(self, disabled)
 	self.disabled = disabled
 	if disabled then
 		self.useHighlight = false
-		self.text:SetTextColor(.5, .5, .5)
+		self.text:SetTextColor(0.5, 0.5, 0.5)
 	else
 		self.useHighlight = true
 		self.text:SetTextColor(1, 1, 1)
@@ -150,7 +151,7 @@ end
 function ItemBase.Create(type)
 	-- NOTE: Most of the following code is copied from AceGUI-3.0/Dropdown widget
 	local count = AceGUI:GetNextWidgetNum(type)
-	local frame = CreateFrame("Button", "AceGUI30DropDownItem"..count)
+	local frame = CreateFrame("Button", "AceGUI30DropDownItem" .. count)
 	local self = {}
 	self.frame = frame
 	frame.obj = self
@@ -161,11 +162,11 @@ function ItemBase.Create(type)
 	frame:SetHeight(17)
 	frame:SetFrameStrata("FULLSCREEN_DIALOG")
 
-	local text = frame:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
-	text:SetTextColor(1,1,1)
+	local text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	text:SetTextColor(1, 1, 1)
 	text:SetJustifyH("LEFT")
-	text:SetPoint("TOPLEFT",frame,"TOPLEFT",18,0)
-	text:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-8,0)
+	text:SetPoint("TOPLEFT", frame, "TOPLEFT", 18, 0)
+	text:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -8, 0)
 	self.text = text
 
 	local highlight = frame:CreateTexture(nil, "OVERLAY")
@@ -173,15 +174,15 @@ function ItemBase.Create(type)
 	highlight:SetBlendMode("ADD")
 	highlight:SetHeight(14)
 	highlight:ClearAllPoints()
-	highlight:SetPoint("RIGHT",frame,"RIGHT",-3,0)
-	highlight:SetPoint("LEFT",frame,"LEFT",5,0)
+	highlight:SetPoint("RIGHT", frame, "RIGHT", -3, 0)
+	highlight:SetPoint("LEFT", frame, "LEFT", 5, 0)
 	highlight:Hide()
 	self.highlight = highlight
 
 	local check = frame:CreateTexture(nil, "OVERLAY")
 	check:SetWidth(16)
 	check:SetHeight(16)
-	check:SetPoint("LEFT",frame,"LEFT",3,-1)
+	check:SetPoint("LEFT", frame, "LEFT", 3, -1)
 	check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
 	check:Hide()
 	self.check = check
@@ -189,7 +190,7 @@ function ItemBase.Create(type)
 	local sub = frame:CreateTexture(nil, "OVERLAY")
 	sub:SetWidth(16)
 	sub:SetHeight(16)
-	sub:SetPoint("RIGHT",frame,"RIGHT",-3,-1)
+	sub:SetPoint("RIGHT", frame, "RIGHT", -3, -1)
 	sub:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
 	sub:Hide()
 	self.sub = sub
@@ -201,13 +202,13 @@ function ItemBase.Create(type)
 	self.OnRelease = ItemBase.OnRelease
 
 	self.SetPullout = ItemBase.SetPullout
-	self.GetText    = ItemBase.GetText
-	self.SetText    = ItemBase.SetText
+	self.GetText = ItemBase.GetText
+	self.SetText = ItemBase.SetText
 	self.SetDisabled = ItemBase.SetDisabled
 
-	self.SetPoint   = ItemBase.SetPoint
-	self.Show       = ItemBase.Show
-	self.Hide       = ItemBase.Hide
+	self.SetPoint = ItemBase.SetPoint
+	self.Show = ItemBase.Show
+	self.Hide = ItemBase.Hide
 
 	self.SetOnLeave = ItemBase.SetOnLeave
 	self.SetOnEnter = ItemBase.SetOnEnter
@@ -218,7 +219,9 @@ end
 -- Register a dummy LibStub library to retrieve the ItemBase, so other addons can use it.
 local IBLib = LibStub:NewLibrary("AceGUI-3.0-DropDown-ItemBase", ItemBase.version)
 if IBLib then
-	IBLib.GetItemBase = function() return ItemBase end
+	IBLib.GetItemBase = function()
+		return ItemBase
+	end
 end
 
 --[[
@@ -299,7 +302,9 @@ do
 
 	local function Frame_OnClick(this, button)
 		local self = this.obj
-		if self.disabled then return end
+		if self.disabled then
+			return
+		end
 		self:Fire("OnClick")
 		if self.pullout then
 			self.pullout:Close()
@@ -340,7 +345,9 @@ do
 
 	local function Frame_OnClick(this, button)
 		local self = this.obj
-		if self.disabled then return end
+		if self.disabled then
+			return
+		end
 		self.value = not self.value
 		if self.value then
 			PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
@@ -396,7 +403,14 @@ do
 		self.highlight:Show()
 
 		if not self.disabled and self.submenu then
-			self.submenu:Open("TOPLEFT", self.frame, "TOPRIGHT", self.pullout:GetRightBorderWidth(), 0, self.frame:GetFrameLevel() + 100)
+			self.submenu:Open(
+				"TOPLEFT",
+				self.frame,
+				"TOPRIGHT",
+				self.pullout:GetRightBorderWidth(),
+				0,
+				self.frame:GetFrameLevel() + 100
+			)
 		end
 	end
 
@@ -426,7 +440,7 @@ do
 		self.frame:SetScript("OnEnter", OnEnter)
 		self.frame:SetScript("OnHide", OnHide)
 
-		self.SetMenu   = SetMenu
+		self.SetMenu = SetMenu
 		self.CloseMenu = CloseMenu
 
 		AceGUI:RegisterAsWidget(self)
@@ -457,10 +471,10 @@ do
 		line:SetHeight(1)
 		-- 3.3.5 Compatibility: SetColorTexture fallback
 		if line.SetColorTexture then
-			line:SetColorTexture(.5, .5, .5)
+			line:SetColorTexture(0.5, 0.5, 0.5)
 		else
 			line:SetTexture("Interface\\Buttons\\WHITE8x8")
-			line:SetVertexColor(.5, .5, .5, 1)
+			line:SetVertexColor(0.5, 0.5, 0.5, 1)
 		end
 		line:SetPoint("LEFT", self.frame, "LEFT", 10, 0)
 		line:SetPoint("RIGHT", self.frame, "RIGHT", -10, 0)

@@ -4,7 +4,9 @@ Simple container widget for the integration of AceGUI into the Blizzard Interfac
 -------------------------------------------------------------------------------]]
 local Type, Version = "BlizOptionsGroup", 26
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
-if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
+if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then
+	return
+end
 
 -- Lua APIs
 local pairs = pairs
@@ -92,7 +94,7 @@ local methods = {
 			self.label:SetText(title)
 		end
 		content:SetPoint("BOTTOMRIGHT", -10, 10)
-	end
+	end,
 }
 
 --[[-----------------------------------------------------------------------------
@@ -128,10 +130,10 @@ local function Constructor()
 	content:SetPoint("BOTTOMRIGHT", -10, 10)
 
 	local widget = {
-		label   = label,
-		frame   = frame,
+		label = label,
+		frame = frame,
 		content = content,
-		type    = Type
+		type = Type,
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func

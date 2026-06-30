@@ -1,7 +1,7 @@
 local _, ns = ...
 
 -- 3.3.5 Compatibility: WOW_PROJECT constants don't exist
-if (not _G.WOW_PROJECT_ID) then
+if not _G.WOW_PROJECT_ID then
 	_G.WOW_PROJECT_ID = 1
 	_G.WOW_PROJECT_MAINLINE = 1
 	_G.WOW_PROJECT_CLASSIC = 2
@@ -9,13 +9,13 @@ if (not _G.WOW_PROJECT_ID) then
 	_G.WOW_PROJECT_WRATH_CLASSIC = 11
 	-- For 3.3.5, we'll mark it as Wrath
 	local _, _, _, interface = GetBuildInfo()
-	if (interface and interface >= 30000 and interface < 40000) then
+	if interface and interface >= 30000 and interface < 40000 then
 		_G.WOW_PROJECT_ID = 11 -- WOW_PROJECT_WRATH_CLASSIC
 	end
 end
 
 -- 3.3.5 Compatibility: CreateFromMixins doesn't exist
-if (not _G.CreateFromMixins) then
+if not _G.CreateFromMixins then
 	_G.CreateFromMixins = function(...)
 		local mixin = {}
 		for i = 1, select("#", ...) do
@@ -31,7 +31,7 @@ if (not _G.CreateFromMixins) then
 end
 
 -- 3.3.5 Compatibility: CopyTable might not exist
-if (not _G.CopyTable) then
+if not _G.CopyTable then
 	local function CopyTableInternal(settings, shallow)
 		local copy = {}
 		for k, v in pairs(settings) do
@@ -49,7 +49,7 @@ if (not _G.CopyTable) then
 end
 
 -- 3.3.5 Compatibility: UnitNameUnmodified doesn't exist
-if (not _G.UnitNameUnmodified) then
+if not _G.UnitNameUnmodified then
 	_G.UnitNameUnmodified = function(unit)
 		local name = UnitName(unit)
 		return name
@@ -57,23 +57,30 @@ if (not _G.UnitNameUnmodified) then
 end
 
 -- Create an alias for the classics.
-if (not _G.UnitEffectiveLevel) then
+if not _G.UnitEffectiveLevel then
 	_G.UnitEffectiveLevel = UnitLevel
 end
 
 -- 3.3.5 Compatibility: GetAddOnEnableState doesn't exist
 -- (added in a later expansion). On 3.3.5 we default every addon to "enabled" (2).
-if (not _G.GetAddOnEnableState) then
-	_G.GetAddOnEnableState = function() return 2 end
+if not _G.GetAddOnEnableState then
+	_G.GetAddOnEnableState = function()
+		return 2
+	end
 end
 
 -- Functions that would always return false when not present.
-for _,global in next,{
-	"IsXPUserDisabled",
-	"UnitHasVehicleUI"
-} do
-	if (not _G[global]) then
-		_G[global] = function() return false end
+for _, global in
+	next,
+	{
+		"IsXPUserDisabled",
+		"UnitHasVehicleUI",
+	}
+do
+	if not _G[global] then
+		_G[global] = function()
+			return false
+		end
 	end
 end
 
@@ -82,7 +89,7 @@ end
 -- 1. Provides global _G.C_Timer for libraries like AceTimer-3.0 that require it
 -- 2. Uses pcall to protect against buggy callbacks from other addons (e.g. MRT)
 -- 3. Also stores in ns.Timer for internal use
-if (not _G.C_Timer) then
+if not _G.C_Timer then
 	local timerFrame = CreateFrame("Frame")
 	local timers = {}
 	local timerID = 0
@@ -100,18 +107,18 @@ if (not _G.C_Timer) then
 		-- at which point callbacks may freely add new timers.
 		local due
 		for id, timer in pairs(timers) do
-			if (timer.nextTick and now >= timer.nextTick) then
+			if timer.nextTick and now >= timer.nextTick then
 				due = due or {}
 				due[#due + 1] = timer
 
-				if (timer.iterations) then
+				if timer.iterations then
 					timer.iterations = timer.iterations - 1
-					if (timer.iterations <= 0) then
+					if timer.iterations <= 0 then
 						timers[id] = nil
 					else
 						timer.nextTick = now + timer.delay
 					end
-				elseif (timer.repeating) then
+				elseif timer.repeating then
 					timer.nextTick = now + timer.delay
 				else
 					timers[id] = nil
@@ -122,17 +129,17 @@ if (not _G.C_Timer) then
 		-- Fire callbacks after iteration has finished. Safe for callbacks to add
 		-- new timers now. pcall protects against buggy callbacks from other addons
 		-- (like MRT's nil self) so they don't spam the error log or break the loop.
-		if (due) then
+		if due then
 			for i = 1, #due do
 				local callback = due[i].callback
-				if (callback) then
+				if callback then
 					pcall(callback)
 				end
 			end
 		end
 
 		-- Hide frame if no timers
-		if (not next(timers)) then
+		if not next(timers) then
 			self:Hide()
 		end
 	end)
@@ -148,7 +155,7 @@ if (not _G.C_Timer) then
 			callback = callback,
 			delay = seconds,
 			nextTick = GetTime() + seconds,
-			repeating = false
+			repeating = false,
 		}
 		timerFrame:Show()
 	end
@@ -161,7 +168,7 @@ if (not _G.C_Timer) then
 			callback = callback,
 			delay = seconds,
 			nextTick = GetTime() + seconds,
-			repeating = false
+			repeating = false,
 		}
 		timerFrame:Show()
 		return {
@@ -170,7 +177,7 @@ if (not _G.C_Timer) then
 			end,
 			IsCancelled = function()
 				return timers[id] == nil
-			end
+			end,
 		}
 	end
 
@@ -182,8 +189,8 @@ if (not _G.C_Timer) then
 			callback = callback,
 			delay = seconds,
 			nextTick = GetTime() + seconds,
-			repeating = (not iterations),
-			iterations = iterations
+			repeating = not iterations,
+			iterations = iterations,
 		}
 		timerFrame:Show()
 		return {
@@ -192,7 +199,7 @@ if (not _G.C_Timer) then
 			end,
 			IsCancelled = function()
 				return timers[id] == nil
-			end
+			end,
 		}
 	end
 

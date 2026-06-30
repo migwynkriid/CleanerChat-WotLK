@@ -23,38 +23,39 @@ local Colors = ns.Private and ns.Private.Colors
 
 -- Output patterns.
 -- *uses a simple color tag system for new strings.
-ns.out = setmetatable(ns.out or {}, { __newindex = function(t,k,msg)
+ns.out = setmetatable(ns.out or {}, {
+	__newindex = function(t, k, msg)
+		-- Get colors safely (Colors may be nil if loaded out of order)
+		local colors = Colors or (ns.Private and ns.Private.Colors)
+		if not colors then
+			-- Fallback: just strip color tags if no colors available
+			msg = string_gsub(msg, "%*%w+%*", "")
+			msg = string_gsub(msg, "%*%*", "")
+			rawset(t, k, msg)
+			return
+		end
 
-	-- Get colors safely (Colors may be nil if loaded out of order)
-	local colors = Colors or (ns.Private and ns.Private.Colors)
-	if (not colors) then
-		-- Fallback: just strip color tags if no colors available
-		msg = string_gsub(msg, "%*%w+%*", "")
-		msg = string_gsub(msg, "%*%*", "")
-		rawset(t,k,msg)
-		return
-	end
-
-	-- Have to do this with an indexed table,
-	-- as the order of the entires matters.
-	for _,entry in ipairs({
-		{ "%*title%*", 		colors.title.colorCode },
-		{ "%*white%*", 		colors.highlight.colorCode },
-		{ "%*offwhite%*", 	colors.offwhite.colorCode },
-		{ "%*palered%*", 	colors.palered.colorCode },
-		{ "%*pink%*", 		colors.pink.colorCode },
-		{ "%*red%*", 		colors.quest.red.colorCode },
-		{ "%*darkorange%*", colors.quality.Legendary.colorCode },
-		{ "%*orange%*", 	colors.quest.orange.colorCode },
-		{ "%*yellow%*", 	colors.quest.yellow.colorCode },
-		{ "%*green%*", 		colors.quest.green.colorCode },
-		{ "%*gray%*", 		colors.quest.gray.colorCode },
-		{ "%*%*", "|r" } -- Always keep this at the end.
-	}) do
-		msg = string_gsub(msg, unpack(entry))
-	end
-	rawset(t,k,msg)
-end })
+		-- Have to do this with an indexed table,
+		-- as the order of the entires matters.
+		for _, entry in ipairs({
+			{ "%*title%*", colors.title.colorCode },
+			{ "%*white%*", colors.highlight.colorCode },
+			{ "%*offwhite%*", colors.offwhite.colorCode },
+			{ "%*palered%*", colors.palered.colorCode },
+			{ "%*pink%*", colors.pink.colorCode },
+			{ "%*red%*", colors.quest.red.colorCode },
+			{ "%*darkorange%*", colors.quality.Legendary.colorCode },
+			{ "%*orange%*", colors.quest.orange.colorCode },
+			{ "%*yellow%*", colors.quest.yellow.colorCode },
+			{ "%*green%*", colors.quest.green.colorCode },
+			{ "%*gray%*", colors.quest.gray.colorCode },
+			{ "%*%*", "|r" }, -- Always keep this at the end.
+		}) do
+			msg = string_gsub(msg, unpack(entry))
+		end
+		rawset(t, k, msg)
+	end,
+})
 
 local out = ns.out
 
@@ -65,27 +66,27 @@ local plus_yellow = "*green*+** *white*%s:** *yellow*%s**"
 -- Output formats used in the modules.
 -- *everything should be gathered here, in this file.
 out.achievement = "%s: %s"
-out.afk_added = "*orange*+ "..AWAY.."**"
-out.afk_added_message = "*orange*+ "..AWAY..": ***white*%s**"
-out.afk_cleared = "*green*- "..AWAY.."**"
-out.auction_sold = "*green*"..string_gsub(AUCTION_SOLD_MAIL, "%%s", "*white*%%s**").."**"
-out.auction_created_single = "*green*+** *white*"..AUCTION_CREATED..":** %s"
-out.auction_created_multiple = "*green*+** *white*"..AUCTION_CREATED..":** %s *offwhite*x%d**"
-out.auction_created_generic = "*green*+** *white*"..AUCTION_CREATED.."**"
-out.auction_canceled_single = "*palered*- "..AUCTION_REMOVED.."**"
+out.afk_added = "*orange*+ " .. AWAY .. "**"
+out.afk_added_message = "*orange*+ " .. AWAY .. ": ***white*%s**"
+out.afk_cleared = "*green*- " .. AWAY .. "**"
+out.auction_sold = "*green*" .. string_gsub(AUCTION_SOLD_MAIL, "%%s", "*white*%%s**") .. "**"
+out.auction_created_single = "*green*+** *white*" .. AUCTION_CREATED .. ":** %s"
+out.auction_created_multiple = "*green*+** *white*" .. AUCTION_CREATED .. ":** %s *offwhite*x%d**"
+out.auction_created_generic = "*green*+** *white*" .. AUCTION_CREATED .. "**"
+out.auction_canceled_single = "*palered*- " .. AUCTION_REMOVED .. "**"
 out.auction_won = "*green*+** *white*Won:** %s"
-out.auction_bid = "*green*+** *white*"..AUCTION_BID.."**"
-out.dnd_added = "*darkorange*+ "..BUSY.."**"
-out.dnd_added_message = "*darkorange*+ "..BUSY..": ***white*%s**"
-out.dnd_cleared = "*green*- "..BUSY.."**"
+out.auction_bid = "*green*+** *white*" .. AUCTION_BID .. "**"
+out.dnd_added = "*darkorange*+ " .. BUSY .. "**"
+out.dnd_added_message = "*darkorange*+ " .. BUSY .. ": ***white*%s**"
+out.dnd_cleared = "*green*- " .. BUSY .. "**"
 out.guild_online = "*green*+ **%s *green*has come online**"
 out.guild_offline = "*gray*- **%s *gray*has gone offline**"
 out.item_single = plus
 out.item_multiple = "*green*+** %s *offwhite*(%d)**"
 out.item_single_other = "%s*gray*:** %s"
 out.item_multiple_other = "%s*gray*:** %s *offwhite*(%d)**"
-out.craft_single_other = '%s *gray*created:** %s'
-out.craft_multiple_other = '%s *gray*created:** %s *offwhite*(%d)**'
+out.craft_single_other = "%s *gray*created:** %s"
+out.craft_multiple_other = "%s *gray*created:** %s *offwhite*(%d)**"
 out.item_deficit = "*red*- %s**"
 out.item_deficit_multiple = "*red*- %s** *offwhite*(%d)**"
 out.money = plus
@@ -93,12 +94,12 @@ out.money_deficit = "*gray*-** %s"
 out.objective_status = plus_yellow
 out.quest_accepted = plus_yellow
 out.quest_complete = plus_yellow
-out.rested_added = "*green*+** *gray*"..RESTED.."**"
-out.rested_cleared = "*orange*- "..RESTED.."**"
+out.rested_added = "*green*+** *gray*" .. RESTED .. "**"
+out.rested_cleared = "*orange*- " .. RESTED .. "**"
 out.set_complete = plus_yellow
-out.standing = "*green*+** *white*".."%d** *white*%s:** %s"
+out.standing = "*green*+** *white*" .. "%d** *white*%s:** %s"
 out.standing_generic = "*green*+** *gray*%s:** %s"
-out.standing_deficit = "*red*-** *white*".."%d** *white*%s:** %s"
+out.standing_deficit = "*red*-** *white*" .. "%d** *white*%s:** %s"
 out.standing_deficit_generic = "*red*-** *palered** %s:** %s"
 out.xp_levelup = "%s"
 out.xp_named = "*green*+** *white*%d** *white*%s:** *yellow*%s**"

@@ -17,7 +17,7 @@ local G = {
 	QUEST_COMPLETE = ERR_QUEST_COMPLETE_S, -- "%s completed."
 	QUEST = BATTLE_PET_SOURCE_2 or QUEST_LOG or "Quest", -- "Quest"
 	ACCEPTED = CALENDAR_STATUS_ACCEPTED or "Accepted", -- "Accepted"
-	COMPLETE = COMPLETE or "Complete" -- "Complete"
+	COMPLETE = COMPLETE or "Complete", -- "Complete"
 }
 
 -- Convert a WoW global string to a search pattern
@@ -35,41 +35,42 @@ local safeMatch = ns.SafeMatch
 -- "completed" -- e.g. Ascension's custom "<icons> <player> has completed ..."
 -- Adventure Mode / Prestige broadcasts -- and reformats them into a bogus
 -- "+ Complete: ..." line with the words out of order.
-local QUEST_COMPLETE_ANCHORED = G.QUEST_COMPLETE and ("^"..makePattern(G.QUEST_COMPLETE).."$")
+local QUEST_COMPLETE_ANCHORED = G.QUEST_COMPLETE and ("^" .. makePattern(G.QUEST_COMPLETE) .. "$")
 
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
-	if (ns:IsProtectedMessage(message)) then return end
+	if ns:IsProtectedMessage(message) then
+		return
+	end
 
 	local name
 
 	-- Adding completed transmog sets here,
 	-- to make sure they don't fire as completed quests.
 	name = safeMatch(message, P[G.SET_COMPLETE])
-	if (name) then
+	if name then
 		name = ns.StripBrackets(name)
 		return false, string_format(ns.out.set_complete, G.COMPLETE, name), author, ...
 	end
 
 	name = safeMatch(message, P[G.QUEST_ACCEPTED])
-	if (name) then
+	if name then
 		name = ns.StripBrackets(name)
 		return false, string_format(ns.out.quest_accepted, G.ACCEPTED, name), author, ...
 	end
 
-
 	-- Avoid false positives on quest completion.
-	if (not safeMatch(message, P[G.QUEST_ALREADY_DONE]) and
-		not safeMatch(message, P[G.QUEST_ALREADY_DONE_DAILY]) and
-		not safeMatch(message, P[G.QUEST_FAILED_TOO_MANY_DAILY]) and
-		not safeMatch(message, P[G.NO_DAILY_QUESTS_REMAINING])) then
-
+	if
+		not safeMatch(message, P[G.QUEST_ALREADY_DONE])
+		and not safeMatch(message, P[G.QUEST_ALREADY_DONE_DAILY])
+		and not safeMatch(message, P[G.QUEST_FAILED_TOO_MANY_DAILY])
+		and not safeMatch(message, P[G.NO_DAILY_QUESTS_REMAINING])
+	then
 		name = QUEST_COMPLETE_ANCHORED and string_match(message, QUEST_COMPLETE_ANCHORED)
-		if (name) then
+		if name then
 			name = ns.StripBrackets(name)
 			return false, string_format(ns.out.quest_complete, G.COMPLETE, name), author, ...
 		end
 	end
-
 end
 
 local onChatEventProxy = function(...)

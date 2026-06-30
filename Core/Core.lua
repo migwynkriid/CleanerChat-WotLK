@@ -27,7 +27,7 @@ local type = type
 -- and is only meant to avoid normal chat messages
 -- giving off false positives as system messages.
 local ignoredIDs = {}
-for _,index in ipairs({
+for _, index in ipairs({
 
 	--"SYSTEM",
 	"SAY",
@@ -112,23 +112,22 @@ for _,index in ipairs({
 	"BN_INLINE_TOAST_BROADCAST_INFORM",
 	"BN_WHISPER_PLAYER_OFFLINE",
 	"COMMUNITIES_CHANNEL",
-	"VOICE_TEXT"
-
+	"VOICE_TEXT",
 }) do
 	local id = GetChatTypeIndex(index)
-	if (id) then
+	if id then
 		ignoredIDs[id] = true
 	end
 end
 
 local blacklist = setmetatable({}, {
 	__call = function(self, ...)
-		for _,func in next,self do
-			if (func(...)) then
+		for _, func in next, self do
+			if func(...) then
 				return true
 			end
 		end
-	end
+	end,
 })
 
 -- Factory for a callable replacement-set container. Invoking the returned table
@@ -139,30 +138,29 @@ local blacklist = setmetatable({}, {
 local function makeReplacementSet()
 	return setmetatable({}, {
 		__call = function(self, msg, ...)
-			if not msg then return msg end
+			if not msg then
+				return msg
+			end
 
 			-- Iterate all registered replacement sets.
-			for i,set in next,self do
-
+			for i, set in next, self do
 				-- Check if the module has supplied
 				-- a table of string replacements or a func.
-				if (type(set) == "table") then
-
+				if type(set) == "table" then
 					-- The module has supplied a table, iterate it.
-					for k,data in ipairs(set) do
+					for k, data in ipairs(set) do
 						if data[1] and data[2] and (string_match(msg, data[1])) then
 							-- string_gsub handles function replacements by passing captures
 							msg = string_gsub(msg, data[1], data[2])
 						end
 					end
-
-				elseif (type(set) == "function") then
+				elseif type(set) == "function" then
 					msg = set(msg, ...) or msg
 				end
 			end
 
 			return msg, ...
-		end
+		end,
 	})
 end
 
@@ -205,7 +203,7 @@ local modulePrototype = {
 	-- @input set <table,func>
 	UnregisterMessageReplacement = function(self, set)
 		ns:RemoveReplacementSet(set)
-	end
+	end,
 }
 
 -- Setup the module defaults.
@@ -238,8 +236,8 @@ local defaults = {
 		reputation = true,
 		spells = true,
 		status = true,
-		tradeskills = true
-	}
+		tradeskills = true,
+	},
 }
 
 -- Expose defaults for external reset functionality
@@ -250,7 +248,7 @@ CleanerChat_DB = CopyTable(defaults)
 -- Reset CleanerChat settings to defaults and update module states
 ns.ResetCleanerChatSettings = function(self)
 	for key, value in next, defaults do
-		if (type(value) == "table") then
+		if type(value) == "table" then
 			CleanerChat_DB[key] = CopyTable(value)
 		else
 			CleanerChat_DB[key] = value
@@ -262,10 +260,10 @@ ns.ResetCleanerChatSettings = function(self)
 	for setting, value in next, self.db.filters do
 		local moduleName = self:GetModuleNameFromFilter(setting)
 		local module = self:GetModule(moduleName, true)
-		if (module) then
-			if (value and not module:IsEnabled()) then
+		if module then
+			if value and not module:IsEnabled() then
 				module:Enable()
-			elseif (not value and module:IsEnabled()) then
+			elseif not value and module:IsEnabled() then
 				module:Disable()
 			end
 		end
@@ -273,8 +271,10 @@ ns.ResetCleanerChatSettings = function(self)
 end
 
 ns.IsProtectedMessage = function(self, msg)
-	if (not msg or msg == "") then return end
-	if (string_find(msg, "|Hquestie")) then
+	if not msg or msg == "" then
+		return
+	end
+	if string_find(msg, "|Hquestie") then
 		return true
 	end
 end
@@ -285,30 +285,30 @@ end
 -- This is pure (it doesn't render anything), so other display layers such as
 -- the Glass chat UI can reuse it to show identically formatted messages.
 ns.FilterMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
-	if (not msg or msg == "") then return msg end
+	if not msg or msg == "" then
+		return msg
+	end
 
 	-- TODO:
 	-- *Encode Questie links, parse encoded string, decode Questie link.
 	--  This will ensure their links is uncorrupted but the line parsed in full.
-	if (not ns:IsProtectedMessage(msg)) then
-
+	if not ns:IsProtectedMessage(msg) then
 		-- Parse replacements that ignore the blacklists.
-		if (next(specialreplacements)) then
+		if next(specialreplacements) then
 			msg = specialreplacements(msg, r, g, b, chatID, ...)
 		end
 
 		-- Parse regular blacklists and replacements.
-		if not(chatID and ignoredIDs[chatID]) then
-
+		if not (chatID and ignoredIDs[chatID]) then
 			-- Completely filter out matches.
-			if (next(blacklist)) then
-				if (blacklist(chatFrame, msg, r, g, b, chatID, ...)) then
+			if next(blacklist) then
+				if blacklist(chatFrame, msg, r, g, b, chatID, ...) then
 					return nil
 				end
 			end
 
 			-- Return a modified string.
-			if (next(replacements)) then
+			if next(replacements) then
 				msg = replacements(msg, r, g, b, chatID, ...)
 			end
 		end
@@ -318,34 +318,40 @@ ns.FilterMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
 end
 
 ns.AddMessageFiltered = function(self, chatFrame, msg, r, g, b, chatID, ...)
-	if (not msg or msg == "") then return end
+	if not msg or msg == "" then
+		return
+	end
 
 	-- Blacklisted messages return nil and are dropped entirely.
 	local filtered = self:FilterMessage(chatFrame, msg, r, g, b, chatID, ...)
-	if (filtered == nil) then return end
+	if filtered == nil then
+		return
+	end
 
 	return self.MethodCache[chatFrame](chatFrame, filtered, r, g, b)
 end
 
 ns.CacheMessageMethod = function(self, chatFrame)
-	if (not self.MethodCache) then
+	if not self.MethodCache then
 		self.MethodCache = {}
 	end
 
-	if (not self.MethodCache[chatFrame]) then
+	if not self.MethodCache[chatFrame] then
 		-- Copy the current AddMessage method from the frame.
 		-- *this also functions as our "has been handled" indicator.
 		self.MethodCache[chatFrame] = chatFrame.AddMessage
 
 		-- Replace with our filtered AddMessage method.
-		chatFrame.AddMessage = function(...) self:AddMessageFiltered(...) end
+		chatFrame.AddMessage = function(...)
+			self:AddMessageFiltered(...)
+		end
 	end
 end
 
 ns.AddBlacklistMethod = function(self, func)
 	-- Make sure the function isn't in our database already.
-	for _,infunc in next,blacklist do
-		if (infunc == func) then
+	for _, infunc in next, blacklist do
+		if infunc == func then
 			return
 		end
 	end
@@ -354,7 +360,7 @@ end
 
 ns.RemoveBlacklistMethod = function(self, func)
 	for k = #blacklist, 1, -1 do
-		if (blacklist[k] == func) then
+		if blacklist[k] == func then
 			table_remove(blacklist, k)
 			break
 		end
@@ -365,8 +371,8 @@ ns.AddReplacementSet = function(self, set, ignoreBlacklist)
 	local group = ignoreBlacklist and specialreplacements or replacements
 
 	-- Make sure the replacement set hasn't already been added.
-	for _,inset in next,group do
-		if (inset == set) then
+	for _, inset in next, group do
+		if inset == set then
 			return
 		end
 	end
@@ -376,13 +382,13 @@ end
 
 ns.RemoveReplacementSet = function(self, set)
 	for k = #replacements, 1, -1 do
-		if (replacements[k] == set) then
+		if replacements[k] == set then
 			table_remove(replacements, k)
 			break
 		end
 	end
 	for k = #specialreplacements, 1, -1 do
-		if (specialreplacements[k] == set) then
+		if specialreplacements[k] == set then
 			table_remove(specialreplacements, k)
 			break
 		end
@@ -394,10 +400,10 @@ local messageProxy = function()
 end
 
 ns.CacheAllMessageMethods = function(self)
-	for _,chatFrameName in ipairs(CHAT_FRAMES) do
+	for _, chatFrameName in ipairs(CHAT_FRAMES) do
 		self:CacheMessageMethod(_G[chatFrameName])
 	end
-	if (not self:IsHooked("FCF_OpenTemporaryWindow", messageProxy)) then
+	if not self:IsHooked("FCF_OpenTemporaryWindow", messageProxy) then
 		self:SecureHook("FCF_OpenTemporaryWindow", messageProxy)
 	end
 end
@@ -409,27 +415,23 @@ ns.GetModuleNameFromFilter = function(self, key)
 end
 
 ns.UpgradeSettings = function(self)
-
 	-- Have the db been upgraded?
-	if (not CleanerChat_DB.configversion or CleanerChat_DB.configversion < 2) then
-
+	if not CleanerChat_DB.configversion or CleanerChat_DB.configversion < 2 then
 		-- Work on a clone.
 		local old = CopyTable(CleanerChat_DB)
 
 		-- Replace missing entries with the defaults
-		for setting,value in next,defaults do
-			if (CleanerChat_DB[setting] == nil) then
+		for setting, value in next, defaults do
+			if CleanerChat_DB[setting] == nil then
 				CleanerChat_DB[setting] = value
 			end
 		end
 
 		-- Parse the cloned db for outdated entries.
-		for setting,value in next,old do
-
+		for setting, value in next, old do
 			-- Only parse old filter settings.
-			local moduleName = string_match(setting,"DisableFilter:(.*)")
-			if (moduleName) then
-
+			local moduleName = string_match(setting, "DisableFilter:(.*)")
+			if moduleName then
 				-- Old settings are true when the filter is disabled,
 				-- new settings are true when filter is enabled.
 				-- The old setting naming scheme has also been replaced.
@@ -439,8 +441,8 @@ ns.UpgradeSettings = function(self)
 		end
 
 		-- Replace missing filter settings with their defaults.
-		for setting,value in next,defaults.filters do
-			if (CleanerChat_DB.filters[setting] == nil) then
+		for setting, value in next, defaults.filters do
+			if CleanerChat_DB.filters[setting] == nil then
 				CleanerChat_DB.filters[setting] = value
 			end
 		end
@@ -452,14 +454,14 @@ ns.UpgradeSettings = function(self)
 
 	-- Always backfill any newly added default settings,
 	-- so existing users get sane values for new options.
-	for setting,value in next,defaults do
-		if (type(value) ~= "table" and CleanerChat_DB[setting] == nil) then
+	for setting, value in next, defaults do
+		if type(value) ~= "table" and CleanerChat_DB[setting] == nil then
 			CleanerChat_DB[setting] = value
 		end
 	end
-	if (CleanerChat_DB.filters) then
-		for setting,value in next,defaults.filters do
-			if (CleanerChat_DB.filters[setting] == nil) then
+	if CleanerChat_DB.filters then
+		for setting, value in next, defaults.filters do
+			if CleanerChat_DB.filters[setting] == nil then
 				CleanerChat_DB.filters[setting] = value
 			end
 		end
@@ -473,61 +475,58 @@ end
 -- When oneLineQuestRewards is enabled, collect items, currency, and XP
 -- that fire in the same frame (e.g. quest turn-in) and output as one line.
 -- Batching (per chat frame + next-frame flush) is handled by ns.CreateFrameBuffer.
-local questRewardBuffer = ns.CreateFrameBuffer(
-	function()
-		return { items = {}, xp = nil, money = nil }
-	end,
-	function(chatFrame, buf)
-		-- Build the combined output
-		local parts = {}
+local questRewardBuffer = ns.CreateFrameBuffer(function()
+	return { items = {}, xp = nil, money = nil }
+end, function(chatFrame, buf)
+	-- Build the combined output
+	local parts = {}
 
-		-- Add items (already formatted with color and count)
-		for _, itemText in ipairs(buf.items) do
-			parts[#parts + 1] = itemText
-		end
-
-		-- Add money (already formatted)
-		if (buf.money) then
-			parts[#parts + 1] = buf.money
-		end
-
-		-- Add XP
-		if (buf.xp) then
-			parts[#parts + 1] = buf.xp
-		end
-
-		if (#parts > 0) then
-			local text = ns.out.quest_rewards_combined
-			if (text) then
-				text = string_format(text, table_concat(parts, ", "))
-			else
-				-- Fallback if output format not yet loaded
-				text = "|cff00ff00+|r " .. table_concat(parts, ", ")
-			end
-
-			-- Match the colour these messages normally display with.
-			ns.PrintToFrame(chatFrame, text, "LOOT")
-		end
+	-- Add items (already formatted with color and count)
+	for _, itemText in ipairs(buf.items) do
+		parts[#parts + 1] = itemText
 	end
-)
+
+	-- Add money (already formatted)
+	if buf.money then
+		parts[#parts + 1] = buf.money
+	end
+
+	-- Add XP
+	if buf.xp then
+		parts[#parts + 1] = buf.xp
+	end
+
+	if #parts > 0 then
+		local text = ns.out.quest_rewards_combined
+		if text then
+			text = string_format(text, table_concat(parts, ", "))
+		else
+			-- Fallback if output format not yet loaded
+			text = "|cff00ff00+|r " .. table_concat(parts, ", ")
+		end
+
+		-- Match the colour these messages normally display with.
+		ns.PrintToFrame(chatFrame, text, "LOOT")
+	end
+end)
 
 -- Public API for modules to add rewards to the buffer
 ns.AddQuestReward = function(self, chatFrame, rewardType, rewardText)
-	if (not self.db or not self.db.oneLineQuestRewards) then
+	if not self.db or not self.db.oneLineQuestRewards then
 		return false -- Not buffering, let module handle normally
 	end
 
-	if (not chatFrame or not chatFrame.AddMessage) then
+	if not chatFrame or not chatFrame.AddMessage then
 		return false
 	end
 
 	local buf = questRewardBuffer.Get(chatFrame)
 
-	if (rewardType == "item") then
+	if rewardType == "item" then
 		buf.items[#buf.items + 1] = rewardText
-	elseif (rewardType == "xp") then
+	elseif rewardType == "xp" then
 		buf.xp = rewardText
-	elseif (rewardType == "money") then
+	elseif rewardType == "money" then
 		buf.money = rewardText
 	else
 		return false
@@ -547,12 +546,13 @@ ns.OnInitialize = function(self)
 end
 
 ns.OnEnable = function(self)
-
 	-- Sanitize nil chat args to prevent strlen crashes from malformed server messages
 	local function sanitizeSystemMessage(frame, event, ...)
-		local args = {...}
+		local args = { ... }
 		for i = 1, 12 do
-			if args[i] == nil then args[i] = "" end
+			if args[i] == nil then
+				args[i] = ""
+			end
 		end
 		return false, unpack(args)
 	end
@@ -562,13 +562,13 @@ ns.OnEnable = function(self)
 	self:CacheAllMessageMethods()
 
 	-- Enable modules.
-	for setting,value in next,self.db.filters do
+	for setting, value in next, self.db.filters do
 		local moduleName = self:GetModuleNameFromFilter(setting)
 		local module = ns:GetModule(moduleName, true)
-		if (module) then
-			if (value and not module:IsEnabled()) then
+		if module then
+			if value and not module:IsEnabled() then
 				module:Enable()
-			elseif (not value and module:IsEnabled()) then
+			elseif not value and module:IsEnabled() then
 				module:Disable()
 			end
 		end
@@ -583,13 +583,13 @@ ns.OnEnable = function(self)
 	self:GetModule("VersionCheck"):Enable()
 
 	-- Print startup message (delayed so it's visible after login spam)
-	if (self.db.showStartupMessage) then
+	if self.db.showStartupMessage then
 		-- Use internal ns.Timer (or native C_Timer if available)
-		if (ns.Timer and ns.Timer.After) then
+		if ns.Timer and ns.Timer.After then
 			ns.Timer.After(2, function()
 				print("|cffDFBA69CleanerChat|r: " .. string_format(L["Use %s for settings."], "|cffffd200/cc|r"))
 			end)
-		elseif (C_Timer and C_Timer.After) then
+		elseif C_Timer and C_Timer.After then
 			C_Timer.After(2, function()
 				print("|cffDFBA69CleanerChat|r: " .. string_format(L["Use %s for settings."], "|cffffd200/cc|r"))
 			end)
@@ -597,6 +597,4 @@ ns.OnEnable = function(self)
 			print("|cffDFBA69CleanerChat|r: " .. string_format(L["Use %s for settings."], "|cffffd200/cc|r"))
 		end
 	end
-
 end
-

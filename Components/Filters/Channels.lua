@@ -30,27 +30,27 @@ local formatChannelTag = function(channel, number, displaynum, name)
 	local capitalize = (db == nil) or db.channelCapitalize
 
 	local label
-	if (mode == "full") then
+	if mode == "full" then
 		label = name or ""
-		if (capitalize and label ~= "") then
-			label = string_upper(string_sub(label, 1, 1))..string_sub(label, 2)
+		if capitalize and label ~= "" then
+			label = string_upper(string_sub(label, 1, 1)) .. string_sub(label, 2)
 		end
 	else
 		label = string_sub(name or "", 1, 1)
-		if (capitalize) then
+		if capitalize then
 			label = string_upper(label)
 		end
 	end
 
 	-- Both modes are wrapped in brackets, e.g. "[G]" or "[General]".
-	label = "["..label.."]"
+	label = "[" .. label .. "]"
 
 	local prefix = ""
-	if (showNumber and displaynum) then
-		prefix = displaynum..". "
+	if showNumber and displaynum then
+		prefix = displaynum .. ". "
 	end
 
-	return "|Hchannel:"..channel..":"..number.."|h"..prefix..label.."|h"
+	return "|Hchannel:" .. channel .. ":" .. number .. "|h" .. prefix .. label .. "|h"
 end
 
 -- WoW Globals (some may be nil in older clients like 3.3.5)
@@ -66,12 +66,11 @@ local G = {
 	CHAT_RAID_LEADER_GET = CHAT_RAID_LEADER_GET,
 	CHAT_RAID_WARNING_GET = CHAT_RAID_WARNING_GET,
 	CHAT_OFFICER_GET = CHAT_OFFICER_GET,
-	CHAT_YOU_CHANGED_NOTICE =  CHAT_YOU_CHANGED_NOTICE, -- "Changed Channel: |Hchannel:%d|h[%s]|h"
-	CHAT_YOU_CHANGED_NOTICE_BN =  CHAT_YOU_CHANGED_NOTICE_BN -- "Changed Channel: |Hchannel:CHANNEL:%d|h[%s]|h" (may be nil in 3.3.5)
+	CHAT_YOU_CHANGED_NOTICE = CHAT_YOU_CHANGED_NOTICE, -- "Changed Channel: |Hchannel:%d|h[%s]|h"
+	CHAT_YOU_CHANGED_NOTICE_BN = CHAT_YOU_CHANGED_NOTICE_BN, -- "Changed Channel: |Hchannel:CHANNEL:%d|h[%s]|h" (may be nil in 3.3.5)
 }
 
 Module.OnInitialize = function(self)
-
 	self.replacements = {}
 
 	-- Helper for channels that respects channelNameMode setting
@@ -80,14 +79,17 @@ Module.OnInitialize = function(self)
 		if chatGlobal then
 			local match = string_match(chatGlobal, "%[(.-)%]")
 			if match then
-				table_insert(self.replacements, {"%["..match.."%]", function()
-					local mode = (ns.db and ns.db.channelNameMode) or "initial"
-					if mode == "full" then
-						return "[" .. fullName .. "]"
-					else
-						return "[" .. shortName .. "]"
-					end
-				end})
+				table_insert(self.replacements, {
+					"%[" .. match .. "%]",
+					function()
+						local mode = (ns.db and ns.db.channelNameMode) or "initial"
+						if mode == "full" then
+							return "[" .. fullName .. "]"
+						else
+							return "[" .. shortName .. "]"
+						end
+					end,
+				})
 			end
 		end
 	end
@@ -110,20 +112,23 @@ Module.OnInitialize = function(self)
 
 	-- Ascension-specific: Dungeon Guide (LFG party channel)
 	-- Format: |Hchannel:PARTY|h[Dungeon Guide]|h
-	table_insert(self.replacements, {"|Hchannel:PARTY|h%[Dungeon Guide%]|h", function()
-		local mode = (ns.db and ns.db.channelNameMode) or "initial"
-		if mode == "full" then
-			return "|Hchannel:PARTY|h[Dungeon Guide]|h"
-		else
-			return "|Hchannel:PARTY|h[" .. L["DG"] .. "]|h"
-		end
-	end})
-	
+	table_insert(self.replacements, {
+		"|Hchannel:PARTY|h%[Dungeon Guide%]|h",
+		function()
+			local mode = (ns.db and ns.db.channelNameMode) or "initial"
+			if mode == "full" then
+				return "|Hchannel:PARTY|h[Dungeon Guide]|h"
+			else
+				return "|Hchannel:PARTY|h[" .. L["DG"] .. "]|h"
+			end
+		end,
+	})
+
 	-- Raid Warning gets special formatting - red exclamation mark (no brackets)
 	if G.CHAT_RAID_WARNING_GET then
 		local match = string_match(G.CHAT_RAID_WARNING_GET, "%[(.-)%]")
 		if match then
-			table_insert(self.replacements, {"%["..match.."%]", "|cffff0000!|r"})
+			table_insert(self.replacements, { "%[" .. match .. "%]", "|cffff0000!|r" })
 		end
 	end
 
@@ -132,7 +137,10 @@ Module.OnInitialize = function(self)
 
 	-- Only works for English, will add a better solution later.
 	--table_insert(self.replacements, { "^Changed Channel: |Hchannel:(.-):(%d+)|h%[(%d)%. (.-)(%s%-%s.-)%]|h", "|Hchannel:%1:%2|h%3. %5|h" })
-	table_insert(self.replacements, { "^Changed Channel: |Hchannel:(.-):(%d+)|h%[(%d)%. (.-)%]|h", "|Hchannel:%1:%2|h%3. %4|h" })
+	table_insert(
+		self.replacements,
+		{ "^Changed Channel: |Hchannel:(.-):(%d+)|h%[(%d)%. (.-)%]|h", "|Hchannel:%1:%2|h%3. %4|h" }
+	)
 	-- |Hchannel:%d|h[%s]|h
 
 	-- Turns "[1. General - The Barrens]" into "1. [G]".
@@ -141,9 +149,11 @@ Module.OnInitialize = function(self)
 	-- item link. (An item like "[Keystone: Scarlet Monastery - Library (1)]"
 	-- also contains " - ", which previously made the lazy ".-" swallow the
 	-- whole line, deleting the sender's name and the item link.)
-	table_insert(self.replacements, {"|Hchannel:([^|]-):(%d+)|h%[(%d+)%. ([^%]|]-)(%s%-%s[^%]|]-)%]|h", formatChannelTag})
-	table_insert(self.replacements, {"|Hchannel:([^|]-):(%d+)|h%[(%d+)%. ([^%]|]-)%]|h", formatChannelTag})
-
+	table_insert(
+		self.replacements,
+		{ "|Hchannel:([^|]-):(%d+)|h%[(%d+)%. ([^%]|]-)(%s%-%s[^%]|]-)%]|h", formatChannelTag }
+	)
+	table_insert(self.replacements, { "|Hchannel:([^|]-):(%d+)|h%[(%d+)%. ([^%]|]-)%]|h", formatChannelTag })
 end
 
 Module.OnEnable = function(self)

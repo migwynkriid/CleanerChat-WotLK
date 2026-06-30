@@ -4,7 +4,9 @@ Container controlled by a dropdown on the top.
 -------------------------------------------------------------------------------]]
 local Type, Version = "DropdownGroup", 22
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
-if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
+if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then
+	return
+end
 
 -- Lua APIs
 local assert, pairs, type = assert, pairs, type
@@ -50,8 +52,8 @@ local methods = {
 		end
 	end,
 
-	["SetGroupList"] = function(self,list,order)
-		self.dropdown:SetList(list,order)
+	["SetGroupList"] = function(self, list, order)
+		self.dropdown:SetList(list, order)
 	end,
 
 	["SetStatusTable"] = function(self, status)
@@ -59,7 +61,7 @@ local methods = {
 		self.status = status
 	end,
 
-	["SetGroup"] = function(self,group)
+	["SetGroup"] = function(self, group)
 		self.dropdown:SetValue(group)
 		local status = self.status or self.localstatus
 		status.selected = group
@@ -92,17 +94,19 @@ local methods = {
 
 	["SetDropdownWidth"] = function(self, width)
 		self.dropdown:SetWidth(width)
-	end
+	end,
 }
 
 --[[-----------------------------------------------------------------------------
 Constructor
 -------------------------------------------------------------------------------]]
-local PaneBackdrop  = {
+local PaneBackdrop = {
 	bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-	tile = true, tileSize = 16, edgeSize = 16,
-	insets = { left = 3, right = 3, top = 5, bottom = 3 }
+	tile = true,
+	tileSize = 16,
+	edgeSize = 16,
+	insets = { left = 3, right = 3, top = 5, bottom = 3 },
 }
 
 local function Constructor()
@@ -129,8 +133,8 @@ local function Constructor()
 	border:SetPoint("TOPLEFT", 0, -26)
 	border:SetPoint("BOTTOMRIGHT", 0, 3)
 	border:SetBackdrop(PaneBackdrop)
-	border:SetBackdropColor(0.1,0.1,0.1,0.5)
-	border:SetBackdropBorderColor(0.4,0.4,0.4)
+	border:SetBackdropColor(0.1, 0.1, 0.1, 0.5)
+	border:SetBackdropBorderColor(0.4, 0.4, 0.4)
 
 	--Container Support
 	local content = CreateFrame("Frame", nil, border)
@@ -138,13 +142,13 @@ local function Constructor()
 	content:SetPoint("BOTTOMRIGHT", -10, 10)
 
 	local widget = {
-		frame       = frame,
+		frame = frame,
 		localstatus = {},
-		titletext   = titletext,
-		dropdown    = dropdown,
-		border      = border,
-		content     = content,
-		type        = Type
+		titletext = titletext,
+		dropdown = dropdown,
+		border = border,
+		content = content,
+		type = Type,
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func

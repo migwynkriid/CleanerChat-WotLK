@@ -31,17 +31,17 @@ local events = {
 	"CHAT_MSG_RAID_LEADER",
 	"CHAT_MSG_RAID_WARNING",
 	"CHAT_MSG_WHISPER",
-	"CHAT_MSG_WHISPER_INFORM"
+	"CHAT_MSG_WHISPER_INFORM",
 }
 
 Module.OnEnable = function(self)
-	for _,event in ipairs(events) do
+	for _, event in ipairs(events) do
 		self:RegisterMessageEventFilter(event, onChatEventProxy)
 	end
 end
 
 Module.OnDisable = function(self)
-	for _,event in ipairs(events) do
+	for _, event in ipairs(events) do
 		self:UnregisterMessageEventFilter(event, onChatEventProxy)
 	end
 end

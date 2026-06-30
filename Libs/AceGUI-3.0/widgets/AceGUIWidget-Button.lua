@@ -4,7 +4,9 @@ Graphical Button.
 -------------------------------------------------------------------------------]]
 local Type, Version = "Button", 24
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
-if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
+if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then
+	return
+end
 
 -- Lua APIs
 local pairs = pairs
@@ -66,7 +68,7 @@ local methods = {
 		else
 			self.frame:Enable()
 		end
-	end
+	end,
 }
 
 --[[-----------------------------------------------------------------------------
@@ -89,9 +91,9 @@ local function Constructor()
 	text:SetJustifyV("MIDDLE")
 
 	local widget = {
-		text  = text,
+		text = text,
 		frame = frame,
-		type  = Type
+		type = Type,
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func

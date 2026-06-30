@@ -4,7 +4,9 @@ Plain container that scrolls its content and doesn't grow in height.
 -------------------------------------------------------------------------------]]
 local Type, Version = "ScrollFrame", 26
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
-if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
+if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then
+	return
+end
 
 -- Lua APIs
 local pairs, assert, type = pairs, assert, type
@@ -84,12 +86,14 @@ local methods = {
 			if value < 0 then
 				delta = -1
 			end
-			self.scrollbar:SetValue(min(max(status.scrollvalue + delta*(1000/(diff/45)),0), 1000))
+			self.scrollbar:SetValue(min(max(status.scrollvalue + delta * (1000 / (diff / 45)), 0), 1000))
 		end
 	end,
 
 	["FixScroll"] = function(self)
-		if self.updateLock then return end
+		if self.updateLock then
+			return
+		end
 		self.updateLock = true
 		local status = self.status or self.localstatus
 		local height, viewheight = self.scrollframe:GetHeight(), self.content:GetHeight()
@@ -118,7 +122,9 @@ local methods = {
 				self:DoLayout()
 			end
 			local value = (offset / (viewheight - height) * 1000)
-			if value > 1000 then value = 1000 end
+			if value > 1000 then
+				value = 1000
+			end
 			self.scrollbar:SetValue(value)
 			self:SetScroll(value)
 			if value < 1000 then
@@ -158,7 +164,7 @@ local methods = {
 	["OnHeightSet"] = function(self, height)
 		local content = self.content
 		content.height = height
-	end
+	end,
 }
 --[[-----------------------------------------------------------------------------
 Constructor
@@ -174,7 +180,12 @@ local function Constructor()
 	scrollframe:SetScript("OnMouseWheel", ScrollFrame_OnMouseWheel)
 	scrollframe:SetScript("OnSizeChanged", ScrollFrame_OnSizeChanged)
 
-	local scrollbar = CreateFrame("Slider", ("AceConfigDialogScrollFrame%dScrollBar"):format(num), scrollframe, "UIPanelScrollBarTemplate")
+	local scrollbar = CreateFrame(
+		"Slider",
+		("AceConfigDialogScrollFrame%dScrollBar"):format(num),
+		scrollframe,
+		"UIPanelScrollBarTemplate"
+	)
 	scrollbar:SetPoint("TOPLEFT", scrollframe, "TOPRIGHT", 4, -16)
 	scrollbar:SetPoint("BOTTOMLEFT", scrollframe, "BOTTOMRIGHT", 4, 16)
 	scrollbar:SetMinMaxValues(0, 1000)
@@ -205,10 +216,10 @@ local function Constructor()
 	local widget = {
 		localstatus = { scrollvalue = 0 },
 		scrollframe = scrollframe,
-		scrollbar   = scrollbar,
-		content     = content,
-		frame       = frame,
-		type        = Type
+		scrollbar = scrollbar,
+		content = content,
+		frame = frame,
+		type = Type,
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func

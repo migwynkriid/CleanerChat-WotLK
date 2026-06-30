@@ -15,7 +15,9 @@ local CallbackHandler = LibStub("CallbackHandler-1.0")
 local MAJOR, MINOR = "AceEvent-3.0", 4
 local AceEvent = LibStub:NewLibrary(MAJOR, MINOR)
 
-if not AceEvent then return end
+if not AceEvent then
+	return
+end
 
 -- Lua APIs
 local pairs = pairs
@@ -25,8 +27,7 @@ AceEvent.embeds = AceEvent.embeds or {} -- what objects embed this lib
 
 -- APIs and registry for blizzard events, using CallbackHandler lib
 if not AceEvent.events then
-	AceEvent.events = CallbackHandler:New(AceEvent,
-		"RegisterEvent", "UnregisterEvent", "UnregisterAllEvents")
+	AceEvent.events = CallbackHandler:New(AceEvent, "RegisterEvent", "UnregisterEvent", "UnregisterAllEvents")
 end
 
 function AceEvent.events:OnUsed(target, eventname)
@@ -37,21 +38,21 @@ function AceEvent.events:OnUnused(target, eventname)
 	AceEvent.frame:UnregisterEvent(eventname)
 end
 
-
 -- APIs and registry for IPC messages, using CallbackHandler lib
 if not AceEvent.messages then
-	AceEvent.messages = CallbackHandler:New(AceEvent,
-		"RegisterMessage", "UnregisterMessage", "UnregisterAllMessages"
-	)
+	AceEvent.messages = CallbackHandler:New(AceEvent, "RegisterMessage", "UnregisterMessage", "UnregisterAllMessages")
 	AceEvent.SendMessage = AceEvent.messages.Fire
 end
 
 --- embedding and embed handling
 local mixins = {
-	"RegisterEvent", "UnregisterEvent",
-	"RegisterMessage", "UnregisterMessage",
+	"RegisterEvent",
+	"UnregisterEvent",
+	"RegisterMessage",
+	"UnregisterMessage",
 	"SendMessage",
-	"UnregisterAllEvents", "UnregisterAllMessages",
+	"UnregisterAllEvents",
+	"UnregisterAllMessages",
 }
 
 --- Register for a Blizzard Event.
@@ -92,7 +93,6 @@ local mixins = {
 -- @paramsig message, ...
 -- @param message The message to send
 -- @param ... Any arguments to the message
-
 
 -- Embeds AceEvent into the target object making the functions from the mixins list available on target:..
 -- @param target target object to embed AceEvent in

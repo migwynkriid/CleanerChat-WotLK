@@ -26,12 +26,12 @@
 local MAJOR_VERSION = "LibMoreEvents-1.0"
 local MINOR_VERSION = 4
 
-if (not LibStub) then
+if not LibStub then
 	error(MAJOR_VERSION .. " requires LibStub.")
 end
 
 local lib, oldversion = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
-if (not lib) then
+if not lib then
 	return
 end
 
@@ -74,23 +74,23 @@ local hasRegisterUnitEvent = (registerUnitEvent ~= nil)
 -- events[event][module](event, ...)
 local fire_mt = {
 	__call = function(funcs, module, event, ...)
-		for _,func in next,funcs do
-			if (type(func) == "string") then
+		for _, func in next, funcs do
+			if type(func) == "string" then
 				module[func](module, event, ...)
 			else
 				func(module, event, ...)
 			end
 		end
-	end
+	end,
 }
 
 -- Fire an event to all registered modules.
 -- events[event](...)
 local events_mt = {
 	__call = function(modules, event, ...)
-		for module,funcs in next,modules do
-			 -- funcs can be a function, a method name, or a table of those.
-			if (type(funcs) == "string") then
+		for module, funcs in next, modules do
+			-- funcs can be a function, a method name, or a table of those.
+			if type(funcs) == "string" then
 				module[funcs](module, event, ...)
 			else
 				-- This applies to both functions and tables.
@@ -99,17 +99,17 @@ local events_mt = {
 				funcs(module, event, ...)
 			end
 		end
-	end
+	end,
 }
 
 -- Event registry.
 -- events[event][module] = { func, func, ... }
 local events = setmetatable({}, {
-	__index = function(t,k)
+	__index = function(t, k)
 		local new = setmetatable({}, events_mt)
-		rawset(t,k,new)
+		rawset(t, k, new)
 		return new
-	end
+	end,
 })
 
 -- Invoke the __call metamethod of the event registry,
@@ -122,22 +122,24 @@ end
 --------------------------------------------------
 local error = function(...)
 	local message, level = ...
-	if (message) then
-		print("|cffff0000"..message.."|r")
+	if message then
+		print("|cffff0000" .. message .. "|r")
 	end
 end
 
 -- Lua 5.1 compatible: wrap in closure since xpcall(f, err, ...) is 5.2+ only
 local _xpcall = function(func, ...)
-	local args = {...}
-	return xpcall(function() return func(unpack(args)) end, error)
+	local args = { ... }
+	return xpcall(function()
+		return func(unpack(args))
+	end, error)
 end
 
 -- Validation
 --------------------------------------------------
 local validateEvent = function(event)
 	local isOK = _xpcall(validator.RegisterEvent, validator, event)
-	if (isOK) then
+	if isOK then
 		validator:UnregisterEvent(event)
 	end
 	return isOK
@@ -145,11 +147,11 @@ end
 
 local validateUnit = function(unit)
 	-- 3.3.5 Compatibility: RegisterUnitEvent doesn't exist
-	if (not hasRegisterUnitEvent) then
+	if not hasRegisterUnitEvent then
 		return true -- Assume all units are valid
 	end
 	local isOK, _ = pcall(validator.RegisterUnitEvent, validator, "UNIT_HEALTH", unit)
-	if (isOK) then
+	if isOK then
 		_, unit = validator:IsEventRegistered("UNIT_HEALTH")
 		validator:UnregisterEvent("UNIT_HEALTH")
 		return not not unit
@@ -158,11 +160,11 @@ end
 
 local isUnitEvent = function(event, unit)
 	-- 3.3.5 Compatibility: RegisterUnitEvent doesn't exist
-	if (not hasRegisterUnitEvent) then
+	if not hasRegisterUnitEvent then
 		return false
 	end
 	local isOK = pcall(validator.RegisterUnitEvent, validator, event, unit)
-	if (isOK) then
+	if isOK then
 		validator:UnregisterEvent(event)
 	end
 	return isOK
@@ -181,29 +183,26 @@ Used to register a module for a game event and add an event handler.
 --]]
 lib.RegisterEvent = function(self, event, callback)
 	local curev = events[event][self]
-	if (curev) then
+	if curev then
 		local kind = type(curev)
-		if ((kind == "function" or kind == "string") and (curev ~= callback)) then
+		if (kind == "function" or kind == "string") and (curev ~= callback) then
 			events[event][self] = setmetatable({ curev, callback }, fire_mt)
-
-		elseif (kind == "table") then
+		elseif kind == "table" then
 			for _, infunc in next, curev do
-				if (infunc == callback) then
+				if infunc == callback then
 					return
 				end
 			end
 			table_insert(curev, callback)
 		end
 		registerEvent(frame, event)
-
-	elseif (validateEvent(event)) then
+	elseif validateEvent(event) then
 		events[event][self] = callback
 
-		if (not frame:GetScript("OnEvent")) then
+		if not frame:GetScript("OnEvent") then
 			frame:SetScript("OnEvent", onEvent)
 		end
 		registerEvent(frame, event)
-
 	end
 end
 
@@ -224,38 +223,34 @@ You must unregister the event in order to switch to or from an Frame:RegisterEve
 --]]
 lib.RegisterUnitEvent = function(self, event, callback, unit1, unit2)
 	-- 3.3.5 Compatibility: Fall back to RegisterEvent if RegisterUnitEvent doesn't exist
-	if (not hasRegisterUnitEvent) then
+	if not hasRegisterUnitEvent then
 		return lib.RegisterEvent(self, event, callback)
 	end
 
 	local curev = events[event][self]
-	if (curev) then
+	if curev then
 		local kind = type(curev)
-		if ((kind == "function" or kind == "string") and (curev ~= callback)) then
+		if (kind == "function" or kind == "string") and (curev ~= callback) then
 			events[event][self] = setmetatable({ curev, callback }, fire_mt)
-
-		elseif (kind == "table") then
+		elseif kind == "table" then
 			for _, infunc in next, curev do
-				if (infunc == callback) then
+				if infunc == callback then
 					return
 				end
 			end
 			table_insert(curev, callback)
 		end
 		registerUnitEvent(frame, event, unit1, unit2)
-
-	elseif (validateEvent(event)) then
+	elseif validateEvent(event) then
 		events[event][self] = callback
 
-		if (not frame:GetScript("OnEvent")) then
+		if not frame:GetScript("OnEvent") then
 			frame:SetScript("OnEvent", onEvent)
 		end
-		if (unit1 and validateUnit(unit1)) then
-
-			assert(isUnitEvent(event, unit1), string_format("Event \"%s\" is not an unit event", event))
+		if unit1 and validateUnit(unit1) then
+			assert(isUnitEvent(event, unit1), string_format('Event "%s" is not an unit event', event))
 			registerUnitEvent(frame, event, unit1, unit2)
 		end
-
 	end
 end
 
@@ -273,9 +268,9 @@ lib.UnregisterEvent = function(self, event, callback)
 	local curev = events[event][self]
 	-- We have multiple event registrations on the module,
 	-- so iterate them all and remove only the current.
-	if ((type(curev) == "table") and (callback)) then
-		for k,infunc in next,curev do
-			if (infunc == callback) then
+	if (type(curev) == "table") and callback then
+		for k, infunc in next, curev do
+			if infunc == callback then
 				curev[k] = nil
 				break
 			end
@@ -283,16 +278,16 @@ lib.UnregisterEvent = function(self, event, callback)
 		-- This module has no more entries for this event,
 		-- so schedule a cleanup down below to see if
 		-- the event listener is still needed.
-		if (not next(curev)) then
+		if not next(curev) then
 			cleanUp = true
 		end
 	end
-	if ((cleanUp) or (curev == callback)) then
+	if cleanUp or (curev == callback) then
 		-- Clear the event entry for this module.
 		events[event][self] = nil
 		-- Kill the event listener if no more modules
 		-- has registered for it.
-		if (not next(events[event])) then
+		if not next(events[event]) then
 			unregisterEvent(frame, event)
 		end
 	end
@@ -301,7 +296,7 @@ end
 local mixins = {
 	RegisterEvent = true,
 	RegisterUnitEvent = true,
-	UnregisterEvent = true
+	UnregisterEvent = true,
 }
 
 lib.Embed = function(self, target)

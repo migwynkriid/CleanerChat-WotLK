@@ -29,7 +29,7 @@ do
 	local function ContentSpeakerOnClick(this, button)
 		local self = this.frame.obj
 		local sound = this.frame.text:GetText()
-		PlaySoundFile(self.list[sound] ~= sound and self.list[sound] or Media:Fetch('sound',sound), "Master")
+		PlaySoundFile(self.list[sound] ~= sound and self.list[sound] or Media:Fetch("sound", sound), "Master")
 	end
 
 	local function GetContentLine()
@@ -38,40 +38,40 @@ do
 			frame = table.remove(contentFrameCache)
 		else
 			frame = CreateFrame("Button", nil, UIParent)
-				--frame:SetWidth(200)
-				frame:SetHeight(18)
-				frame:SetHighlightTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]], "ADD")
-				frame:SetScript("OnClick", ContentOnClick)
+			--frame:SetWidth(200)
+			frame:SetHeight(18)
+			frame:SetHighlightTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]], "ADD")
+			frame:SetScript("OnClick", ContentOnClick)
 			local check = frame:CreateTexture("OVERLAY")
-				check:SetWidth(16)
-				check:SetHeight(16)
-				check:SetPoint("LEFT",frame,"LEFT",1,-1)
-				check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
-				check:Hide()
+			check:SetWidth(16)
+			check:SetHeight(16)
+			check:SetPoint("LEFT", frame, "LEFT", 1, -1)
+			check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+			check:Hide()
 			frame.check = check
 
 			local soundbutton = CreateFrame("Button", nil, frame)
-				soundbutton:SetWidth(16)
-				soundbutton:SetHeight(16)
-				soundbutton:SetPoint("RIGHT",frame,"RIGHT",-1,0)
-				soundbutton.frame = frame
-				soundbutton:SetScript("OnClick", ContentSpeakerOnClick)
+			soundbutton:SetWidth(16)
+			soundbutton:SetHeight(16)
+			soundbutton:SetPoint("RIGHT", frame, "RIGHT", -1, 0)
+			soundbutton.frame = frame
+			soundbutton:SetScript("OnClick", ContentSpeakerOnClick)
 			frame.soundbutton = soundbutton
 
 			local speaker = soundbutton:CreateTexture(nil, "BACKGROUND")
-				speaker:SetTexture("Interface\\Common\\VoiceChat-Speaker")
-				speaker:SetAllPoints(soundbutton)
+			speaker:SetTexture("Interface\\Common\\VoiceChat-Speaker")
+			speaker:SetAllPoints(soundbutton)
 			frame.speaker = speaker
 			local speakeron = soundbutton:CreateTexture(nil, "HIGHLIGHT")
-				speakeron:SetTexture("Interface\\Common\\VoiceChat-On")
-				speakeron:SetAllPoints(soundbutton)
+			speakeron:SetTexture("Interface\\Common\\VoiceChat-On")
+			speakeron:SetAllPoints(soundbutton)
 			frame.speakeron = speakeron
 
-			local text = frame:CreateFontString(nil,"OVERLAY","GameFontWhite")
-				text:SetPoint("TOPLEFT", check, "TOPRIGHT", 1, 0)
-				text:SetPoint("BOTTOMRIGHT", soundbutton, "BOTTOMLEFT", -2, 0)
-				text:SetJustifyH("LEFT")
-				text:SetText("Test Test Test Test Test Test Test")
+			local text = frame:CreateFontString(nil, "OVERLAY", "GameFontWhite")
+			text:SetPoint("TOPLEFT", check, "TOPRIGHT", 1, 0)
+			text:SetPoint("BOTTOMRIGHT", soundbutton, "BOTTOMLEFT", -2, 0)
+			text:SetJustifyH("LEFT")
+			text:SetText("Test Test Test Test Test Test Test")
 			frame.text = text
 			frame.ReturnSelf = ReturnSelf
 		end
@@ -128,8 +128,10 @@ do
 	local SetItemValue = AddItem -- Set the value of a item in the list. <<same as adding a new item>>
 
 	local function SetMultiselect(self, flag) end -- Toggle multi-selecting. <<Dummy function to stay inline with the dropdown API>>
-	local function GetMultiselect() return false end-- Query the multi-select flag. <<Dummy function to stay inline with the dropdown API>>
-	local function SetItemDisabled(self, key) end-- Disable one item in the list. <<Dummy function to stay inline with the dropdown API>>
+	local function GetMultiselect()
+		return false
+	end -- Query the multi-select flag. <<Dummy function to stay inline with the dropdown API>>
+	local function SetItemDisabled(self, key) end -- Disable one item in the list. <<Dummy function to stay inline with the dropdown API>>
 
 	local function SetDisabled(self, disabled) -- Disable the widget.
 		self.disabled = disabled
@@ -144,7 +146,7 @@ do
 		end
 	end
 
-	local function textSort(a,b)
+	local function textSort(a, b)
 		return string.upper(a) < string.upper(b)
 	end
 
@@ -161,7 +163,7 @@ do
 			self.dropdown:SetPoint("TOPLEFT", self.frame, "BOTTOMLEFT")
 			self.dropdown:SetPoint("TOPRIGHT", self.frame, "BOTTOMRIGHT", width < 160 and (160 - width) or 0, 0)
 			for k, v in pairs(self.list) do
-				sortedlist[#sortedlist+1] = k
+				sortedlist[#sortedlist + 1] = k
 			end
 			table.sort(sortedlist, textSort)
 			for i, k in ipairs(sortedlist) do
@@ -201,7 +203,7 @@ do
 	local function WidgetPlaySound(this)
 		local self = this.obj
 		local sound = self.frame.text:GetText()
-		PlaySoundFile(self.list[sound] ~= sound and self.list[sound] or Media:Fetch('sound',sound), "Master")
+		PlaySoundFile(self.list[sound] ~= sound and self.list[sound] or Media:Fetch("sound", sound), "Master")
 	end
 
 	local function Constructor()
@@ -214,27 +216,25 @@ do
 		frame.dropButton.obj = self
 		frame.dropButton:SetScript("OnEnter", Drop_OnEnter)
 		frame.dropButton:SetScript("OnLeave", Drop_OnLeave)
-		frame.dropButton:SetScript("OnClick",ToggleDrop)
+		frame.dropButton:SetScript("OnClick", ToggleDrop)
 		frame:SetScript("OnHide", OnHide)
 
-
 		local soundbutton = CreateFrame("Button", nil, frame)
-			soundbutton:SetWidth(16)
-			soundbutton:SetHeight(16)
-			soundbutton:SetPoint("LEFT",frame.DLeft,"LEFT",26,1)
-			soundbutton:SetScript("OnClick", WidgetPlaySound)
-			soundbutton.obj = self
+		soundbutton:SetWidth(16)
+		soundbutton:SetHeight(16)
+		soundbutton:SetPoint("LEFT", frame.DLeft, "LEFT", 26, 1)
+		soundbutton:SetScript("OnClick", WidgetPlaySound)
+		soundbutton.obj = self
 		self.soundbutton = soundbutton
-		frame.text:SetPoint("LEFT",soundbutton,"RIGHT",2,0)
-
+		frame.text:SetPoint("LEFT", soundbutton, "RIGHT", 2, 0)
 
 		local speaker = soundbutton:CreateTexture(nil, "BACKGROUND")
-			speaker:SetTexture("Interface\\Common\\VoiceChat-Speaker")
-			speaker:SetAllPoints(soundbutton)
+		speaker:SetTexture("Interface\\Common\\VoiceChat-Speaker")
+		speaker:SetAllPoints(soundbutton)
 		self.speaker = speaker
 		local speakeron = soundbutton:CreateTexture(nil, "HIGHLIGHT")
-			speakeron:SetTexture("Interface\\Common\\VoiceChat-On")
-			speakeron:SetAllPoints(soundbutton)
+		speakeron:SetTexture("Interface\\Common\\VoiceChat-On")
+		speakeron:SetAllPoints(soundbutton)
 		self.speakeron = speakeron
 
 		self.alignoffset = 31
@@ -260,5 +260,4 @@ do
 	end
 
 	AceGUI:RegisterWidgetType(widgetType, Constructor, widgetVersion)
-
 end

@@ -10,7 +10,7 @@ Module.OnInitialize = function(self)
 	self.replacements = {}
 
 	local Colors = ns.Colors
-	for class,color in pairs(Colors.blizzclass) do
+	for class, color in pairs(Colors.blizzclass) do
 		if color and color.colorCode and Colors.class[class] and Colors.class[class].colorCode then
 			table_insert(self.replacements, { color.colorCode, Colors.class[class].colorCode })
 		end
@@ -24,5 +24,3 @@ end
 Module.OnDisable = function(self)
 	self:UnregisterMessageReplacement(self.replacements)
 end
-
-

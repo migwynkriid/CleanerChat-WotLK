@@ -27,9 +27,9 @@ local BTN_BG = { r = 0.12, g = 0.12, b = 0.14, a = 0.90 }
 local SOLID = "Interface\\Buttons\\WHITE8x8"
 
 -- Layout constants
-local EDGE_INSET = 8        -- Main content inset from window edge
-local TITLE_HEIGHT = 32     -- Title bar height
-local STATUS_HEIGHT = 24    -- Status bar height at bottom
+local EDGE_INSET = 8 -- Main content inset from window edge
+local TITLE_HEIGHT = 32 -- Title bar height
+local STATUS_HEIGHT = 24 -- Status bar height at bottom
 
 -- A clean 1px-bordered flat backdrop.
 local GlassBackdrop = {
@@ -48,7 +48,9 @@ local CLOSE = CLOSE or "Close"
 -- Helpers ------------------------------------------------------------------
 
 local function applyGlass(frame, bg, borderAlpha)
-	if (not frame) or (not frame.SetBackdrop) then return end
+	if (not frame) or not frame.SetBackdrop then
+		return
+	end
 	frame:SetBackdrop(GlassBackdrop)
 	frame:SetBackdropColor(bg.r, bg.g, bg.b, bg.a)
 	frame:SetBackdropBorderColor(GOLD.r, GOLD.g, GOLD.b, borderAlpha or 0.35)
@@ -58,21 +60,25 @@ end
 local function stripButtonTextures(btn)
 	local getters = { "GetNormalTexture", "GetPushedTexture", "GetHighlightTexture", "GetDisabledTexture" }
 	for _, getter in ipairs(getters) do
-		if (btn[getter]) then
+		if btn[getter] then
 			local tex = btn[getter](btn)
-			if (tex and tex.SetTexture) then tex:SetTexture(nil) end
+			if tex and tex.SetTexture then
+				tex:SetTexture(nil)
+			end
 		end
 	end
 end
 
 -- Flat dark button with a gold hover + gold label (used for Close).
 local function styleButton(btn)
-	if (not btn) or (btn.ccSkinned) then return end
+	if (not btn) or btn.ccSkinned then
+		return
+	end
 	btn.ccSkinned = true
 
 	stripButtonTextures(btn)
 
-	if (not btn.ccBg) then
+	if not btn.ccBg then
 		-- Gold edge underneath (full cover), dark fill on top inset by 1px so
 		-- only a 1px gold frame shows around the edges.
 		local border = btn:CreateTexture(nil, "BACKGROUND")
@@ -90,26 +96,36 @@ local function styleButton(btn)
 	end
 
 	local label = btn.GetFontString and btn:GetFontString()
-	if (label) then
+	if label then
 		label:SetTextColor(GOLD.r, GOLD.g, GOLD.b)
 	end
 
 	btn:HookScript("OnEnter", function(self)
-		if (self.ccBg) then self.ccBg:SetVertexColor(GOLD.r * 0.30, GOLD.g * 0.28, GOLD.b * 0.20, 0.95) end
-		if (self.ccBorder) then self.ccBorder:SetVertexColor(GOLD.r, GOLD.g, GOLD.b, 0.85) end
+		if self.ccBg then
+			self.ccBg:SetVertexColor(GOLD.r * 0.30, GOLD.g * 0.28, GOLD.b * 0.20, 0.95)
+		end
+		if self.ccBorder then
+			self.ccBorder:SetVertexColor(GOLD.r, GOLD.g, GOLD.b, 0.85)
+		end
 	end)
 	btn:HookScript("OnLeave", function(self)
-		if (self.ccBg) then self.ccBg:SetVertexColor(BTN_BG.r, BTN_BG.g, BTN_BG.b, BTN_BG.a) end
-		if (self.ccBorder) then self.ccBorder:SetVertexColor(GOLD.r, GOLD.g, GOLD.b, 0.40) end
+		if self.ccBg then
+			self.ccBg:SetVertexColor(BTN_BG.r, BTN_BG.g, BTN_BG.b, BTN_BG.a)
+		end
+		if self.ccBorder then
+			self.ccBorder:SetVertexColor(GOLD.r, GOLD.g, GOLD.b, 0.40)
+		end
 	end)
 end
 
 -- Give a tree nav button a gold hover/selected highlight.
 local function skinTreeButton(button)
-	if (not button) or (button.ccSkinned) then return end
+	if (not button) or button.ccSkinned then
+		return
+	end
 	button.ccSkinned = true
 	local hl = button.GetHighlightTexture and button:GetHighlightTexture()
-	if (hl) then
+	if hl then
 		hl:SetTexture(SOLID)
 		hl:SetVertexColor(GOLD.r, GOLD.g, GOLD.b, 0.22)
 	end
@@ -117,20 +133,22 @@ end
 
 -- Skin the left category tree + its content border.
 local function skinTree(tree, mainFrame)
-	if (not tree) then return end
+	if not tree then
+		return
+	end
 
 	-- Apply glass styling to tree frame (left category list)
-	if (tree.treeframe) then
+	if tree.treeframe then
 		applyGlass(tree.treeframe, INNER, 0.50)
 	end
 
 	-- Apply glass styling to content border (right content area)
-	if (tree.border) then
+	if tree.border then
 		applyGlass(tree.border, INNER, 0.50)
 	end
 
 	-- New buttons are pooled/created lazily; skin them as they appear.
-	if (not tree.ccButtonHook) and (tree.CreateButton) then
+	if (not tree.ccButtonHook) and tree.CreateButton then
 		tree.ccButtonHook = true
 		local orig = tree.CreateButton
 		tree.CreateButton = function(self)
@@ -139,7 +157,7 @@ local function skinTree(tree, mainFrame)
 			return b
 		end
 	end
-	if (tree.buttons) then
+	if tree.buttons then
 		for _, b in ipairs(tree.buttons) do
 			skinTreeButton(b)
 		end
@@ -148,9 +166,11 @@ end
 
 -- Find the TreeGroup child of the window (defensive scan).
 local function findTree(widget)
-	if (not widget) or (not widget.children) then return nil end
+	if (not widget) or not widget.children then
+		return nil
+	end
 	for _, child in ipairs(widget.children) do
-		if (type(child) == "table") and (child.treeframe) then
+		if (type(child) == "table") and child.treeframe then
 			return child
 		end
 	end
@@ -160,8 +180,8 @@ end
 -- Find specific child frames
 local function findCloseButton(frame)
 	for _, child in ipairs({ frame:GetChildren() }) do
-		if (child.GetObjectType) and (child:GetObjectType() == "Button") then
-			if (child.GetText) and (child:GetText() == CLOSE) then
+		if child.GetObjectType and (child:GetObjectType() == "Button") then
+			if child.GetText and (child:GetText() == CLOSE) then
 				return child
 			end
 		end
@@ -171,11 +191,11 @@ end
 
 local function findSizerButton(frame)
 	for _, child in ipairs({ frame:GetChildren() }) do
-		if (child.GetObjectType) and (child:GetObjectType() == "Button") then
+		if child.GetObjectType and (child:GetObjectType() == "Button") then
 			-- Sizer button usually has no text and is small
 			if (not child.GetText) or (child:GetText() == nil) or (child:GetText() == "") then
 				local w, h = child:GetSize()
-				if (w and w < 20 and h and h < 20) then
+				if w and w < 20 and h and h < 20 then
 					return child
 				end
 			end
@@ -188,19 +208,25 @@ end
 
 -- Re-skin the AceConfigDialog window widget. Safe to call on every open.
 function ns.SkinOptionsWindow(widget)
-	if (not widget) then return end
+	if not widget then
+		return
+	end
 	local f = widget.frame
-	if (not f) then return end
+	if not f then
+		return
+	end
 
 	-- Main window: dark glass + gold border.
 	applyGlass(f, PANEL, 0.85)
 
 	-- Hide the default parchment header (centre + side caps).
-	if (widget.titlebg) then widget.titlebg:Hide() end
-	if (not f.ccHeaderHidden) then
+	if widget.titlebg then
+		widget.titlebg:Hide()
+	end
+	if not f.ccHeaderHidden then
 		f.ccHeaderHidden = true
 		for _, region in ipairs({ f:GetRegions() }) do
-			if (region.GetObjectType) and (region:GetObjectType() == "Texture") then
+			if region.GetObjectType and (region:GetObjectType() == "Texture") then
 				local tex = region.GetTexture and region:GetTexture()
 				if (type(tex) == "string") and (tex:find("UI%-DialogBox%-Header")) then
 					region:Hide()
@@ -210,7 +236,7 @@ function ns.SkinOptionsWindow(widget)
 	end
 
 	-- Custom gold title bar + accent line.
-	if (not f.ccTitleBar) then
+	if not f.ccTitleBar then
 		local bar = f:CreateTexture(nil, "ARTWORK")
 		bar:SetTexture(SOLID)
 		bar:SetPoint("TOPLEFT", f, "TOPLEFT", 1, -1)
@@ -229,21 +255,23 @@ function ns.SkinOptionsWindow(widget)
 	end
 
 	-- Title text: gold, larger, sitting on the bar.
-	if (widget.titletext) then
+	if widget.titletext then
 		local tt = widget.titletext
 		tt:SetParent(f)
 		tt:ClearAllPoints()
 		tt:SetPoint("CENTER", f.ccTitleBar, "CENTER", 0, 0)
 		tt:SetDrawLayer("OVERLAY")
 		tt:SetTextColor(GOLD.r, GOLD.g, GOLD.b)
-		if (tt.GetFont and tt.SetFont) then
+		if tt.GetFont and tt.SetFont then
 			local font = tt:GetFont()
-			if (font) then tt:SetFont(font, 16, "OUTLINE") end
+			if font then
+				tt:SetFont(font, 16, "OUTLINE")
+			end
 		end
 	end
 
 	-- Create custom status bar at the bottom
-	if (not f.ccStatusBar) then
+	if not f.ccStatusBar then
 		-- Status bar background
 		local statusBar = CreateFrame("Frame", nil, f)
 		statusBar:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 1, 1)
@@ -263,7 +291,7 @@ function ns.SkinOptionsWindow(widget)
 	end
 
 	-- Handle status text positioning
-	if (widget.statustext) then
+	if widget.statustext then
 		widget.statustext:SetTextColor(GOLD.r, GOLD.g, GOLD.b)
 		widget.statustext:ClearAllPoints()
 		widget.statustext:SetPoint("LEFT", f.ccStatusBar, "LEFT", 10, 0)
@@ -271,11 +299,11 @@ function ns.SkinOptionsWindow(widget)
 
 		-- Hide the original status background if it exists
 		local origStatusBg = widget.statustext:GetParent()
-		if (origStatusBg) and (origStatusBg ~= f) and (origStatusBg ~= f.ccStatusBar) then
-			if (origStatusBg.SetBackdrop) then
+		if origStatusBg and (origStatusBg ~= f) and (origStatusBg ~= f.ccStatusBar) then
+			if origStatusBg.SetBackdrop then
 				origStatusBg:SetBackdrop(nil)
 			end
-			if (origStatusBg.Hide) then
+			if origStatusBg.Hide then
 				-- Don't hide, just make it invisible
 				origStatusBg:SetAlpha(0)
 			end
@@ -286,7 +314,7 @@ function ns.SkinOptionsWindow(widget)
 
 	-- Find and style the close button
 	local closeBtn = findCloseButton(f)
-	if (closeBtn) then
+	if closeBtn then
 		styleButton(closeBtn)
 		-- Reposition close button to bottom right of status bar
 		closeBtn:ClearAllPoints()
@@ -296,7 +324,7 @@ function ns.SkinOptionsWindow(widget)
 
 	-- Find and reposition the sizer/resize button
 	local sizerBtn = findSizerButton(f)
-	if (sizerBtn) and (not f.ccSizerMoved) then
+	if sizerBtn and not f.ccSizerMoved then
 		f.ccSizerMoved = true
 		sizerBtn:ClearAllPoints()
 		sizerBtn:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -2, 2)
@@ -306,18 +334,18 @@ function ns.SkinOptionsWindow(widget)
 
 	-- Left category tree + content border.
 	local tree = findTree(widget)
-	if (tree) then
+	if tree then
 		skinTree(tree, f)
 
 		-- Adjust tree frame positioning to align with our custom elements
-		if (tree.treeframe) then
+		if tree.treeframe then
 			tree.treeframe:ClearAllPoints()
 			tree.treeframe:SetPoint("TOPLEFT", f, "TOPLEFT", EDGE_INSET, -(TITLE_HEIGHT + EDGE_INSET))
 			tree.treeframe:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", EDGE_INSET, STATUS_HEIGHT + EDGE_INSET)
 		end
 
 		-- Adjust content border positioning
-		if (tree.border) then
+		if tree.border then
 			tree.border:ClearAllPoints()
 			tree.border:SetPoint("TOPLEFT", tree.treeframe, "TOPRIGHT", 4, 0)
 			tree.border:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -EDGE_INSET, STATUS_HEIGHT + EDGE_INSET)

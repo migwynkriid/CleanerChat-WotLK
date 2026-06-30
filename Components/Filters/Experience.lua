@@ -44,7 +44,6 @@ local G = {
 	LEVEL_UP = LEVEL_UP,
 }
 
-
 -- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
 local P = ns.MakePatternCache()
 
@@ -52,100 +51,97 @@ local P = ns.MakePatternCache()
 local safeMatch = ns.SafeMatch
 
 -- Special handling for LEVEL_UP. We capture the entire colored, clickable level link.
-if (G.LEVEL_UP) then
+if G.LEVEL_UP then
 	P[G.LEVEL_UP] = string_gsub(G.LEVEL_UP, "(|.+|r)", "(.+)")
 end
 
 local fix = function(...)
-	local string,number,n
-	for i,v in next,{...} do
+	local string, number, n
+	for i, v in next, { ... } do
 		n = tonumber(v)
-		if (n) and (n > 0) then
+		if n and (n > 0) then
 			number = n
-		elseif (not n) then
+		elseif not n then
 			string = v
 		end
 	end
-	return number,string
+	return number, string
 end
 
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
-	local value,source
+	local value, source
 
-	if (event == "CHAT_MSG_COMBAT_XP_GAIN") then
-
-		value,source = fix(string_match(message, P[G.NAMED]))
-		if (value) then
+	if event == "CHAT_MSG_COMBAT_XP_GAIN" then
+		value, source = fix(string_match(message, P[G.NAMED]))
+		if value then
 			return false, string_format(ns.out.xp_named, value, G.XP, source), author, ...
 		end
 
 		value = string_match(message, P[G.UNNAMED])
-		if (value) then
+		if value then
 			-- Check if we should buffer for one-line quest rewards
 			-- Only buffer unnamed XP (quest rewards), not named XP (mob kills)
-			if (ns.db and ns.db.oneLineQuestRewards and chatFrame) then
+			if ns.db and ns.db.oneLineQuestRewards and chatFrame then
 				local rewardText = string_format("|cffffffff%s|r |cffffffff%s|r", value, G.XP)
-				if (ns:AddQuestReward(chatFrame, "xp", rewardText)) then
+				if ns:AddQuestReward(chatFrame, "xp", rewardText) then
 					return true -- Suppress, will be output with combined rewards
 				end
 			end
 			return false, string_format(ns.out.xp_unnamed, value, G.XP), author, ...
 		end
-
-	elseif (event == "CHAT_MSG_SYSTEM") then
-
+	elseif event == "CHAT_MSG_SYSTEM" then
 		-- Area discovery
-		value,source = fix(safeMatch(message, P[G.ERR_ZONE_EXPLORED_XP]))
-		if (value) then
+		value, source = fix(safeMatch(message, P[G.ERR_ZONE_EXPLORED_XP]))
+		if value then
 			return false, string_format(ns.out.xp_named, value, G.XP, source), author, ...
 		end
 
 		-- Level up (retail format with clickable link)
-		if (G.LEVEL_UP) then
+		if G.LEVEL_UP then
 			value = safeMatch(message, P[G.LEVEL_UP])
-			if (value) then
+			if value then
 				value = ns.StripBrackets(value)
 				return false, string_format(ns.out.xp_levelup, value), author, ...
 			end
 		end
 
 		-- Level up (3.3.5 plain text format) - use string.find for robustness
-		if (string_find(message, "Congratulations, you have reached level")) then
+		if string_find(message, "Congratulations, you have reached level") then
 			local level = string_match(message, "level (%d+)")
-			if (level) then
+			if level then
 				return false, string_format(ns.out.levelup_ding, tonumber(level)), author, ...
 			end
 		end
 
 		-- Hit points gained on level up
-		if (string_find(message, "You have gained") and string_find(message, "hit points")) then
+		if string_find(message, "You have gained") and string_find(message, "hit points") then
 			local hp = string_match(message, "gained (%d+)")
-			if (hp) then
+			if hp then
 				return false, string_format(ns.out.levelup_hp, tonumber(hp)), author, ...
 			end
 		end
 
 		-- Talent point(s) gained on level up - hidden entirely so only the
 		-- Ascension "Unspent Talent Essence" line is shown below.
-		if (string_find(message, "You have gained") and string_find(message, "talent point")) then
+		if string_find(message, "You have gained") and string_find(message, "talent point") then
 			return true
 		end
 
 		-- Stat increases on level up: "Your Strength increases by 1."
-		if (string_find(message, "increases by")) then
+		if string_find(message, "increases by") then
 			local stat, amount = string_match(message, "Your (%a+) increases by (%d+)")
-			if (stat and amount) then
+			if stat and amount then
 				return false, string_format(ns.out.levelup_stat, tonumber(amount), stat), author, ...
 			end
 		end
 
 		-- Unspent Talent Essence (Ascension-specific)
-		if (string_find(message, "Unspent Talent Essence")) then
+		if string_find(message, "Unspent Talent Essence") then
 			return false, ns.out.levelup_essence, author, ...
 		end
 
 		-- Quest Completed (also reported in the XP channel)
-		if (safeMatch(message, P[G.ERR_QUEST_REWARD_EXP_I])) then
+		if safeMatch(message, P[G.ERR_QUEST_REWARD_EXP_I]) then
 			return true
 		end
 	end
@@ -156,34 +152,36 @@ end
 -- firing CHAT_MSG_SYSTEM, so the event filter above never sees them. Handling
 -- them here (at the AddMessage layer) catches them no matter how they arrive.
 local levelupReplacement = function(msg)
-	if (not msg) then return end
+	if not msg then
+		return
+	end
 
 	-- "Congratulations, you have reached level 21!"
-	if (string_find(msg, "Congratulations, you have reached level")) then
+	if string_find(msg, "Congratulations, you have reached level") then
 		local level = string_match(msg, "level (%d+)")
-		if (level) then
+		if level then
 			return string_format(ns.out.levelup_ding, tonumber(level))
 		end
 	end
 
 	-- "You have gained 15 hit points."
-	if (string_find(msg, "gained") and string_find(msg, "hit points")) then
+	if string_find(msg, "gained") and string_find(msg, "hit points") then
 		local hp = string_match(msg, "gained (%d+)")
-		if (hp) then
+		if hp then
 			return string_format(ns.out.levelup_hp, tonumber(hp))
 		end
 	end
 
 	-- "Your Strength increases by 1."
-	if (string_find(msg, "increases by")) then
+	if string_find(msg, "increases by") then
 		local stat, amount = string_match(msg, "Your (%a+) increases by (%d+)")
-		if (stat and amount) then
+		if stat and amount then
 			return string_format(ns.out.levelup_stat, tonumber(amount), stat)
 		end
 	end
 
 	-- "You have unspent Talent Essence!" (case varies, Ascension-specific)
-	if (string_find(msg, "nspent Talent Essence")) then
+	if string_find(msg, "nspent Talent Essence") then
 		return ns.out.levelup_essence
 	end
 
@@ -195,7 +193,7 @@ end
 -- line instead, so the redundant talent-point message is hidden here. This runs
 -- at the AddMessage layer, catching it no matter how the server prints it.
 Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
-	if (msg and string_find(msg, "You have gained") and string_find(msg, "talent point")) then
+	if msg and string_find(msg, "You have gained") and string_find(msg, "talent point") then
 		return true
 	end
 end

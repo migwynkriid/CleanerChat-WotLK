@@ -18,23 +18,23 @@ local G = {
 	DECREASED = FACTION_STANDING_DECREASED, -- "Your %s reputation has decreased by %d."
 	INCREASED_GENERIC = FACTION_STANDING_INCREASED_GENERIC, -- "Reputation with %s increased."
 	DECREASED_GENERIC = FACTION_STANDING_DECREASED_GENERIC, -- "Reputation with %s decreased."
-	REPUTATION = REPUTATION
+	REPUTATION = REPUTATION,
 }
 
 -- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
 local P = ns.MakePatternCache()
 
 local fix = function(...)
-	local string,number,n
-	for i,v in next,{...} do
+	local string, number, n
+	for i, v in next, { ... } do
 		n = tonumber(v)
-		if (n) and (n > 0) then
+		if n and (n > 0) then
 			number = n
-		elseif (not n) then
+		elseif not n then
 			string = v
 		end
 	end
-	return string,number
+	return string, number
 end
 
 -- Reputation grouping.
@@ -43,35 +43,32 @@ end
 -- "+N Reputation: Faction" line for each, we collect every gain that shares the
 -- same amount and emit a single "+N Reputation: A, B, C" line per amount. Gains
 -- are buffered per chat frame and flushed on the next frame (ns.CreateFrameBuffer).
-local repBuffer = ns.CreateFrameBuffer(
-	function()
-		return { order = {}, byValue = {} } -- order = {value,...}, byValue = {[value]={faction,...}}
-	end,
-	function(chatFrame, buf)
-		for i = 1, #buf.order do
-			local value = buf.order[i]
-			local factions = buf.byValue[value]
-			if (factions) then
-				local text = string_format(ns.out.standing, value, G.REPUTATION, table_concat(factions, ", "))
-				-- Match the colour these messages normally display with.
-				ns.PrintToFrame(chatFrame, text, "COMBAT_FACTION_CHANGE")
-			end
+local repBuffer = ns.CreateFrameBuffer(function()
+	return { order = {}, byValue = {} } -- order = {value,...}, byValue = {[value]={faction,...}}
+end, function(chatFrame, buf)
+	for i = 1, #buf.order do
+		local value = buf.order[i]
+		local factions = buf.byValue[value]
+		if factions then
+			local text = string_format(ns.out.standing, value, G.REPUTATION, table_concat(factions, ", "))
+			-- Match the colour these messages normally display with.
+			ns.PrintToFrame(chatFrame, text, "COMBAT_FACTION_CHANGE")
 		end
 	end
-)
+end)
 
 Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
-	local faction,value
+	local faction, value
 
-	faction,value = fix(string_match(message,P[G.INCREASED]))
-	if (faction) then
-		if (value) then
+	faction, value = fix(string_match(message, P[G.INCREASED]))
+	if faction then
+		if value then
 			-- Group same-amount gains from this burst (e.g. a quest turn-in) into
 			-- a single "+N Reputation: A, B, C" line. Buffer per frame and flush on
 			-- the next frame; suppress the individual line here.
-			if (C_Timer and C_Timer.After and chatFrame and chatFrame.AddMessage) then
+			if C_Timer and C_Timer.After and chatFrame and chatFrame.AddMessage then
 				local buf = repBuffer.Get(chatFrame)
-				if (not buf.byValue[value]) then
+				if not buf.byValue[value] then
 					buf.byValue[value] = {}
 					buf.order[#buf.order + 1] = value
 				end
@@ -85,22 +82,22 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 		end
 	end
 
-	faction,value = fix(string_match(message,P[G.DECREASED]))
-	if (faction) then
-		if (value) then
+	faction, value = fix(string_match(message, P[G.DECREASED]))
+	if faction then
+		if value then
 			return false, string_format(ns.out.standing_deficit, value, G.REPUTATION, faction), author, ...
 		else
 			return false, string_format(ns.out.standing_deficit_generic, G.REPUTATION, faction), author, ...
 		end
 	end
 
-	faction = fix(string_match(message,P[G.INCREASED_GENERIC]))
-	if (faction) then
+	faction = fix(string_match(message, P[G.INCREASED_GENERIC]))
+	if faction then
 		return false, string_format(ns.out.standing_generic, G.REPUTATION, faction), author, ...
 	end
 
-	faction = fix(string_match(message,P[G.DECREASED_GENERIC]))
-	if (faction) then
+	faction = fix(string_match(message, P[G.DECREASED_GENERIC]))
+	if faction then
 		return false, string_format(ns.out.standing_deficit_generic, G.REPUTATION, faction), author, ...
 	end
 end

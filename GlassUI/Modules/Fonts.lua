@@ -10,53 +10,53 @@ local CreateFont = CreateFont
 -- luacheck: pop
 
 function Fonts:OnInitialize()
-  self.fonts = {}
+	self.fonts = {}
 end
 
 function Fonts:OnEnable()
-  -- GlassMessageFont
-  self.fonts.GlassMessageFont = CreateFont("GlassMessageFont")
-  self.fonts.GlassMessageFont:SetFont(
-    LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.messageFont),
-    Core.db.profile.messageFontSize,
-    Core.db.profile.messageFontFlags
-  )
-  self.fonts.GlassMessageFont:SetShadowColor(0, 0, 0, 1)
-  self.fonts.GlassMessageFont:SetShadowOffset(1, -1)
-  self.fonts.GlassMessageFont:SetJustifyH("LEFT")
-  self.fonts.GlassMessageFont:SetJustifyV("MIDDLE")
-  self.fonts.GlassMessageFont:SetSpacing(Core.db.profile.messageLeading)
+	-- GlassMessageFont
+	self.fonts.GlassMessageFont = CreateFont("GlassMessageFont")
+	self.fonts.GlassMessageFont:SetFont(
+		LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.messageFont),
+		Core.db.profile.messageFontSize,
+		Core.db.profile.messageFontFlags
+	)
+	self.fonts.GlassMessageFont:SetShadowColor(0, 0, 0, 1)
+	self.fonts.GlassMessageFont:SetShadowOffset(1, -1)
+	self.fonts.GlassMessageFont:SetJustifyH("LEFT")
+	self.fonts.GlassMessageFont:SetJustifyV("MIDDLE")
+	self.fonts.GlassMessageFont:SetSpacing(Core.db.profile.messageLeading)
 
-  -- GlassChatDockFont
-  self.fonts.GlassChatDockFont = CreateFont("GlassChatDockFont")
-  self.fonts.GlassChatDockFont:SetFont(
-    LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.dockFont),
-    Core.db.profile.dockFontSize,
-    Core.db.profile.dockFontFlags
-  )
-  self.fonts.GlassChatDockFont:SetShadowColor(0, 0, 0, 0)
-  self.fonts.GlassChatDockFont:SetShadowOffset(1, -1)
-  self.fonts.GlassChatDockFont:SetJustifyH("LEFT")
-  self.fonts.GlassChatDockFont:SetJustifyV("MIDDLE")
-  self.fonts.GlassChatDockFont:SetSpacing(3)
+	-- GlassChatDockFont
+	self.fonts.GlassChatDockFont = CreateFont("GlassChatDockFont")
+	self.fonts.GlassChatDockFont:SetFont(
+		LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.dockFont),
+		Core.db.profile.dockFontSize,
+		Core.db.profile.dockFontFlags
+	)
+	self.fonts.GlassChatDockFont:SetShadowColor(0, 0, 0, 0)
+	self.fonts.GlassChatDockFont:SetShadowOffset(1, -1)
+	self.fonts.GlassChatDockFont:SetJustifyH("LEFT")
+	self.fonts.GlassChatDockFont:SetJustifyV("MIDDLE")
+	self.fonts.GlassChatDockFont:SetSpacing(3)
 
-  -- GlassEditBoxFont
-  self.fonts.GlassEditBoxFont = CreateFont("GlassEditBoxFont")
-  self.fonts.GlassEditBoxFont:SetFont(
-    LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.editBoxFont),
-    Core.db.profile.editBoxFontSize,
-    Core.db.profile.editBoxFontFlags
-  )
-  self.fonts.GlassEditBoxFont:SetShadowColor(0, 0, 0, 0)
-  self.fonts.GlassEditBoxFont:SetShadowOffset(1, -1)
-  self.fonts.GlassEditBoxFont:SetJustifyH("LEFT")
-  self.fonts.GlassEditBoxFont:SetJustifyV("MIDDLE")
-  self.fonts.GlassEditBoxFont:SetSpacing(3)
+	-- GlassEditBoxFont
+	self.fonts.GlassEditBoxFont = CreateFont("GlassEditBoxFont")
+	self.fonts.GlassEditBoxFont:SetFont(
+		LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.editBoxFont),
+		Core.db.profile.editBoxFontSize,
+		Core.db.profile.editBoxFontFlags
+	)
+	self.fonts.GlassEditBoxFont:SetShadowColor(0, 0, 0, 0)
+	self.fonts.GlassEditBoxFont:SetShadowOffset(1, -1)
+	self.fonts.GlassEditBoxFont:SetJustifyH("LEFT")
+	self.fonts.GlassEditBoxFont:SetJustifyV("MIDDLE")
+	self.fonts.GlassEditBoxFont:SetSpacing(3)
 
-  Core:Subscribe(UPDATE_CONFIG, function (_)
-    -- Note: All fonts (Message, EditBox, Dock) are now set directly per-window
-    -- by their respective components (MessageLine, EditBox, ChatTab).
-    -- The global FontObjects are still used as templates for initial creation,
-    -- but we don't update them here to avoid affecting all windows at once.
-  end)
+	Core:Subscribe(UPDATE_CONFIG, function(_)
+		-- Note: All fonts (Message, EditBox, Dock) are now set directly per-window
+		-- by their respective components (MessageLine, EditBox, ChatTab).
+		-- The global FontObjects are still used as templates for initial creation,
+		-- but we don't update them here to avoid affecting all windows at once.
+	end)
 end

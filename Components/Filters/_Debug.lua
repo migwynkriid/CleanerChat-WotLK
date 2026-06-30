@@ -29,8 +29,12 @@ local printing = false
 local hookedFrames = {}
 
 local esc = function(s)
-	if (s == nil) then return "<nil>" end
-	if (s == "") then return "<empty>" end
+	if s == nil then
+		return "<nil>"
+	end
+	if s == "" then
+		return "<empty>"
+	end
 	return (tostring(s):gsub("|", "||"))
 end
 
@@ -46,10 +50,12 @@ end
 local recent = {}
 local isDuplicate = function(sig)
 	local now = GetTime()
-	for k,t in pairs(recent) do
-		if (now - t > 1) then recent[k] = nil end
+	for k, t in pairs(recent) do
+		if now - t > 1 then
+			recent[k] = nil
+		end
 	end
-	if (recent[sig] and (now - recent[sig]) < 0.5) then
+	if recent[sig] and (now - recent[sig]) < 0.5 then
 		return true
 	end
 	recent[sig] = now
@@ -60,14 +66,14 @@ end
 -- the unmodified text. Done lazily on first enable, after CleanerChat has
 -- already installed its own hook.
 local ensureHooks = function()
-	for _,name in ipairs(CHAT_FRAMES) do
+	for _, name in ipairs(CHAT_FRAMES) do
 		local frame = _G[name]
-		if (frame and not hookedFrames[frame]) then
+		if frame and not hookedFrames[frame] then
 			local inner = frame.AddMessage
 			hookedFrames[frame] = inner
 			frame.AddMessage = function(self, msg, ...)
-				if (active and not printing and msg and msg ~= "" and not isDuplicate("RAW"..msg)) then
-					out("|cff00ff00[RAW]|r \""..esc(msg).."\"")
+				if active and not printing and msg and msg ~= "" and not isDuplicate("RAW" .. msg) then
+					out('|cff00ff00[RAW]|r "' .. esc(msg) .. '"')
 				end
 				return inner(self, msg, ...)
 			end
@@ -76,8 +82,12 @@ local ensureHooks = function()
 end
 
 local eventFilter = function(self, event, message, author, ...)
-	if (active and not printing and not isDuplicate("EVT"..tostring(event)..tostring(author)..tostring(message))) then
-		out("|cff33ccff[EVT]|r "..event.." author=\""..esc(author).."\" msg=\""..esc(message).."\"")
+	if
+		active
+		and not printing
+		and not isDuplicate("EVT" .. tostring(event) .. tostring(author) .. tostring(message))
+	then
+		out("|cff33ccff[EVT]|r " .. event .. ' author="' .. esc(author) .. '" msg="' .. esc(message) .. '"')
 	end
 	return false
 end
@@ -108,21 +118,23 @@ SLASH_CCDEBUG1 = "/ccdebug"
 -- re-applying the saved state on login).
 local setActive = function(value, silent)
 	value = value and true or false
-	if (value == active) then return end
+	if value == active then
+		return
+	end
 	active = value
-	if (active) then
+	if active then
 		ensureHooks()
-		for _,event in ipairs(watchedEvents) do
+		for _, event in ipairs(watchedEvents) do
 			ChatFrame_AddMessageEventFilter(event, eventFilter)
 		end
-		if (not silent) then
+		if not silent then
 			print("|cffff7d0aCleanerChat|r raw debug: |cff00ff00ON|r - say something in the affected channel.")
 		end
 	else
-		for _,event in ipairs(watchedEvents) do
+		for _, event in ipairs(watchedEvents) do
 			ChatFrame_RemoveMessageEventFilter(event, eventFilter)
 		end
-		if (not silent) then
+		if not silent then
 			print("|cffff7d0aCleanerChat|r raw debug: |cffff0000OFF|r")
 		end
 	end
@@ -132,12 +144,16 @@ end
 -- survives a /reload or relog.
 ns.SetRawDebug = function(value)
 	value = value and true or false
-	if (ns.db) then ns.db.rawDebug = value end
+	if ns.db then
+		ns.db.rawDebug = value
+	end
 	setActive(value)
 end
 
 ns.GetRawDebug = function()
-	if (ns.db) then return ns.db.rawDebug and true or false end
+	if ns.db then
+		return ns.db.rawDebug and true or false
+	end
 	return active
 end
 
@@ -158,7 +174,7 @@ local loader = CreateFrame("Frame")
 loader:RegisterEvent("PLAYER_LOGIN")
 loader:SetScript("OnEvent", function(self)
 	self:UnregisterEvent("PLAYER_LOGIN")
-	if (ns.db and ns.db.rawDebug) then
+	if ns.db and ns.db.rawDebug then
 		setActive(true, true)
 	end
 end)

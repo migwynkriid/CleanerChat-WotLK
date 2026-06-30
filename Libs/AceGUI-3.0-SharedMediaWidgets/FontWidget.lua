@@ -32,22 +32,22 @@ do
 			frame = table.remove(contentFrameCache)
 		else
 			frame = CreateFrame("Button", nil, UIParent)
-				--frame:SetWidth(200)
-				frame:SetHeight(18)
-				frame:SetHighlightTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]], "ADD")
-				frame:SetScript("OnClick", ContentOnClick)
+			--frame:SetWidth(200)
+			frame:SetHeight(18)
+			frame:SetHighlightTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]], "ADD")
+			frame:SetScript("OnClick", ContentOnClick)
 			local check = frame:CreateTexture("OVERLAY")
-				check:SetWidth(16)
-				check:SetHeight(16)
-				check:SetPoint("LEFT",frame,"LEFT",1,-1)
-				check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
-				check:Hide()
+			check:SetWidth(16)
+			check:SetHeight(16)
+			check:SetPoint("LEFT", frame, "LEFT", 1, -1)
+			check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+			check:Hide()
 			frame.check = check
-			local text = frame:CreateFontString(nil,"OVERLAY","GameFontWhite")
-				text:SetPoint("TOPLEFT", check, "TOPRIGHT", 1, 0)
-				text:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 0)
-				text:SetJustifyH("LEFT")
-				text:SetText("Test Test Test Test Test Test Test")
+			local text = frame:CreateFontString(nil, "OVERLAY", "GameFontWhite")
+			text:SetPoint("TOPLEFT", check, "TOPRIGHT", 1, 0)
+			text:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 0)
+			text:SetJustifyH("LEFT")
+			text:SetText("Test Test Test Test Test Test Test")
 			frame.text = text
 			frame.ReturnSelf = ReturnSelf
 		end
@@ -91,9 +91,9 @@ do
 
 	local function SetText(self, text) -- Set the text displayed in the box.
 		self.frame.text:SetText(text or "")
-		local font = self.list[text] ~= text and self.list[text] or Media:Fetch('font',text)
-		local _, size, outline= self.frame.text:GetFont()
-		self.frame.text:SetFont(font,size,outline)
+		local font = self.list[text] ~= text and self.list[text] or Media:Fetch("font", text)
+		local _, size, outline = self.frame.text:GetFont()
+		self.frame.text:SetFont(font, size, outline)
 	end
 
 	local function SetLabel(self, text) -- Set the text for the label.
@@ -107,8 +107,10 @@ do
 	local SetItemValue = AddItem -- Set the value of a item in the list. <<same as adding a new item>>
 
 	local function SetMultiselect(self, flag) end -- Toggle multi-selecting. <<Dummy function to stay inline with the dropdown API>>
-	local function GetMultiselect() return false end-- Query the multi-select flag. <<Dummy function to stay inline with the dropdown API>>
-	local function SetItemDisabled(self, key) end-- Disable one item in the list. <<Dummy function to stay inline with the dropdown API>>
+	local function GetMultiselect()
+		return false
+	end -- Query the multi-select flag. <<Dummy function to stay inline with the dropdown API>>
+	local function SetItemDisabled(self, key) end -- Disable one item in the list. <<Dummy function to stay inline with the dropdown API>>
 
 	local function SetDisabled(self, disabled) -- Disable the widget.
 		self.disabled = disabled
@@ -119,7 +121,7 @@ do
 		end
 	end
 
-	local function textSort(a,b)
+	local function textSort(a, b)
 		return string.upper(a) < string.upper(b)
 	end
 
@@ -136,14 +138,14 @@ do
 			self.dropdown:SetPoint("TOPLEFT", self.frame, "BOTTOMLEFT")
 			self.dropdown:SetPoint("TOPRIGHT", self.frame, "BOTTOMRIGHT", width < 160 and (160 - width) or 0, 0)
 			for k, v in pairs(self.list) do
-				sortedlist[#sortedlist+1] = k
+				sortedlist[#sortedlist + 1] = k
 			end
 			table.sort(sortedlist, textSort)
 			for i, k in ipairs(sortedlist) do
 				local f = GetContentLine()
-				local _, size, outline= f.text:GetFont()
-				local font = self.list[k] ~= k and self.list[k] or Media:Fetch('font',k)
-				f.text:SetFont(font,size,outline)
+				local _, size, outline = f.text:GetFont()
+				local font = self.list[k] ~= k and self.list[k] or Media:Fetch("font", k)
+				f.text:SetFont(font, size, outline)
 				f.text:SetText(k)
 				if k == self.value then
 					f.check:Show()
@@ -186,7 +188,7 @@ do
 		frame.dropButton.obj = self
 		frame.dropButton:SetScript("OnEnter", Drop_OnEnter)
 		frame.dropButton:SetScript("OnLeave", Drop_OnLeave)
-		frame.dropButton:SetScript("OnClick",ToggleDrop)
+		frame.dropButton:SetScript("OnClick", ToggleDrop)
 		frame:SetScript("OnHide", OnHide)
 
 		self.alignoffset = 31
@@ -212,5 +214,4 @@ do
 	end
 
 	AceGUI:RegisterWidgetType(widgetType, Constructor, widgetVersion)
-
 end

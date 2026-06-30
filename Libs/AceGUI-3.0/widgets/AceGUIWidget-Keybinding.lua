@@ -4,7 +4,9 @@ Set Keybindings in the Config UI.
 -------------------------------------------------------------------------------]]
 local Type, Version = "Keybinding", 26
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
-if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
+if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then
+	return
+end
 
 -- Lua APIs
 local pairs = pairs
@@ -46,10 +48,15 @@ local function Keybinding_OnClick(frame, button)
 end
 
 local ignoreKeys = {
-	["BUTTON1"] = true, ["BUTTON2"] = true,
+	["BUTTON1"] = true,
+	["BUTTON2"] = true,
 	["UNKNOWN"] = true,
-	["LSHIFT"] = true, ["LCTRL"] = true, ["LALT"] = true,
-	["RSHIFT"] = true, ["RCTRL"] = true, ["RALT"] = true,
+	["LSHIFT"] = true,
+	["LCTRL"] = true,
+	["LALT"] = true,
+	["RSHIFT"] = true,
+	["RCTRL"] = true,
+	["RALT"] = true,
 }
 local function Keybinding_OnKeyDown(frame, key)
 	local self = frame.obj
@@ -58,15 +65,17 @@ local function Keybinding_OnKeyDown(frame, key)
 		if keyPressed == "ESCAPE" then
 			keyPressed = ""
 		else
-			if ignoreKeys[keyPressed] then return end
+			if ignoreKeys[keyPressed] then
+				return
+			end
 			if IsShiftKeyDown() then
-				keyPressed = "SHIFT-"..keyPressed
+				keyPressed = "SHIFT-" .. keyPressed
 			end
 			if IsControlKeyDown() then
-				keyPressed = "CTRL-"..keyPressed
+				keyPressed = "CTRL-" .. keyPressed
 			end
 			if IsAltKeyDown() then
-				keyPressed = "ALT-"..keyPressed
+				keyPressed = "ALT-" .. keyPressed
 			end
 		end
 
@@ -127,10 +136,10 @@ local methods = {
 		self.disabled = disabled
 		if disabled then
 			self.button:Disable()
-			self.label:SetTextColor(0.5,0.5,0.5)
+			self.label:SetTextColor(0.5, 0.5, 0.5)
 		else
 			self.button:Enable()
-			self.label:SetTextColor(1,1,1)
+			self.label:SetTextColor(1, 1, 1)
 		end
 	end,
 
@@ -168,11 +177,13 @@ local methods = {
 Constructor
 -------------------------------------------------------------------------------]]
 
-local ControlBackdrop  = {
+local ControlBackdrop = {
 	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-	tile = true, tileSize = 16, edgeSize = 16,
-	insets = { left = 3, right = 3, top = 3, bottom = 3 }
+	tile = true,
+	tileSize = 16,
+	edgeSize = 16,
+	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 }
 
 local function keybindingMsgFixWidth(frame)
@@ -213,7 +224,7 @@ local function Constructor()
 	local msgframe = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
 	msgframe:SetHeight(30)
 	msgframe:SetBackdrop(ControlBackdrop)
-	msgframe:SetBackdropColor(0,0,0)
+	msgframe:SetBackdropColor(0, 0, 0)
 	msgframe:SetFrameStrata("FULLSCREEN_DIALOG")
 	msgframe:SetFrameLevel(1000)
 	msgframe:SetToplevel(true)
@@ -227,12 +238,12 @@ local function Constructor()
 	msgframe:Hide()
 
 	local widget = {
-		button      = button,
-		label       = label,
-		msgframe    = msgframe,
-		frame       = frame,
+		button = button,
+		label = label,
+		msgframe = msgframe,
+		frame = frame,
 		alignoffset = 30,
-		type        = Type
+		type = Type,
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func

@@ -11,6 +11,7 @@ on:
       - '.github/**'
       - '.gitignore'
       - '.luacheckrc'
+      - 'stylua.toml'
       - 'APIDocumentation/**'
       - 'changelog.txt'
       - '**/*.zip'
@@ -75,7 +76,7 @@ jobs:
           fi
           
           # Files that don't trigger releases (same as paths-ignore above)
-          IGNORED_PATTERNS='^\.github/|^\.gitignore$|^\.luacheckrc$|^APIDocumentation/|^changelog\.txt$|\.zip$|^README\.md$|^LICENSE\.txt$'
+          IGNORED_PATTERNS='^\.github/|^\.gitignore$|^\.luacheckrc$|^stylua\.toml$|^APIDocumentation/|^changelog\.txt$|\.zip$|^README\.md$|^LICENSE\.txt$'
           
           # Build changelog, filtering out:
           # 1. Version bump commits
@@ -128,6 +129,7 @@ jobs:
                     --exclude='.github' \
                     --exclude='.gitignore' \
                     --exclude='.luacheckrc' \
+                    --exclude='stylua.toml' \
                     --exclude='APIDocumentation' \
                     --exclude='release' \
                     --exclude='*.zip' \

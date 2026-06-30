@@ -3,7 +3,9 @@ ColorPicker Widget
 -------------------------------------------------------------------------------]]
 local Type, Version = "ColorPicker", 28
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
-if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
+if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then
+	return
+end
 
 -- Lua APIs
 local pairs = pairs
@@ -162,7 +164,7 @@ local methods = {
 			self.frame:Enable()
 			self.text:SetTextColor(1, 1, 1)
 		end
-	end
+	end,
 }
 
 --[[-----------------------------------------------------------------------------
@@ -202,13 +204,13 @@ local function Constructor()
 	checkers:SetWidth(14)
 	checkers:SetHeight(14)
 	checkers:SetTexture("Tileset\\Generic\\Checkers") -- 188523 FileDataID unsupported on 3.3.5
-	checkers:SetTexCoord(.25, 0, 0.5, .25)
+	checkers:SetTexCoord(0.25, 0, 0.5, 0.25)
 	checkers:SetDesaturated(true)
 	checkers:SetVertexColor(1, 1, 1, 0.75)
 	checkers:SetPoint("CENTER", colorSwatch)
 	checkers:Show()
 
-	local text = frame:CreateFontString(nil,"OVERLAY","GameFontHighlight")
+	local text = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	text:SetHeight(24)
 	text:SetJustifyH("LEFT")
 	text:SetTextColor(1, 1, 1)
@@ -222,9 +224,9 @@ local function Constructor()
 
 	local widget = {
 		colorSwatch = colorSwatch,
-		text        = text,
-		frame       = frame,
-		type        = Type
+		text = text,
+		frame = frame,
+		type = Type,
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func

@@ -19,14 +19,14 @@ local type = type
 
 -- Utility
 -------------------------------------------------------
-local setter = function(info,val)
+local setter = function(info, val)
 	ns.db.filters[info[#info]] = val
 	local moduleName = ns:GetModuleNameFromFilter(info[#info])
 	local module = ns:GetModule(moduleName, true)
-	if (module) then
-		if (val and not module:IsEnabled()) then
+	if module then
+		if val and not module:IsEnabled() then
 			module:Enable()
-		elseif (not val and module:IsEnabled()) then
+		elseif not val and module:IsEnabled() then
 			module:Disable()
 		end
 	end
@@ -49,22 +49,36 @@ local optionDB = {
 			width = 1.25,
 			type = "select",
 			values = {
-				initial = L["Shortened (e.g. \"[G]\")"],
-				full = L["Full name (e.g. \"[General]\")"],
+				initial = L['Shortened (e.g. "[G]")'],
+				full = L['Full name (e.g. "[General]")'],
 			},
-			disabled = function(info) return not ns.db.filters.channels end,
-			set = function(info,value) ns.db.channelNameMode = value; Options:UpdateReloadStatus() end,
-			get = function(info) return ns.db.channelNameMode end,
+			disabled = function(info)
+				return not ns.db.filters.channels
+			end,
+			set = function(info, value)
+				ns.db.channelNameMode = value
+				Options:UpdateReloadStatus()
+			end,
+			get = function(info)
+				return ns.db.channelNameMode
+			end,
 		},
 		channelNumber = {
 			order = 11,
 			name = L["Show Channel Number"],
-			desc = L["Prefix the channel display with its number, e.g. \"1. \". Requires the Chat Channel Names filter."],
+			desc = L['Prefix the channel display with its number, e.g. "1. ". Requires the Chat Channel Names filter.'],
 			width = "full",
 			type = "toggle",
-			disabled = function(info) return not ns.db.filters.channels end,
-			set = function(info,value) ns.db.channelNumber = value; Options:UpdateReloadStatus() end,
-			get = function(info) return ns.db.channelNumber end,
+			disabled = function(info)
+				return not ns.db.filters.channels
+			end,
+			set = function(info, value)
+				ns.db.channelNumber = value
+				Options:UpdateReloadStatus()
+			end,
+			get = function(info)
+				return ns.db.channelNumber
+			end,
 		},
 		channelCapitalize = {
 			order = 12,
@@ -72,9 +86,16 @@ local optionDB = {
 			desc = L["Capitalize the first letter of the channel name or initial. Requires the Chat Channel Names filter."],
 			width = "full",
 			type = "toggle",
-			disabled = function(info) return not ns.db.filters.channels end,
-			set = function(info,value) ns.db.channelCapitalize = value; Options:UpdateReloadStatus() end,
-			get = function(info) return ns.db.channelCapitalize end,
+			disabled = function(info)
+				return not ns.db.filters.channels
+			end,
+			set = function(info, value)
+				ns.db.channelCapitalize = value
+				Options:UpdateReloadStatus()
+			end,
+			get = function(info)
+				return ns.db.channelCapitalize
+			end,
 		},
 		capitalizeNames = {
 			order = 20,
@@ -82,28 +103,47 @@ local optionDB = {
 			desc = L["Capitalize the first letter of player names shown in chat. Requires the Player Names filter."],
 			width = "full",
 			type = "toggle",
-			disabled = function(info) return not ns.db.filters.names end,
-			set = function(info,value) ns.db.capitalizeNames = value; Options:UpdateReloadStatus() end,
-			get = function(info) return ns.db.capitalizeNames end,
+			disabled = function(info)
+				return not ns.db.filters.names
+			end,
+			set = function(info, value)
+				ns.db.capitalizeNames = value
+				Options:UpdateReloadStatus()
+			end,
+			get = function(info)
+				return ns.db.capitalizeNames
+			end,
 		},
 		hideOtherCrafts = {
 			order = 30,
 			name = L["Hide Crafting Broadcasts"],
-			desc = L["Hide the \"<name> created: <item>\" messages shown when other players craft items nearby. Requires the Learning (Crafting) filter."],
+			desc = L['Hide the "<name> created: <item>" messages shown when other players craft items nearby. Requires the Learning (Crafting) filter.'],
 			width = "full",
 			type = "toggle",
-			disabled = function(info) return not ns.db.filters.tradeskills end,
-			set = function(info,value) ns.db.hideOtherCrafts = value; Options:UpdateReloadStatus() end,
-			get = function(info) return ns.db.hideOtherCrafts end,
+			disabled = function(info)
+				return not ns.db.filters.tradeskills
+			end,
+			set = function(info, value)
+				ns.db.hideOtherCrafts = value
+				Options:UpdateReloadStatus()
+			end,
+			get = function(info)
+				return ns.db.hideOtherCrafts
+			end,
 		},
 		hideUIErrors = {
 			order = 40,
 			name = L["Hide UI Error Messages on Login from CleanerChat"],
-			desc = L["Hide the \"UI Error: an interface error occurred\" notifications the server prints to chat when a UI error happens."],
+			desc = L['Hide the "UI Error: an interface error occurred" notifications the server prints to chat when a UI error happens.'],
 			width = "full",
 			type = "toggle",
-			set = function(info,value) ns.db.hideUIErrors = value; Options:UpdateReloadStatus() end,
-			get = function(info) return ns.db.hideUIErrors end,
+			set = function(info, value)
+				ns.db.hideUIErrors = value
+				Options:UpdateReloadStatus()
+			end,
+			get = function(info)
+				return ns.db.hideUIErrors
+			end,
 		},
 		showStartupMessage = {
 			order = 45,
@@ -111,22 +151,31 @@ local optionDB = {
 			desc = L["Print a message on login showing how to open CleanerChat settings."],
 			width = "full",
 			type = "toggle",
-			set = function(info,value) ns.db.showStartupMessage = value end,
-			get = function(info) return ns.db.showStartupMessage end,
+			set = function(info, value)
+				ns.db.showStartupMessage = value
+			end,
+			get = function(info)
+				return ns.db.showStartupMessage
+			end,
 		},
 		filterHeader = {
 			order = 100,
 			type = "header",
-			name = L["Filter Selection"]
+			name = L["Filter Selection"],
 		},
 		moneyPrettify = {
 			order = 105,
 			name = L["Prettify Money"],
-			desc = L["Display money gains and losses with coin icons (e.g. \"+ 28\"). When off, uses the default Blizzard text format."],
+			desc = L['Display money gains and losses with coin icons (e.g. "+ 28"). When off, uses the default Blizzard text format.'],
 			width = 1.5,
 			type = "toggle",
-			set = function(info,value) ns.db.moneyPrettify = value; Options:UpdateReloadStatus() end,
-			get = function(info) return ns.db.moneyPrettify end,
+			set = function(info, value)
+				ns.db.moneyPrettify = value
+				Options:UpdateReloadStatus()
+			end,
+			get = function(info)
+				return ns.db.moneyPrettify
+			end,
 		},
 		oneLineQuestRewards = {
 			order = 106,
@@ -134,8 +183,13 @@ local optionDB = {
 			desc = L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."],
 			width = 1.5,
 			type = "toggle",
-			set = function(info,value) ns.db.oneLineQuestRewards = value; Options:UpdateReloadStatus() end,
-			get = function(info) return ns.db.oneLineQuestRewards end,
+			set = function(info, value)
+				ns.db.oneLineQuestRewards = value
+				Options:UpdateReloadStatus()
+			end,
+			get = function(info)
+				return ns.db.oneLineQuestRewards
+			end,
 		},
 		showItemDestruction = {
 			order = 107,
@@ -143,8 +197,12 @@ local optionDB = {
 			desc = L["Display a message when you destroy (delete) an item."],
 			width = 1.5,
 			type = "toggle",
-			set = function(info,value) ns.db.showItemDestruction = value end,
-			get = function(info) return ns.db.showItemDestruction end,
+			set = function(info, value)
+				ns.db.showItemDestruction = value
+			end,
+			get = function(info)
+				return ns.db.showItemDestruction
+			end,
 		},
 		showVendorSales = {
 			order = 108,
@@ -152,8 +210,12 @@ local optionDB = {
 			desc = L["Display a message when you sell an item to a vendor."],
 			width = 1.5,
 			type = "toggle",
-			set = function(info,value) ns.db.showVendorSales = value end,
-			get = function(info) return ns.db.showVendorSales end,
+			set = function(info, value)
+				ns.db.showVendorSales = value
+			end,
+			get = function(info)
+				return ns.db.showVendorSales
+			end,
 		},
 		prettifyGuildStatus = {
 			order = 109,
@@ -161,10 +223,14 @@ local optionDB = {
 			desc = L["Simplify guild online/offline messages to show just the player name."],
 			width = 1.5,
 			type = "toggle",
-			set = function(info,value) ns.db.prettifyGuildStatus = value end,
-			get = function(info) return ns.db.prettifyGuildStatus end,
-		}
-	}
+			set = function(info, value)
+				ns.db.prettifyGuildStatus = value
+			end,
+			get = function(info)
+				return ns.db.prettifyGuildStatus
+			end,
+		},
+	},
 }
 
 local filterDB = {
@@ -174,7 +240,7 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
+		get = getter,
 	},
 	auctions = {
 		name = L["Auctions"],
@@ -182,7 +248,7 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
+		get = getter,
 	},
 	channels = {
 		name = L["Chat Channel Names"],
@@ -190,7 +256,7 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
+		get = getter,
 	},
 	experience = {
 		name = L["Experience"],
@@ -198,7 +264,7 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
+		get = getter,
 	},
 	loot = {
 		name = L["Loot"],
@@ -206,7 +272,7 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
+		get = getter,
 	},
 	names = {
 		name = L["Player Names"],
@@ -214,7 +280,7 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
+		get = getter,
 	},
 	quests = {
 		name = L["Quests"],
@@ -222,7 +288,7 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
+		get = getter,
 	},
 	reputation = {
 		name = L["Reputation"],
@@ -230,7 +296,7 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
+		get = getter,
 	},
 	spells = {
 		name = L["Learning (Spells)"],
@@ -238,7 +304,7 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
+		get = getter,
 	},
 	status = {
 		name = L["Player Status"],
@@ -246,7 +312,7 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
+		get = getter,
 	},
 	tradeskills = {
 		name = L["Learning (Crafting)"],
@@ -254,34 +320,35 @@ local filterDB = {
 		width = 1.5,
 		type = "toggle",
 		set = setter,
-		get = getter
-	}
+		get = getter,
+	},
 }
 
 Options.GenerateOptionsMenu = function(self)
-
 	-- Sort filter entries by localized name.
 	local sorted = {}
-	for name,item in next,filterDB do
-		if (item) then
+	for name, item in next, filterDB do
+		if item then
 			sorted[#sorted + 1] = { name = name, item = item }
 		end
 	end
-	table_sort(sorted, function(a,b) return a.item.name < b.item.name end)
+	table_sort(sorted, function(a, b)
+		return a.item.name < b.item.name
+	end)
 
 	-- Build the CleanerChat "Filters" category from optionDB + the filter toggles.
 	local ccGroup = CopyTable(optionDB)
 	ccGroup.name = "Filters"
 	ccGroup.order = 1
-	local order,count = 0,0
-	for i,data in ipairs(sorted) do
+	local order, count = 0, 0
+	for i, data in ipairs(sorted) do
 		local item
-		if (type(data.item) == "function") then
+		if type(data.item) == "function" then
 			item = data.item()
 		else
 			item = data.item
 		end
-		if (item) then
+		if item then
 			count = count + 1
 			order = order + 10
 			item.order = 100 + order
@@ -293,23 +360,27 @@ Options.GenerateOptionsMenu = function(self)
 	-- categories so everything lives under /cc (Glass no longer has /glass).
 	-- The version is read live from the .toc so the header always matches it.
 	local tocVersion = GetAddOnMetadata(Addon, "Version")
-	local title = tocVersion and ("CleanerChat V"..tocVersion) or "CleanerChat"
+	local title = tocVersion and ("CleanerChat V" .. tocVersion) or "CleanerChat"
 	local options = {
 		name = title,
 		type = "group",
 		args = {
 			cleanerchat = ccGroup,
-		}
+		},
 	}
 
 	local glass = _G.Glass
-	if (glass and glass.configGroups) then
+	if glass and glass.configGroups then
 		-- Order them after the Filters tab; keep Profiles last.
 		local glassOrders = {
-			general = 2, editBox = 3, messages = 4, topBar = 5, profile = 100
+			general = 2,
+			editBox = 3,
+			messages = 4,
+			topBar = 5,
+			profile = 100,
 		}
-		for key,group in next,glass.configGroups do
-			if (type(group) == "table") then
+		for key, group in next, glass.configGroups do
+			if type(group) == "table" then
 				group.order = glassOrders[key] or 50
 				options.args[key] = group
 			end
@@ -326,14 +397,14 @@ Options.GenerateOptionsMenu = function(self)
 	-- per-window, so place it on the Main window's tab. Fall back to the
 	-- category args directly if Glass isn't tabbed (older layout).
 	local debugTarget
-	if (generalTab) and (generalTab.args) then
-		if (generalTab.args.Main) and (generalTab.args.Main.args) then
+	if generalTab and generalTab.args then
+		if generalTab.args.Main and generalTab.args.Main.args then
 			debugTarget = generalTab.args.Main.args
 		else
 			debugTarget = generalTab.args
 		end
 	end
-	if (debugTarget) then
+	if debugTarget then
 		debugTarget.ccDebugSection = {
 			name = "Debugging",
 			type = "group",
@@ -346,8 +417,14 @@ Options.GenerateOptionsMenu = function(self)
 					type = "toggle",
 					width = "full",
 					order = 1,
-					get = function() return ns.GetRawDebug and ns.GetRawDebug() end,
-					set = function(info, val) if (ns.SetRawDebug) then ns.SetRawDebug(val) end end,
+					get = function()
+						return ns.GetRawDebug and ns.GetRawDebug()
+					end,
+					set = function(info, val)
+						if ns.SetRawDebug then
+							ns.SetRawDebug(val)
+						end
+					end,
 				},
 			},
 		}
@@ -365,7 +442,7 @@ end
 -- Settings that apply immediately (like channelNameMode) should NOT be here.
 Options.TakeSettingsSnapshot = function(self)
 	self.snapshot = {
-		filters = CopyTable(ns.db.filters)
+		filters = CopyTable(ns.db.filters),
 	}
 end
 
@@ -374,9 +451,13 @@ end
 -- Only checks settings that require a reload - dynamic settings are excluded.
 Options.IsDirty = function(self)
 	local snapshot = self.snapshot
-	if (not snapshot) then return false end
-	for key,value in next,snapshot.filters do
-		if (ns.db.filters[key] ~= value) then return true end
+	if not snapshot then
+		return false
+	end
+	for key, value in next, snapshot.filters do
+		if ns.db.filters[key] ~= value then
+			return true
+		end
 	end
 	return false
 end
@@ -384,19 +465,22 @@ end
 -- Updates the status text shown left of the Close button.
 Options.UpdateReloadStatus = function(self)
 	local frame = AceConfigDialog.OpenFrames[Addon]
-	if (not frame or not frame.SetStatusText) then return end
-	if (self:IsDirty()) then
-		frame:SetStatusText("|cffffd200"..L["Settings changed - the UI will reload when you close this window."].."|r")
+	if not frame or not frame.SetStatusText then
+		return
+	end
+	if self:IsDirty() then
+		frame:SetStatusText(
+			"|cffffd200" .. L["Settings changed - the UI will reload when you close this window."] .. "|r"
+		)
 	else
 		frame:SetStatusText("")
 	end
 end
 
 Options.OpenOptionsMenu = function(self, input)
-
 	-- "/cc lock" unlocks the Glass frame (mirrors the old "/glass lock").
-	if (input == "lock") then
-		if (_G.Glass and _G.Glass.UnlockFrame) then
+	if input == "lock" then
+		if _G.Glass and _G.Glass.UnlockFrame then
 			_G.Glass.UnlockFrame()
 		end
 		return
@@ -405,17 +489,17 @@ Options.OpenOptionsMenu = function(self, input)
 	-- Always rebuild so categories that load later (e.g. the Glass UI tabs)
 	-- are picked up, and so the table reflects the latest settings.
 	local genOk, genErr = pcall(self.GenerateOptionsMenu, self)
-	if (not genOk) then
+	if not genOk then
 		print("|cffff7d0aCleanerChat|r: failed to build the options menu.")
-		print("|cffff0000"..tostring(genErr).."|r")
+		print("|cffff0000" .. tostring(genErr) .. "|r")
 		return
 	end
 
-	if (AceConfigRegistry:GetOptionsTable(Addon)) then
+	if AceConfigRegistry:GetOptionsTable(Addon) then
 		local ok, err = pcall(AceConfigDialog.Open, AceConfigDialog, Addon)
-		if (not ok) then
+		if not ok then
 			print("|cffff7d0aCleanerChat|r: failed to open the options window.")
-			print("|cffff0000"..tostring(err).."|r")
+			print("|cffff0000" .. tostring(err) .. "|r")
 			return
 		end
 	else
@@ -430,14 +514,14 @@ Options.OpenOptionsMenu = function(self, input)
 	local frame = AceConfigDialog.OpenFrames[Addon]
 
 	-- Re-skin the window into the dark "Glass" theme (purely cosmetic, guarded).
-	if (frame and ns.SkinOptionsWindow) then
+	if frame and ns.SkinOptionsWindow then
 		pcall(ns.SkinOptionsWindow, frame)
 	end
 
-	if (frame and frame.frame and not frame.frame.ccReloadHooked) then
+	if frame and frame.frame and not frame.frame.ccReloadHooked then
 		frame.frame.ccReloadHooked = true
 		frame.frame:HookScript("OnHide", function()
-			if (Options:IsDirty()) then
+			if Options:IsDirty() then
 				ReloadUI()
 			end
 		end)
@@ -447,13 +531,13 @@ Options.OpenOptionsMenu = function(self, input)
 end
 
 Options.OnEvent = function(self, event, ...)
-	if (event == "PLAYER_ENTERING_WORLD") then
+	if event == "PLAYER_ENTERING_WORLD" then
 		local isInitialLogin, isReloadingUi = ...
-		if (isInitialLogin or isReloadingUi) then
+		if isInitialLogin or isReloadingUi then
 			local ok, err = pcall(self.GenerateOptionsMenu, self)
-			if (not ok) then
+			if not ok then
 				print("|cffff7d0aCleanerChat|r: failed to build the options menu.")
-				print("|cffff0000"..tostring(err).."|r")
+				print("|cffff0000" .. tostring(err) .. "|r")
 			end
 			self:UnregisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
 		end
@@ -464,7 +548,11 @@ Options.OnInitialize = function(self)
 	self:RegisterChatCommand("cc", "OpenOptionsMenu")
 	self:RegisterChatCommand("cleanerchat", "OpenOptionsMenu")
 	-- TEMPORARY DIAGNOSTIC command (see Components/_Debug.lua).
-	self:RegisterChatCommand("ccdebug", function() if (ns.ToggleRawDebug) then ns.ToggleRawDebug() end end)
+	self:RegisterChatCommand("ccdebug", function()
+		if ns.ToggleRawDebug then
+			ns.ToggleRawDebug()
+		end
+	end)
 end
 
 Options.OnEnable = function(self)

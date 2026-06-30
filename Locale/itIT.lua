@@ -1,5 +1,7 @@
 local L = LibStub("AceLocale-3.0"):NewLocale((...), "itIT")
-if (not L) then return end
+if not L then
+	return
+end
 
 -- CleanerChat multi-window menu / startup message
 L["New detached window"] = "Nuova finestra separata"
@@ -8,60 +10,82 @@ L["CleanerChat settings"] = "Impostazioni di CleanerChat"
 L["Use %s for settings."] = "Usa %s per le impostazioni."
 
 L["Channel Name Style"] = "Stile del nome del canale"
-L["Choose whether to show the channel's full name or just its first letter. Requires the Chat Channel Names filter."] = "Scegli se mostrare il nome completo del canale o solo la sua iniziale. Richiede il filtro \"Nomi dei canali di chat\"."
-L["Shortened (e.g. \"[G]\")"] = "Abbreviato (es. \"[G]\")"
-L["Full name (e.g. \"[General]\")"] = "Nome completo (es. \"[General]\")"
+L["Choose whether to show the channel's full name or just its first letter. Requires the Chat Channel Names filter."] =
+	'Scegli se mostrare il nome completo del canale o solo la sua iniziale. Richiede il filtro "Nomi dei canali di chat".'
+L['Shortened (e.g. "[G]")'] = 'Abbreviato (es. "[G]")'
+L['Full name (e.g. "[General]")'] = 'Nome completo (es. "[General]")'
 L["Show Channel Number"] = "Mostra numero del canale"
-L["Prefix the channel display with its number, e.g. \"1. \". Requires the Chat Channel Names filter."] = "Antepone il numero alla visualizzazione del canale, es. \"1. \". Richiede il filtro \"Nomi dei canali di chat\"."
+L['Prefix the channel display with its number, e.g. "1. ". Requires the Chat Channel Names filter.'] =
+	'Antepone il numero alla visualizzazione del canale, es. "1. ". Richiede il filtro "Nomi dei canali di chat".'
 L["Capitalize Channel Name"] = "Iniziale maiuscola per il nome del canale"
-L["Capitalize the first letter of the channel name or initial. Requires the Chat Channel Names filter."] = "Rende maiuscola la prima lettera del nome del canale o della sua iniziale. Richiede il filtro \"Nomi dei canali di chat\"."
+L["Capitalize the first letter of the channel name or initial. Requires the Chat Channel Names filter."] =
+	'Rende maiuscola la prima lettera del nome del canale o della sua iniziale. Richiede il filtro "Nomi dei canali di chat".'
 L["Capitalize Player Names"] = "Iniziale maiuscola per i nomi dei giocatori"
-L["Capitalize the first letter of player names shown in chat. Requires the Player Names filter."] = "Rende maiuscola la prima lettera dei nomi dei giocatori mostrati in chat. Richiede il filtro \"Nomi dei giocatori\"."
+L["Capitalize the first letter of player names shown in chat. Requires the Player Names filter."] =
+	'Rende maiuscola la prima lettera dei nomi dei giocatori mostrati in chat. Richiede il filtro "Nomi dei giocatori".'
 L["Prettify Money"] = "Formatta denaro"
-L["Display money gains and losses with coin icons (e.g. \"+ 28\"). When off, uses the default Blizzard text format."] = "Mostra i guadagni e le perdite di denaro con icone delle monete (es. \"+ 28\"). Se disattivato, usa il formato di testo predefinito di Blizzard."
+L['Display money gains and losses with coin icons (e.g. "+ 28"). When off, uses the default Blizzard text format.'] =
+	'Mostra i guadagni e le perdite di denaro con icone delle monete (es. "+ 28"). Se disattivato, usa il formato di testo predefinito di Blizzard.'
 L["Hide Crafting Broadcasts"] = "Nascondi annunci di creazione"
-L["Hide the \"<name> created: <item>\" messages shown when other players craft items nearby. Requires the Learning (Crafting) filter."] = "Nasconde i messaggi \"<name> created: <item>\" mostrati quando altri giocatori creano oggetti nelle vicinanze. Richiede il filtro \"Apprendimento (Creazione)\"."
-L["Hide UI Error Messages on Login from CleanerChat"] = "Nascondi i messaggi di errore dell'interfaccia all'accesso da CleanerChat"
-L["Hide the \"UI Error: an interface error occurred\" notifications the server prints to chat when a UI error happens."] = "Nasconde le notifiche \"UI Error: an interface error occurred\" che il server mostra in chat quando si verifica un errore dell'interfaccia."
+L['Hide the "<name> created: <item>" messages shown when other players craft items nearby. Requires the Learning (Crafting) filter.'] =
+	'Nasconde i messaggi "<name> created: <item>" mostrati quando altri giocatori creano oggetti nelle vicinanze. Richiede il filtro "Apprendimento (Creazione)".'
+L["Hide UI Error Messages on Login from CleanerChat"] =
+	"Nascondi i messaggi di errore dell'interfaccia all'accesso da CleanerChat"
+L['Hide the "UI Error: an interface error occurred" notifications the server prints to chat when a UI error happens.'] =
+	'Nasconde le notifiche "UI Error: an interface error occurred" che il server mostra in chat quando si verifica un errore dell\'interfaccia.'
 L["Show Startup Message"] = "Mostra messaggio di avvio"
-L["Print a message on login showing how to open CleanerChat settings."] = "Mostra un messaggio all'accesso che indica come aprire le impostazioni di CleanerChat."
-L["Settings changed - the UI will reload when you close this window."] = "Impostazioni modificate: l'interfaccia verrà ricaricata alla chiusura di questa finestra."
+L["Print a message on login showing how to open CleanerChat settings."] =
+	"Mostra un messaggio all'accesso che indica come aprire le impostazioni di CleanerChat."
+L["Settings changed - the UI will reload when you close this window."] =
+	"Impostazioni modificate: l'interfaccia verrà ricaricata alla chiusura di questa finestra."
 L["Filter Selection"] = "Selezione dei filtri"
 L["Achievements"] = "Imprese"
 L["Simplify Achievement messages."] = "Semplifica i messaggi delle imprese."
 L["Auctions"] = "Aste"
-L["Simplify auction house messages: listings created, cancelled, sold, won and bids placed."] = "Semplifica i messaggi della casa d'aste: aste create, annullate, vendute, vinte e offerte piazzate."
+L["Simplify auction house messages: listings created, cancelled, sold, won and bids placed."] =
+	"Semplifica i messaggi della casa d'aste: aste create, annullate, vendute, vinte e offerte piazzate."
 L["Chat Channel Names"] = "Nomi dei canali di chat"
-L["Abbreviate and simplify chat channel display names."] = "Abbrevia e semplifica i nomi visualizzati dei canali di chat."
+L["Abbreviate and simplify chat channel display names."] =
+	"Abbrevia e semplifica i nomi visualizzati dei canali di chat."
 L["Experience"] = "Esperienza"
-L["Abbreviate and simplify experience- and level gains."] = "Abbrevia e semplifica i guadagni di esperienza e di livello."
+L["Abbreviate and simplify experience- and level gains."] =
+	"Abbrevia e semplifica i guadagni di esperienza e di livello."
 L["Loot"] = "Bottino"
-L["Abbreviate and simplify loot-, currency- and received item messages."] = "Abbrevia e semplifica i messaggi di bottino, valuta e oggetti ricevuti."
+L["Abbreviate and simplify loot-, currency- and received item messages."] =
+	"Abbrevia e semplifica i messaggi di bottino, valuta e oggetti ricevuti."
 L["Player Names"] = "Nomi dei giocatori"
 L["Remove brackets from player names."] = "Rimuove le parentesi dai nomi dei giocatori."
 L["Quests"] = "Missioni"
-L["Simplify quest completion- and progress messages."] = "Semplifica i messaggi di completamento e avanzamento delle missioni."
+L["Simplify quest completion- and progress messages."] =
+	"Semplifica i messaggi di completamento e avanzamento delle missioni."
 L["Reputation"] = "Reputazione"
-L["Simplify messages about reputation gain and loss."] = "Semplifica i messaggi relativi a guadagno e perdita di reputazione."
+L["Simplify messages about reputation gain and loss."] =
+	"Semplifica i messaggi relativi a guadagno e perdita di reputazione."
 L["Learning (Spells)"] = "Apprendimento (Magie)"
-L["Blacklist messages about new or removed spells, typically spammed on specialization changes."] = "Blocca i messaggi su magie apprese o rimosse, spesso inviati in massa al cambio di specializzazione."
+L["Blacklist messages about new or removed spells, typically spammed on specialization changes."] =
+	"Blocca i messaggi su magie apprese o rimosse, spesso inviati in massa al cambio di specializzazione."
 L["Player Status"] = "Stato del giocatore"
-L["Simplify status messages about AFK, DND and being rested."] = "Semplifica i messaggi di stato relativi ad Assente, Non disturbare e Riposo."
+L["Simplify status messages about AFK, DND and being rested."] =
+	"Semplifica i messaggi di stato relativi ad Assente, Non disturbare e Riposo."
 L["Learning (Crafting)"] = "Apprendimento (Creazione)"
-L["Simplify messages about new or improved trade skills."] = "Semplifica i messaggi su professioni apprese o migliorate."
+L["Simplify messages about new or improved trade skills."] =
+	"Semplifica i messaggi su professioni apprese o migliorate."
 
 L["One Line Quest Rewards"] = "Ricompense missione su una riga"
-L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."] = "Combina le ricompense delle missioni (oggetti, valuta, esperienza) su una singola riga. I guadagni di reputazione rimangono separati per fazione."
+L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."] =
+	"Combina le ricompense delle missioni (oggetti, valuta, esperienza) su una singola riga. I guadagni di reputazione rimangono separati per fazione."
 L["Show Item Destruction"] = "Mostra distruzione oggetti"
 L["Display a message when you destroy (delete) an item."] = "Mostra un messaggio quando distruggi (elimini) un oggetto."
 
 L["Show Vendor Sales"] = "Mostra vendite al mercante"
 L["Prettify Guild Status"] = "Formatta stato gilda"
-L["Simplify guild online/offline messages to show just the player name."] = "Semplifica i messaggi online/offline della gilda mostrando solo il nome del giocatore."
+L["Simplify guild online/offline messages to show just the player name."] =
+	"Semplifica i messaggi online/offline della gilda mostrando solo il nome del giocatore."
 L["Display a message when you sell an item to a vendor."] = "Mostra un messaggio quando vendi un oggetto a un mercante."
 
 L["Chat Debug Capture"] = "Cattura debug della chat"
-L["Print the raw text and underlying event for every chat line, for diagnosing filters (same as /ccdebug). Stays on across /reload."] = "Stampa il testo grezzo e l'evento sottostante per ogni riga della chat, per diagnosticare i filtri (come /ccdebug). Rimane attivo dopo /reload."
+L["Print the raw text and underlying event for every chat line, for diagnosing filters (same as /ccdebug). Stays on across /reload."] =
+	"Stampa il testo grezzo e l'evento sottostante per ogni riga della chat, per diagnosticare i filtri (come /ccdebug). Rimane attivo dopo /reload."
 
 -- Glass UI Config Strings
 L["Glass"] = "Glass"
@@ -94,7 +118,8 @@ L["Outline Monochrome"] = "Contorno monocromatico"
 L["Edit box"] = "Casella di modifica"
 L["Font size"] = "Dimensione carattere"
 L["Font style"] = "Stile carattere"
-L["Add an outline to the edit box text so it stands out instead of looking flat."] = "Aggiunge un contorno al testo della casella di modifica per farlo risaltare invece di sembrare piatto."
+L["Add an outline to the edit box text so it stands out instead of looking flat."] =
+	"Aggiunge un contorno al testo della casella di modifica per farlo risaltare invece di sembrare piatto."
 L["Background opacity"] = "Opacità sfondo"
 L["Background color"] = "Colore sfondo"
 L["The colour of the edit box background."] = "Il colore dello sfondo della casella di modifica."
@@ -104,53 +129,69 @@ L["Below"] = "Sotto"
 L["Vertical offset"] = "Offset verticale"
 L["Behavior"] = "Comportamento"
 L["Show chat on focus"] = "Mostra chat al focus"
-L["When enabled, opening the edit box (pressing Enter or clicking) reveals the chat messages."] = "Quando attivato, aprire la casella di modifica (premendo Invio o cliccando) rivela i messaggi della chat."
+L["When enabled, opening the edit box (pressing Enter or clicking) reveals the chat messages."] =
+	"Quando attivato, aprire la casella di modifica (premendo Invio o cliccando) rivela i messaggi della chat."
 L["Messages"] = "Messaggi"
-L["Add an outline to chat message text so it stands out instead of looking flat."] = "Aggiunge un contorno al testo dei messaggi della chat per farli risaltare invece di sembrare piatti."
+L["Add an outline to chat message text so it stands out instead of looking flat."] =
+	"Aggiunge un contorno al testo dei messaggi della chat per farli risaltare invece di sembrare piatti."
 L["The colour of the chat message background."] = "Il colore dello sfondo dei messaggi della chat."
 L["Leading"] = "Interlinea"
 L["Line padding"] = "Spaziatura righe"
 L["Left padding"] = "Spaziatura sinistra"
-L["Controls the blank space on the left side of messages."] = "Controlla lo spazio vuoto sul lato sinistro dei messaggi."
+L["Controls the blank space on the left side of messages."] =
+	"Controlla lo spazio vuoto sul lato sinistro dei messaggi."
 L["Message history"] = "Cronologia messaggi"
-L["Maximum number of messages to keep in memory per chat window. Higher values use more memory."] = "Numero massimo di messaggi da mantenere in memoria per finestra di chat. Valori più alti usano più memoria."
+L["Maximum number of messages to keep in memory per chat window. Higher values use more memory."] =
+	"Numero massimo di messaggi da mantenere in memoria per finestra di chat. Valori più alti usano più memoria."
 L["Animations"] = "Animazioni"
 L["Disable animations"] = "Disabilita animazioni"
-L["Show messages instantly with no slide or fade -- the chat becomes static. The timing sliders below have no effect while this is on."] = "Mostra i messaggi istantaneamente senza scorrimento o dissolvenza -- la chat diventa statica. I cursori di temporizzazione sotto non hanno effetto mentre è attivo."
+L["Show messages instantly with no slide or fade -- the chat becomes static. The timing sliders below have no effect while this is on."] =
+	"Mostra i messaggi istantaneamente senza scorrimento o dissolvenza -- la chat diventa statica. I cursori di temporizzazione sotto non hanno effetto mentre è attivo."
 L["Keep messages visible"] = "Mantieni messaggi visibili"
-L["Messages never fade out -- they stay on screen permanently. Overrides the fade out delay and duration below."] = "I messaggi non svaniscono mai -- rimangono sullo schermo permanentemente. Sovrascrive il ritardo e la durata della dissolvenza sotto."
+L["Messages never fade out -- they stay on screen permanently. Overrides the fade out delay and duration below."] =
+	"I messaggi non svaniscono mai -- rimangono sullo schermo permanentemente. Sovrascrive il ritardo e la durata della dissolvenza sotto."
 L["Fade out delay"] = "Ritardo dissolvenza"
 L["Fade in duration"] = "Durata comparsa"
 L["Fade out duration"] = "Durata dissolvenza"
 L["Slide in duration"] = "Durata scorrimento"
 L["Misc"] = "Varie"
 L["Indent on line wrap"] = "Rientro a capo"
-L["Adds an indent when a message wraps beyond a single line."] = "Aggiunge un rientro quando un messaggio va a capo oltre una singola riga."
+L["Adds an indent when a message wraps beyond a single line."] =
+	"Aggiunge un rientro quando un messaggio va a capo oltre una singola riga."
 L["Mouse over tooltips"] = "Tooltip al passaggio del mouse"
-L["Should tooltips appear when hovering over chat links."] = "Se i tooltip devono apparire al passaggio del mouse sui link della chat."
+L["Should tooltips appear when hovering over chat links."] =
+	"Se i tooltip devono apparire al passaggio del mouse sui link della chat."
 L["Text icons Y offset"] = "Offset Y icone testo"
 L["Adjust this if text icons aren't centered."] = "Regola questo se le icone del testo non sono centrate."
 L["Show messages on hover"] = "Mostra messaggi al passaggio"
-L["When enabled, hovering over the chat reveals faded messages. When disabled, only scrolling reveals them."] = "Quando attivato, passare il mouse sulla chat rivela i messaggi svaniti. Quando disattivato, solo lo scorrimento li rivela."
+L["When enabled, hovering over the chat reveals faded messages. When disabled, only scrolling reveals them."] =
+	"Quando attivato, passare il mouse sulla chat rivela i messaggi svaniti. Quando disattivato, solo lo scorrimento li rivela."
 L["Scroll Indicator"] = "Indicatore di scorrimento"
 L["Hide scroll indicator"] = "Nascondi indicatore scorrimento"
-L["Hide the \"Unread messages\" and \"Bring me to the present\" indicator completely."] = "Nasconde completamente l'indicatore \"Messaggi non letti\" e \"Portami al presente\"."
+L['Hide the "Unread messages" and "Bring me to the present" indicator completely.'] =
+	'Nasconde completamente l\'indicatore "Messaggi non letti" e "Portami al presente".'
 L["Indicator text color"] = "Colore testo indicatore"
-L["Color of the \"Unread messages\" and \"Bring me to the present\" text."] = "Colore del testo \"Messaggi non letti\" e \"Portami al presente\"."
+L['Color of the "Unread messages" and "Bring me to the present" text.'] =
+	'Colore del testo "Messaggi non letti" e "Portami al presente".'
 L["Indicator text opacity"] = "Opacità testo indicatore"
 L["Opacity of the scroll indicator text."] = "Opacità del testo dell'indicatore di scorrimento."
 L["Indicator background color"] = "Colore sfondo indicatore"
-L["Background color behind the scroll indicator text."] = "Colore di sfondo dietro il testo dell'indicatore di scorrimento."
+L["Background color behind the scroll indicator text."] =
+	"Colore di sfondo dietro il testo dell'indicatore di scorrimento."
 L["Indicator background opacity"] = "Opacità sfondo indicatore"
 L["Opacity of the scroll indicator background."] = "Opacità dello sfondo dell'indicatore di scorrimento."
 L["Top bar"] = "Barra superiore"
-L["Add an outline to the chat tab text so it stands out instead of looking flat."] = "Aggiunge un contorno al testo delle schede della chat per farle risaltare invece di sembrare piatte."
+L["Add an outline to the chat tab text so it stands out instead of looking flat."] =
+	"Aggiunge un contorno al testo delle schede della chat per farle risaltare invece di sembrare piatte."
 L["The colour of the top bar background."] = "Il colore dello sfondo della barra superiore."
-L["Show and hide the top bar instantly with no fade -- the tabs become static. The timing sliders below have no effect while this is on."] = "Mostra e nasconde la barra superiore istantaneamente senza dissolvenza -- le schede diventano statiche. I cursori di temporizzazione sotto non hanno effetto mentre è attivo."
+L["Show and hide the top bar instantly with no fade -- the tabs become static. The timing sliders below have no effect while this is on."] =
+	"Mostra e nasconde la barra superiore istantaneamente senza dissolvenza -- le schede diventano statiche. I cursori di temporizzazione sotto non hanno effetto mentre è attivo."
 L["Keep tabs visible"] = "Mantieni schede visibili"
-L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fade out delay and duration below."] = "Le schede della chat non svaniscono mai -- rimangono sullo schermo permanentemente. Sovrascrive il ritardo e la durata della dissolvenza sotto."
+L["Chat tabs never fade out -- they stay on screen permanently. Overrides the fade out delay and duration below."] =
+	"Le schede della chat non svaniscono mai -- rimangono sullo schermo permanentemente. Sovrascrive il ritardo e la durata della dissolvenza sotto."
 L["Show tabs on hover"] = "Mostra schede al passaggio"
-L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] = "Quando attivato, le schede della chat svaniscono quando inattive e riappaiono al passaggio del mouse. Quando disattivato, le schede sono sempre visibili."
+L["When enabled, chat tabs fade out when idle and reappear on mouse hover. When disabled, tabs are always visible."] =
+	"Quando attivato, le schede della chat svaniscono quando inattive e riappaiono al passaggio del mouse. Quando disattivato, le schede sono sempre visibili."
 L["Tab widths refit on /reload."] = "Le larghezze delle schede si riadattano con /reload."
 
 -- Tab Button Style
@@ -162,7 +203,8 @@ L["Shape of tab button corners."] = "Forma degli angoli dei pulsanti delle sched
 L["Square"] = "Quadrato"
 L["Rounded"] = "Arrotondato"
 L["Tab active color"] = "Colore scheda attiva"
-L["Color of the selected/active tab background and text."] = "Colore dello sfondo e del testo della scheda selezionata/attiva."
+L["Color of the selected/active tab background and text."] =
+	"Colore dello sfondo e del testo della scheda selezionata/attiva."
 L["Tab inactive color"] = "Colore scheda inattiva"
 L["Color of unselected tab backgrounds."] = "Colore degli sfondi delle schede non selezionate."
 L["Tab background opacity"] = "Opacità sfondo scheda"
@@ -175,22 +217,28 @@ L["Tab padding"] = "Padding scheda"
 L["Padding from the dock edge."] = "Distanza dal bordo del dock."
 
 L["Show timestamps"] = "Mostra timestamp"
-L["Prepend each message with a timestamp in [HH:MM] format."] = "Antepone a ogni messaggio un timestamp nel formato [HH:MM]."
+L["Prepend each message with a timestamp in [HH:MM] format."] =
+	"Antepone a ogni messaggio un timestamp nel formato [HH:MM]."
 
 -- Buttons
 L["Buttons"] = "Pulsanti"
 L["Hide Chat Menu button"] = "Nascondi pulsante Menu Chat"
-L["Hide the Chat Menu (speech bubble) button that provides access to languages and emotes."] = "Nasconde il pulsante Menu Chat (fumetto) che fornisce accesso a lingue ed emote."
+L["Hide the Chat Menu (speech bubble) button that provides access to languages and emotes."] =
+	"Nasconde il pulsante Menu Chat (fumetto) che fornisce accesso a lingue ed emote."
 L["Hide Social button"] = "Nascondi pulsante Social"
-L["Hide the Social (friends) button that appears to the left of the chat frame."] = "Nasconde il pulsante Social (amici) che appare a sinistra della finestra della chat."
+L["Hide the Social (friends) button that appears to the left of the chat frame."] =
+	"Nasconde il pulsante Social (amici) che appare a sinistra della finestra della chat."
 
 -- About
 L["About"] = "Informazioni"
 L["Author"] = "Autore"
 L["Credits"] = "Crediti"
-L["CleanerChat stands on the shoulders of two excellent addons. All credit for the original work belongs to their creators."] = "CleanerChat si basa su due eccellenti addon. Tutto il merito per il lavoro originale va ai loro creatori."
-L["The immersive chat UI is built on Glass by mixxorz. This project keeps the spirit of Glass alive on 3.3.5."] = "L'interfaccia chat immersiva è costruita su Glass di mixxorz. Questo progetto mantiene vivo lo spirito di Glass su 3.3.5."
-L["The message filtering is based on ChatCleaner by Lars Norberg (Goldpaw). Backported to 3.3.5."] = "Il filtraggio dei messaggi è basato su ChatCleaner di Lars Norberg (Goldpaw). Portato su 3.3.5."
+L["CleanerChat stands on the shoulders of two excellent addons. All credit for the original work belongs to their creators."] =
+	"CleanerChat si basa su due eccellenti addon. Tutto il merito per il lavoro originale va ai loro creatori."
+L["The immersive chat UI is built on Glass by mixxorz. This project keeps the spirit of Glass alive on 3.3.5."] =
+	"L'interfaccia chat immersiva è costruita su Glass di mixxorz. Questo progetto mantiene vivo lo spirito di Glass su 3.3.5."
+L["The message filtering is based on ChatCleaner by Lars Norberg (Goldpaw). Backported to 3.3.5."] =
+	"Il filtraggio dei messaggi è basato su ChatCleaner di Lars Norberg (Goldpaw). Portato su 3.3.5."
 
 -- Channel abbreviations (match slash commands)
 L["BGL"] = "BGL"

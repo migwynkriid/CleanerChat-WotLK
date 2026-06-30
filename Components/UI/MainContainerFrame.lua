@@ -14,26 +14,26 @@ local MouseIsOver = MouseIsOver
 local MainContainerFrameMixin = {}
 
 function MainContainerFrameMixin:Init()
-  self.state = {
-    mouseOver = false,
-    lastMouseCheck = 0,  -- Debounce timer
-  }
+	self.state = {
+		mouseOver = false,
+		lastMouseCheck = 0, -- Debounce timer
+	}
 
-  self:SetWidth(self.profile.frameWidth)
-  self:SetHeight(self.profile.frameHeight)
+	self:SetWidth(self.profile.frameWidth)
+	self:SetHeight(self.profile.frameHeight)
 
-  -- Enable mouse so clicking on the chat area sets focus to this window.
-  self:EnableMouse(true)
-  self:SetScript("OnMouseDown", function(frame, button)
-    if button == "LeftButton" then
-      local UIManager = Core:GetModule("UIManager", true)
-      if UIManager and UIManager.SetActiveWindow and frame.window then
-        UIManager:SetActiveWindow(frame.window)
-      end
-    end
-  end)
+	-- Enable mouse so clicking on the chat area sets focus to this window.
+	self:EnableMouse(true)
+	self:SetScript("OnMouseDown", function(frame, button)
+		if button == "LeftButton" then
+			local UIManager = Core:GetModule("UIManager", true)
+			if UIManager and UIManager.SetActiveWindow and frame.window then
+				UIManager:SetActiveWindow(frame.window)
+			end
+		end
+	end)
 
-  --[===[@debug@
+	--[===[@debug@
   -- Helper to set solid color texture (3.3.5 compatibility)
   local function SetSolidColor(texture, r, g, b, a)
     if texture.SetColorTexture then
@@ -48,52 +48,56 @@ function MainContainerFrameMixin:Init()
   self.bg:SetAllPoints()
   --@end-debug@]===]
 
-  self.subscriptions = { Core:Subscribe(UPDATE_CONFIG, function (payload)
-    local key = Core:ResolveConfigKey(payload, self.window and self.window.id or "Main")
-    
-    if key == nil then return end
-    
-    if key == "frameWidth" then
-      self:SetWidth(self.profile.frameWidth)
-    end
+	self.subscriptions = {
+		Core:Subscribe(UPDATE_CONFIG, function(payload)
+			local key = Core:ResolveConfigKey(payload, self.window and self.window.id or "Main")
 
-    if key == "frameHeight" then
-      self:SetHeight(self.profile.frameHeight)
-    end
-  end) }
+			if key == nil then
+				return
+			end
+
+			if key == "frameWidth" then
+				self:SetWidth(self.profile.frameWidth)
+			end
+
+			if key == "frameHeight" then
+				self:SetHeight(self.profile.frameHeight)
+			end
+		end),
+	}
 end
 
 -- Unsubscribe the container's event-bus listeners when its window is deleted.
 function MainContainerFrameMixin:Destroy()
-  if self.subscriptions then
-    for _, unsubscribe in ipairs(self.subscriptions) do
-      if type(unsubscribe) == "function" then
-        unsubscribe()
-      end
-    end
-    self.subscriptions = nil
-  end
+	if self.subscriptions then
+		for _, unsubscribe in ipairs(self.subscriptions) do
+			if type(unsubscribe) == "function" then
+				unsubscribe()
+			end
+		end
+		self.subscriptions = nil
+	end
 end
 
 function MainContainerFrameMixin:OnFrame()
-  -- Mouse over tracking
-  local isOver = MouseIsOver(self)
-  if self.state.mouseOver ~= isOver then
-    if not self.state.mouseOver then
-      -- Scope the hover event to this window so only its messages/tabs react.
-      Core:Dispatch(MOUSE_ENTER, self.window)
-    else
-      Core:Dispatch(MOUSE_LEAVE, self.window)
-    end
+	-- Mouse over tracking
+	local isOver = MouseIsOver(self)
+	if self.state.mouseOver ~= isOver then
+		if not self.state.mouseOver then
+			-- Scope the hover event to this window so only its messages/tabs react.
+			Core:Dispatch(MOUSE_ENTER, self.window)
+		else
+			Core:Dispatch(MOUSE_LEAVE, self.window)
+		end
 
-    self.state.mouseOver = not self.state.mouseOver
-  end
+		self.state.mouseOver = not self.state.mouseOver
+	end
 end
 
-Core.Components.CreateMainContainerFrame = function (name, parent, profile)
-  local frame = CreateFrame("Frame", name, parent)
-  local object = Mixin(frame, MainContainerFrameMixin)
-  object.profile = profile or Core.db.profile
-  object:Init()
-  return object
+Core.Components.CreateMainContainerFrame = function(name, parent, profile)
+	local frame = CreateFrame("Frame", name, parent)
+	local object = Mixin(frame, MainContainerFrameMixin)
+	object.profile = profile or Core.db.profile
+	object:Init()
+	return object
 end

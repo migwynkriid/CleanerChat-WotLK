@@ -3,7 +3,9 @@ Checkbox Widget
 -------------------------------------------------------------------------------]]
 local Type, Version = "CheckBox", 26
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
-if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
+if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then
+	return
+end
 
 -- Lua APIs
 local select, pairs = select, pairs
@@ -42,7 +44,7 @@ local function CheckBox_OnMouseDown(frame)
 	local self = frame.obj
 	if not self.disabled then
 		if self.image:GetTexture() then
-			self.text:SetPoint("LEFT", self.image,"RIGHT", 2, -1)
+			self.text:SetPoint("LEFT", self.image, "RIGHT", 2, -1)
 		else
 			self.text:SetPoint("LEFT", self.checkbg, "RIGHT", 1, -1)
 		end
@@ -233,7 +235,7 @@ local methods = {
 			end
 		end
 		AlignImage(self)
-	end
+	end,
 }
 
 --[[-----------------------------------------------------------------------------
@@ -279,13 +281,13 @@ local function Constructor()
 	image:SetPoint("LEFT", checkbg, "RIGHT", 1, 0)
 
 	local widget = {
-		checkbg   = checkbg,
-		check     = check,
-		text      = text,
+		checkbg = checkbg,
+		check = check,
+		text = text,
 		highlight = highlight,
-		image     = image,
-		frame     = frame,
-		type      = Type
+		image = image,
+		frame = frame,
+		type = Type,
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func
