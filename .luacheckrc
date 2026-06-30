@@ -751,8 +751,11 @@ files = {
     ignore = { "212" },  -- Chat filter callback signature
   },
 
-  -- Unit tests run under the busted framework (describe/it/assert/before_each).
+  -- Unit tests run under the busted framework (describe/it/assert/before_each)
+  -- and stub a couple of WoW globals (ChatTypeInfo, C_Timer) on _G for the
+  -- helpers under test, so writing to them is expected here.
   ["spec/*.lua"] = {
     std = "+busted",
+    globals = { "ChatTypeInfo", "C_Timer" },
   },
 }
