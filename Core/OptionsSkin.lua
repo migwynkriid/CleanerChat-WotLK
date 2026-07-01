@@ -56,7 +56,9 @@ end
 
 -- Store original state and hide an element
 local function hideAndStore(element)
-	if not element then return end
+	if not element then
+		return
+	end
 	if not elementStates[element] then
 		elementStates[element] = { wasShown = element:IsShown() }
 	end
@@ -65,7 +67,9 @@ end
 
 -- Store original frame level
 local function storeFrameLevel(frame)
-	if not frame or not frame.GetFrameLevel then return end
+	if not frame or not frame.GetFrameLevel then
+		return
+	end
 	if not elementStates[frame] then
 		elementStates[frame] = {}
 	end
@@ -81,7 +85,9 @@ local function restoreAllStates()
 			-- Restore visibility
 			if states.wasShown ~= nil then
 				if states.wasShown then
-					if element.Show then element:Show() end
+					if element.Show then
+						element:Show()
+					end
 				end
 			end
 			-- Restore text color
@@ -104,7 +110,9 @@ end
 
 -- Create overlay frame (once, reused)
 local function createOverlayFrame()
-	if overlayFrame then return overlayFrame end
+	if overlayFrame then
+		return overlayFrame
+	end
 
 	overlayFrame = CreateFrame("Frame", "CleanerChatOptionsOverlay", UIParent)
 	overlayFrame:Hide()
@@ -207,7 +215,9 @@ end
 
 -- Find tree widget
 local function findTree(widget)
-	if not widget or not widget.children then return nil end
+	if not widget or not widget.children then
+		return nil
+	end
 	for _, child in ipairs(widget.children) do
 		if type(child) == "table" and child.treeframe then
 			return child
@@ -230,7 +240,9 @@ end
 
 -- Main skinning function
 function ns.SkinOptionsWindow(widget)
-	if not widget or not widget.frame then return end
+	if not widget or not widget.frame then
+		return
+	end
 
 	local f = widget.frame
 	local overlay = createOverlayFrame()
