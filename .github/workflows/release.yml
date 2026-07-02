@@ -135,8 +135,12 @@ jobs:
             exit 0
           fi
           
+          echo "GEMINI_API_KEY is set, proceeding with AI summary..."
+          
           # Read the raw changelog
           COMMITS=$(cat changelog.txt)
+          echo "Commits to summarize:"
+          echo "$COMMITS"
           
           # Skip AI if no real changes
           if [ "$COMMITS" = "- Initial release" ]; then
@@ -144,46 +148,33 @@ jobs:
             exit 0
           fi
           
-          # Create prompt
-          PROMPT="You are writing a changelog summary for a WoW addon.
-
-          RULES:
-          - Write like a normal person, not a corporate PR team
-          - NO words like: enhanced, streamlined, robust, seamless, leverage, utilize, optimize, elevate
-          - NO phrases like: we're excited, happy to announce, this release brings
-          - Just say what changed. Plain English. Short sentences.
-          - Max 3-4 bullet points total
-          - Group similar changes together
-          - If it's a fix, just say Fixed X
-          - If it's new, just say Added X
-          - Skip anything boring (version bumps, formatting, CI changes, trigger commits)
-          - Start each bullet with - 
-
-          COMMITS:
-          $COMMITS
-
-          Write 2-4 short bullet points summarizing what actually matters to users:"
-
+          # Create prompt (single line for JSON safety)
+          PROMPT="Summarize these WoW addon commits in 2-4 bullet points. Be brief. Say Added X or Fixed X. Skip boring stuff like triggers/formatting. Commits: $COMMITS"
+          
           # Use Gemini API (free tier)
+          echo "Calling Gemini API..."
           RESPONSE=$(curl -s -X POST \
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}" \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n --arg prompt "$PROMPT" '{
               "contents": [{"parts": [{"text": $prompt}]}],
               "generationConfig": {"maxOutputTokens": 200, "temperature": 0.3}
-            }')" 2>/dev/null || echo "")
+            }')")
+          
+          echo "API Response received"
           
           # Extract the summary from Gemini response
           SUMMARY=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // empty' 2>/dev/null || echo "")
           
           if [ -n "$SUMMARY" ]; then
-            echo "AI summary generated successfully"
+            echo "AI summary generated successfully:"
+            echo "$SUMMARY"
             echo "summary<<EOF" >> $GITHUB_OUTPUT
             echo "$SUMMARY" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
           else
-            echo "AI summary skipped (API unavailable or failed)"
-            echo "Response was: $RESPONSE"
+            echo "AI summary failed. Response:"
+            echo "$RESPONSE" | head -500
             echo "summary=" >> $GITHUB_OUTPUT
           fi
 
