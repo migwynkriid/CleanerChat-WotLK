@@ -137,24 +137,28 @@ jobs:
             exit 0
           fi
           
-          # Create prompt - the key is being VERY specific about tone
-          PROMPT="You are writing a changelog summary for a WoW addon.
+          # Create prompt using heredoc (avoids YAML indentation issues)
+          PROMPT=$(cat <<'PROMPT_END'
+          You are writing a changelog summary for a WoW addon.
 
-RULES:
-- Write like a normal person, not a corporate PR team
-- NO words like: enhanced, streamlined, robust, seamless, leverage, utilize, optimize, elevate
-- NO phrases like: \"we're excited\", \"happy to announce\", \"this release brings\"
-- Just say what changed. Plain English. Short sentences.
-- Max 3-4 bullet points total
-- Group similar changes together
-- If it's a fix, just say \"Fixed X\"
-- If it's new, just say \"Added X\"
-- Skip anything boring (version bumps, formatting, CI changes)
+          RULES:
+          - Write like a normal person, not a corporate PR team
+          - NO words like: enhanced, streamlined, robust, seamless, leverage, utilize, optimize, elevate
+          - NO phrases like: "we're excited", "happy to announce", "this release brings"
+          - Just say what changed. Plain English. Short sentences.
+          - Max 3-4 bullet points total
+          - Group similar changes together
+          - If it's a fix, just say "Fixed X"
+          - If it's new, just say "Added X"
+          - Skip anything boring (version bumps, formatting, CI changes)
 
-COMMITS:
-$COMMITS
+          COMMITS:
+          PROMPT_END
+          )
+          PROMPT="${PROMPT}
+          ${COMMITS}
 
-Write 2-4 short bullet points summarizing what actually matters to users:"
+          Write 2-4 short bullet points summarizing what actually matters to users:"
 
           # Use GitHub's AI Models API (free for public repos)
           RESPONSE=$(curl -s -X POST \
