@@ -148,28 +148,25 @@ jobs:
             exit 0
           fi
           
-          # Create prompt
-          read -r -d '' PROMPT << 'PROMPTEOF'
-You are writing a changelog summary for a WoW addon.
+          # Create prompt - jq handles escaping
+          PROMPT="You are writing a changelog summary for a WoW addon.
 
-RULES:
-- Write like a normal person, not a corporate PR team
-- NO words like: enhanced, streamlined, robust, seamless, leverage, utilize, optimize, elevate
-- NO phrases like: we're excited, happy to announce, this release brings
-- Just say what changed. Plain English. Short sentences.
-- Max 3-4 bullet points total
-- Group similar changes together
-- If it's a fix, just say Fixed X
-- If it's new, just say Added X
-- Skip anything boring (version bumps, formatting, CI changes, trigger commits)
-- Start each bullet with -
+          RULES:
+          - Write like a normal person, not a corporate PR team
+          - NO words like: enhanced, streamlined, robust, seamless, leverage, utilize, optimize, elevate
+          - NO phrases like: we're excited, happy to announce, this release brings
+          - Just say what changed. Plain English. Short sentences.
+          - Max 3-4 bullet points total
+          - Group similar changes together
+          - If it's a fix, just say Fixed X
+          - If it's new, just say Added X
+          - Skip anything boring (version bumps, formatting, CI changes, trigger commits)
+          - Start each bullet with -
 
-COMMITS:
-PROMPTEOF
-          PROMPT="$PROMPT
-$COMMITS
+          COMMITS:
+          $COMMITS
 
-Write 2-4 short bullet points summarizing what actually matters to users:"
+          Write 2-4 short bullet points summarizing what actually matters to users:"
           
           # Use Gemini API (free tier)
           echo "Calling Gemini API..."
