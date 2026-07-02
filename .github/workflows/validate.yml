@@ -1,15 +1,6 @@
 name: Validate
 
 on:
-  push:
-    branches-ignore:
-      - main
-    paths:
-      - "**.lua"
-      - ".luacheckrc"
-      - "stylua.toml"
-      - "*.toc"
-      - ".github/workflows/validate.yml"
   pull_request:
     branches:
       - main
@@ -24,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref || github.ref }}
+          ref: ${{ github.head_ref }}
           # Need token with write access for auto-commit
           token: ${{ secrets.GITHUB_TOKEN }}
 
