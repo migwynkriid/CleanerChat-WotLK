@@ -15,19 +15,18 @@ on:
       - main
 
 jobs:
-  format:
+  validate:
     runs-on: ubuntu-latest
-    # Only auto-format on push (not PR) to avoid permission issues with forks
-    if: github.event_name == 'push'
     permissions:
       contents: write
-
-    outputs:
-      formatted: ${{ steps.commit.outputs.changes_detected }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          # Need token with write access for auto-commit
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install StyLua
         run: |
@@ -36,30 +35,32 @@ jobs:
           chmod +x stylua
           sudo mv stylua /usr/local/bin/
 
-      - name: Run StyLua formatting
-        run: stylua .
+      - name: Check and fix Lua formatting
+        id: format
+        run: |
+          echo "Checking Lua formatting with StyLua..."
+          if stylua --check .; then
+            echo "✅ Lua formatting check passed"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Formatting issues found, auto-fixing..."
+            stylua .
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Commit formatting changes
-        id: commit
+        if: steps.format.outputs.changed == 'true' && github.event_name == 'push'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: auto-format with StyLua"
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
 
-  validate:
-    runs-on: ubuntu-latest
-    # Wait for format job if it ran, otherwise run immediately
-    # Skip if format job made changes (a new workflow will run on the auto-commit)
-    needs: [format]
-    if: |
-      always() && 
-      (needs.format.result == 'skipped' || 
-       (needs.format.result == 'success' && needs.format.outputs.formatted != 'true'))
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Fail on formatting issues (PR only)
+        if: steps.format.outputs.changed == 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "❌ Lua formatting issues found! Run 'stylua .' locally to fix."
+          exit 1
 
       - name: Cache Lua tools
         uses: actions/cache@v4
@@ -115,24 +116,6 @@ jobs:
               echo "❌ Luacheck found errors! Fix them before merging."
             fi
             exit $EXIT_CODE
-          fi
-
-      - name: Install StyLua
-        run: |
-          curl -L https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip -o stylua.zip
-          unzip stylua.zip
-          chmod +x stylua
-          sudo mv stylua /usr/local/bin/
-
-      - name: Check Lua formatting
-        run: |
-          echo "Checking Lua formatting with StyLua..."
-          if stylua --check .; then
-            echo "✅ Lua formatting check passed"
-          else
-            echo ""
-            echo "❌ Lua formatting issues found! Run 'stylua .' locally to fix."
-            exit 1
           fi
 
       - name: Install busted (unit test framework)
