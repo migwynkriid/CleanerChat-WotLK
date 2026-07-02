@@ -148,8 +148,28 @@ jobs:
             exit 0
           fi
           
-          # Create prompt (single line for JSON safety)
-          PROMPT="Summarize these WoW addon commits in 2-4 bullet points. Be brief. Say Added X or Fixed X. Skip boring stuff like triggers/formatting. Commits: $COMMITS"
+          # Create prompt
+          read -r -d '' PROMPT << 'PROMPTEOF'
+You are writing a changelog summary for a WoW addon.
+
+RULES:
+- Write like a normal person, not a corporate PR team
+- NO words like: enhanced, streamlined, robust, seamless, leverage, utilize, optimize, elevate
+- NO phrases like: we're excited, happy to announce, this release brings
+- Just say what changed. Plain English. Short sentences.
+- Max 3-4 bullet points total
+- Group similar changes together
+- If it's a fix, just say Fixed X
+- If it's new, just say Added X
+- Skip anything boring (version bumps, formatting, CI changes, trigger commits)
+- Start each bullet with -
+
+COMMITS:
+PROMPTEOF
+          PROMPT="$PROMPT
+$COMMITS
+
+Write 2-4 short bullet points summarizing what actually matters to users:"
           
           # Use Gemini API (free tier)
           echo "Calling Gemini API..."
