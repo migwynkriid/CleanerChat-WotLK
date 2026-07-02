@@ -64,6 +64,27 @@ L["Simplify status messages about AFK, DND and being rested."] =
 	"簡化關於暫離、忙碌與充分休息狀態的訊息。"
 L["Learning (Crafting)"] = "學習（製造）"
 L["Simplify messages about new or improved trade skills."] = "簡化關於新學或提升專業技能的訊息。"
+
+-- New filter keys (fallback to English)
+L["Group Channel Style"] = true
+L["How to display group channels like Guild, Party, Raid, Officer. Requires the Chat Channel Names filter."] = true
+L['Shortened (e.g. "[G]", "[P]")'] = true
+L['Full name (e.g. "[Guild]", "[Party]")'] = true
+L["Force Class Colors"] = true
+L["Enable class-colored names for all chat types (Guild, Party, Raid, Whisper, etc.) on login. This overrides Blizzard's default settings."] = true
+L["Honor"] = true
+L["Simplify PvP honor gain messages."] = true
+L["Opening"] = true
+L["Hide opening and unlocking messages (lockpicking, chests)."] = true
+L["Pet Info"] = true
+L["Hide pet happiness and ability messages."] = true
+L["Misc Info"] = true
+L["Hide miscellaneous combat info like combo points and small power gains."] = true
+L["System Messages"] = true
+L["Hide repetitive system messages like session started."] = true
+L["Boss Messages"] = true
+L["Format boss emotes and whispers with distinct colors."] = true
+
 L["One Line Quest Rewards"] = "任務獎勵單行顯示"
 L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."] =
 	"將任務獎勵（物品、貨幣、經驗）合併為一行。聲望獲取按陣營單獨顯示。"

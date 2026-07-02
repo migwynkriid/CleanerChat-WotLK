@@ -70,6 +70,26 @@ L["Learning (Crafting)"] = "Aprendizado (Criação)"
 L["Simplify messages about new or improved trade skills."] =
 	"Simplifica as mensagens sobre profissões novas ou aprimoradas."
 
+-- New filter keys (fallback to English)
+L["Group Channel Style"] = true
+L["How to display group channels like Guild, Party, Raid, Officer. Requires the Chat Channel Names filter."] = true
+L['Shortened (e.g. "[G]", "[P]")'] = true
+L['Full name (e.g. "[Guild]", "[Party]")'] = true
+L["Force Class Colors"] = true
+L["Enable class-colored names for all chat types (Guild, Party, Raid, Whisper, etc.) on login. This overrides Blizzard's default settings."] = true
+L["Honor"] = true
+L["Simplify PvP honor gain messages."] = true
+L["Opening"] = true
+L["Hide opening and unlocking messages (lockpicking, chests)."] = true
+L["Pet Info"] = true
+L["Hide pet happiness and ability messages."] = true
+L["Misc Info"] = true
+L["Hide miscellaneous combat info like combo points and small power gains."] = true
+L["System Messages"] = true
+L["Hide repetitive system messages like session started."] = true
+L["Boss Messages"] = true
+L["Format boss emotes and whispers with distinct colors."] = true
+
 L["One Line Quest Rewards"] = "Recompensas de missão em uma linha"
 L["Combine quest rewards (items, currency, experience) into a single line. Reputation gains remain separate per faction."] =
 	"Combina recompensas de missão (itens, moeda, experiência) em uma única linha. Ganhos de reputação permanecem separados por facção."
