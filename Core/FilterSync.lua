@@ -45,20 +45,6 @@ local function GetPrimaryChatFrame()
 	return ChatFrame1
 end
 
--- Check if a message group is enabled for a chat frame
-local function IsMessageGroupEnabled(chatFrame, group)
-	if not chatFrame or not chatFrame.messageTypeList then
-		return true -- Default to enabled if we can't check
-	end
-	
-	for _, msgType in ipairs(chatFrame.messageTypeList) do
-		if msgType == group then
-			return true
-		end
-	end
-	return false
-end
-
 -- Enable a message group for the primary chat frame
 local function EnableMessageGroup(group)
 	local chatFrame = GetPrimaryChatFrame()
@@ -173,11 +159,11 @@ function FilterSync:Initialize()
 		-- Fallback: use OnUpdate frame
 		local frame = CreateFrame("Frame")
 		local elapsed = 0
-		frame:SetScript("OnUpdate", function(self, delta)
+		frame:SetScript("OnUpdate", function(updateFrame, delta)
 			elapsed = elapsed + delta
 			if elapsed > 1 then
 				FilterSync:SyncAllToBlizzard()
-				self:SetScript("OnUpdate", nil)
+				updateFrame:SetScript("OnUpdate", nil)
 			end
 		end)
 	end

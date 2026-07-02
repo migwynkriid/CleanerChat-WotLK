@@ -8,7 +8,7 @@ local string_format = string.format
 -- This module prettifies boss emote and boss whisper messages
 -- by making them more visually distinct and cleaner
 
-Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
+Module.OnChatEvent = function(_, _, event, message, author, ...)
 	if not message then return end
 	
 	if event == "CHAT_MSG_MONSTER_EMOTE" or event == "CHAT_MSG_RAID_BOSS_EMOTE" then

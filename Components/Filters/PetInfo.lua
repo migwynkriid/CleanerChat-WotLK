@@ -4,14 +4,12 @@ local Module = ns:NewModule("PetInfo")
 
 -- Lua API
 local string_find = string.find
-local string_match = string.match
 
 -- WoW Globals - Pet related messages
 local G = {
-	-- "%s has learned %s."
-	PET_LEARN_ABILITY = PET_LEARN_ABILITY_S or "Your pet has learned %s.",
-	-- "%s has unlearned %s."
-	PET_UNLEARN_ABILITY = PET_UNLEARN_ABILITY_S or "Your pet has unlearned %s.",
+	-- Pet ability messages (patterns)
+	PET_LEARN_ABILITY = "Your pet has learned %s.",
+	PET_UNLEARN_ABILITY = "Your pet has unlearned %s.",
 	-- "Your pet is now happy."
 	PET_HAPPY = "happy",
 	-- "Your pet is now content."
@@ -27,7 +25,7 @@ local P = ns.MakePatternCache()
 local safeMatch = ns.SafeMatch
 
 -- Filter out pet spam messages (happiness changes, etc.)
-Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
+Module.OnAddMessage = function(_, _, msg, ...)
 	if not msg then return end
 	
 	-- Filter pet happiness messages

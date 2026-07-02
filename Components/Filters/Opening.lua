@@ -9,26 +9,17 @@ local string_match = string.match
 -- In 3.3.5 these appear in CHAT_MSG_OPENING or via AddMessage
 local G = {
 	-- "Opening..."
-	OPENING = OPENING or "Opening...",
+	OPENING = "Opening",
 	-- "Unlocking..."  
-	UNLOCKING = UNLOCKING or "Unlocking...",
+	UNLOCKING = "Unlocking",
 }
 
--- Search Pattern Cache (self-populating via ns.MakePattern on first lookup).
-local P = ns.MakePatternCache()
-
--- Safe pattern match that tolerates a nil pattern (shared helper).
-local safeMatch = ns.SafeMatch
-
 -- Filter out opening/unlocking spam messages
-Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
-	if msg == G.OPENING or msg == G.UNLOCKING then
-		return true -- Suppress the message
-	end
+Module.OnAddMessage = function(_, _, msg, ...)
+	if not msg then return end
 	
-	-- Check for partial matches
-	if msg and (string_match(msg, "^Opening") or string_match(msg, "^Unlocking")) then
-		return true
+	if string_match(msg, "^" .. G.OPENING) or string_match(msg, "^" .. G.UNLOCKING) then
+		return true -- Suppress the message
 	end
 end
 

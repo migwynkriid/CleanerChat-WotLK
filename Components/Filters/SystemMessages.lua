@@ -4,7 +4,6 @@ local Module = ns:NewModule("SystemMessages")
 
 -- Lua API
 local string_find = string.find
-local string_match = string.match
 
 -- WoW Globals - System message strings
 local G = {
@@ -12,18 +11,10 @@ local G = {
 	SESSION_START = "Session started",
 	-- Addon loaded messages  
 	ADDON_LOADED = "AddOn",
-	-- Various system notifications
-	TRANSFER_ABORT = TRANSFER_ABORT_TOO_MANY_INSTANCES or "transfer",
-	-- Battleground queue messages
-	BATTLEGROUND = "Battleground",
-	-- Instance reset messages
-	INSTANCE_RESET = INSTANCE_RESET_SUCCESS or "has been reset",
-	-- Saved instance messages
-	SAVED = "saved",
 }
 
 -- Filter system message spam
-Module.OnAddMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
+Module.OnAddMessage = function(_, _, msg, ...)
 	if not msg then return end
 	
 	-- Filter "Session started" spam
@@ -41,7 +32,7 @@ local onAddMessageProxy = function(...)
 	return Module:OnAddMessage(...)
 end
 
-Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
+Module.OnChatEvent = function(_, _, _, message, ...)
 	if not message then return end
 	
 	-- Filter repetitive system messages

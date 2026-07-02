@@ -4,7 +4,6 @@ local Module = ns:NewModule("Honor")
 
 -- Lua API
 local string_format = string.format
-local string_match = string.match
 local tonumber = tonumber
 
 -- WoW Globals
@@ -24,7 +23,7 @@ local P = ns.MakePatternCache()
 -- Safe pattern match that tolerates a nil pattern (shared helper).
 local safeMatch = ns.SafeMatch
 
-Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
+Module.OnChatEvent = function(_, _, _, message, author, ...)
 	-- Honor award (from BG wins, etc.)
 	local amount = safeMatch(message, P[G.HONOR_AWARD])
 	if amount then
@@ -35,7 +34,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 	end
 
 	-- Honor gain from kills (with rank)
-	local target, rank, honor = safeMatch(message, P[G.HONOR_GAIN])
+	local target, _, honor = safeMatch(message, P[G.HONOR_GAIN])
 	if target then
 		honor = tonumber(honor)
 		if honor then
