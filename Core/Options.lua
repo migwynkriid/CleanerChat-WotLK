@@ -44,13 +44,14 @@ local optionDB = {
 	args = {
 		channelNameMode = {
 			order = 10,
-			name = L["Channel Name Style"],
-			desc = L["Choose whether to show the channel's full name or just its first letter. Requires the Chat Channel Names filter."],
+			name = L["Numbered Channel Style"],
+			desc = L["How to display numbered channels like General, Trade, LocalDefense. Requires the Chat Channel Names filter."],
 			width = 1.25,
 			type = "select",
 			values = {
 				initial = L['Shortened (e.g. "[G]")'],
 				full = L['Full name (e.g. "[General]")'],
+				none = L['Number only (e.g. "1.")'],
 			},
 			disabled = function(info)
 				return not ns.db.filters.channels
@@ -61,6 +62,27 @@ local optionDB = {
 			end,
 			get = function(info)
 				return ns.db.channelNameMode
+			end,
+		},
+		groupChannelNameMode = {
+			order = 10.5,
+			name = L["Group Channel Style"],
+			desc = L["How to display group channels like Guild, Party, Raid, Officer. Requires the Chat Channel Names filter."],
+			width = 1.25,
+			type = "select",
+			values = {
+				initial = L['Shortened (e.g. "[G]", "[P]")'],
+				full = L['Full name (e.g. "[Guild]", "[Party]")'],
+			},
+			disabled = function(info)
+				return not ns.db.filters.channels
+			end,
+			set = function(info, value)
+				ns.db.groupChannelNameMode = value
+				Options:UpdateReloadStatus()
+			end,
+			get = function(info)
+				return ns.db.groupChannelNameMode
 			end,
 		},
 		channelNumber = {

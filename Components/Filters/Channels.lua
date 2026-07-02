@@ -29,6 +29,16 @@ local formatChannelTag = function(channel, number, displaynum, name)
 	local showNumber = (db == nil) or db.channelNumber
 	local capitalize = (db == nil) or db.channelCapitalize
 
+	local prefix = ""
+	if showNumber and displaynum then
+		prefix = displaynum .. ". "
+	end
+
+	-- "none" mode: show only the number, no channel name
+	if mode == "none" then
+		return "|Hchannel:" .. channel .. ":" .. number .. "|h" .. prefix .. "|h"
+	end
+
 	local label
 	if mode == "full" then
 		label = name or ""
@@ -44,11 +54,6 @@ local formatChannelTag = function(channel, number, displaynum, name)
 
 	-- Both modes are wrapped in brackets, e.g. "[G]" or "[General]".
 	label = "[" .. label .. "]"
-
-	local prefix = ""
-	if showNumber and displaynum then
-		prefix = displaynum .. ". "
-	end
 
 	return "|Hchannel:" .. channel .. ":" .. number .. "|h" .. prefix .. label .. "|h"
 end
@@ -73,7 +78,7 @@ local G = {
 Module.OnInitialize = function(self)
 	self.replacements = {}
 
-	-- Helper for channels that respects channelNameMode setting
+	-- Helper for group channels (Guild, Party, Raid, etc.) that respects groupChannelNameMode setting
 	-- fullName is the full channel name (e.g. "Guild"), shortName is the abbreviation (e.g. "G")
 	local function safeAddDynamicReplacement(chatGlobal, fullName, shortName)
 		if chatGlobal then
@@ -82,7 +87,7 @@ Module.OnInitialize = function(self)
 				table_insert(self.replacements, {
 					"%[" .. match .. "%]",
 					function()
-						local mode = (ns.db and ns.db.channelNameMode) or "initial"
+						local mode = (ns.db and ns.db.groupChannelNameMode) or "initial"
 						if mode == "full" then
 							return "[" .. fullName .. "]"
 						else
@@ -115,7 +120,7 @@ Module.OnInitialize = function(self)
 	table_insert(self.replacements, {
 		"|Hchannel:PARTY|h%[Dungeon Guide%]|h",
 		function()
-			local mode = (ns.db and ns.db.channelNameMode) or "initial"
+			local mode = (ns.db and ns.db.groupChannelNameMode) or "initial"
 			if mode == "full" then
 				return "|Hchannel:PARTY|h[Dungeon Guide]|h"
 			else

@@ -15,11 +15,17 @@ L["G"] = true -- Guild
 L["O"] = true -- Officer
 L["DG"] = true -- Dungeon Guide (Ascension)
 
-L["Channel Name Style"] = true
-L["Choose whether to show the channel's full name or just its first letter. Requires the Chat Channel Names filter."] =
+L["Numbered Channel Style"] = true
+L["How to display numbered channels like General, Trade, LocalDefense. Requires the Chat Channel Names filter."] =
 	true
 L['Shortened (e.g. "[G]")'] = true
 L['Full name (e.g. "[General]")'] = true
+L['Number only (e.g. "1.")'] = true
+
+L["Group Channel Style"] = true
+L["How to display group channels like Guild, Party, Raid, Officer. Requires the Chat Channel Names filter."] = true
+L['Shortened (e.g. "[G]", "[P]")'] = true
+L['Full name (e.g. "[Guild]", "[Party]")'] = true
 
 L["Show Channel Number"] = true
 L['Prefix the channel display with its number, e.g. "1. ". Requires the Chat Channel Names filter.'] = true

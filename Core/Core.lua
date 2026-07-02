@@ -212,7 +212,8 @@ ns:SetDefaultModulePrototype(modulePrototype)
 
 -- Addon default settings.
 local defaults = {
-	channelNameMode = "initial", -- "initial" shows the first letter (e.g. "[G]"), "full" shows the whole name
+	channelNameMode = "initial", -- "initial" shows the first letter (e.g. "[G]"), "full" shows the whole name, "none" for number only
+	groupChannelNameMode = "initial", -- "initial" shows the first letter (e.g. "[G]"), "full" shows the whole name
 	channelNumber = true, -- prefix the channel display with its number, e.g. "1. "
 	channelCapitalize = true, -- capitalize the channel name/initial
 	capitalizeNames = true, -- capitalize the first letter of player names
