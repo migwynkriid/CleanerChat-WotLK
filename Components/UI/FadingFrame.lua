@@ -252,7 +252,7 @@ local GradientBackgroundMixin = {}
 
 function GradientBackgroundMixin:Init() end
 
-function GradientBackgroundMixin:SetGradientBackground(leftWidth, rightWidth, color, opacity)
+function GradientBackgroundMixin:SetGradientBackground(_leftWidth, _rightWidth, color, opacity)
 	-- WotLK 3.3.5: Simplified background without gradient edges
 	-- The gradient effect doesn't work reliably in WotLK, so we use a simple solid background
 
