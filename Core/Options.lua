@@ -550,10 +550,14 @@ Options.UpdateReloadStatus = function(self)
 		frame:SetStatusText(
 			"|cffffd200" .. L["Settings changed - the UI will reload when you close this window."] .. "|r"
 		)
-		if statusbg then statusbg:Show() end
+		if statusbg then
+			statusbg:Show()
+		end
 	else
 		frame:SetStatusText("")
-		if statusbg then statusbg:Hide() end
+		if statusbg then
+			statusbg:Hide()
+		end
 	end
 end
 
