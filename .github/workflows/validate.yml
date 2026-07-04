@@ -297,6 +297,76 @@ jobs:
           fi
           echo "✅ Orphan translations check passed"
 
+      - name: Locale empty lines check
+        run: |
+          echo "Checking locale files for empty lines..."
+          echo "NOTE: Locale files should have no empty lines between translations."
+          echo ""
+          
+          ERRORS=0
+          for LOCALE_FILE in Locale/*.lua; do
+            LOCALE_NAME=$(basename "$LOCALE_FILE" .lua)
+            
+            # Count empty lines (lines that are blank or only whitespace)
+            # Skip the first line (LibStub line) and look for empty lines in the rest
+            EMPTY_LINES=$(tail -n +2 "$LOCALE_FILE" | grep -n '^[[:space:]]*$' || true)
+            EMPTY_COUNT=$(echo "$EMPTY_LINES" | grep -c . || true)
+            
+            if [[ $EMPTY_COUNT -gt 0 ]]; then
+              echo "❌ $LOCALE_NAME: found $EMPTY_COUNT empty line(s):"
+              echo "$EMPTY_LINES" | head -5 | while read -r line; do
+                LINE_NUM=$(($(echo "$line" | cut -d: -f1) + 1))
+                echo "  - Line $LINE_NUM"
+              done
+              [[ $EMPTY_COUNT -gt 5 ]] && echo "  ... and $((EMPTY_COUNT - 5)) more"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "✅ $LOCALE_NAME: no empty lines"
+            fi
+          done
+          
+          if [[ $ERRORS -gt 0 ]]; then
+            echo ""
+            echo "❌ Empty lines check failed: $ERRORS locale file(s) have empty lines"
+            echo "Remove all empty lines between translations in locale files."
+            exit 1
+          fi
+          echo "✅ Locale empty lines check passed"
+
+      - name: Locale single-line check
+        run: |
+          echo "Checking locale entries are single-line..."
+          echo "NOTE: Each L[\"...\"] = \"...\" entry must be on one line, not split across multiple lines."
+          echo ""
+          
+          ERRORS=0
+          for LOCALE_FILE in Locale/*.lua; do
+            LOCALE_NAME=$(basename "$LOCALE_FILE" .lua)
+            
+            # Find lines ending with = (indicating continuation on next line)
+            MULTILINE=$(grep -n '=$' "$LOCALE_FILE" || true)
+            MULTILINE_COUNT=$(echo "$MULTILINE" | grep -c . || true)
+            
+            if [[ $MULTILINE_COUNT -gt 0 ]]; then
+              echo "❌ $LOCALE_NAME: found $MULTILINE_COUNT multi-line entry(ies):"
+              echo "$MULTILINE" | head -5 | while read -r line; do
+                echo "  - Line $(echo "$line" | cut -d: -f1)"
+              done
+              [[ $MULTILINE_COUNT -gt 5 ]] && echo "  ... and $((MULTILINE_COUNT - 5)) more"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "✅ $LOCALE_NAME: all entries are single-line"
+            fi
+          done
+          
+          if [[ $ERRORS -gt 0 ]]; then
+            echo ""
+            echo "❌ Single-line check failed: $ERRORS locale file(s) have multi-line entries"
+            echo "Each translation must be on a single line: L[\"key\"] = \"value\""
+            exit 1
+          fi
+          echo "✅ Locale single-line check passed"
+
       - name: Discord notification on failure
         if: failure() && github.event_name == 'pull_request'
         run: |
