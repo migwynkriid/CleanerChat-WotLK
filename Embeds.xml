@@ -20,7 +20,6 @@
 	<Include file="Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml"/>
 	<Include file="Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml"/>
 	<Script file="Libs\LibEasing\LibEasing.lua"/>
-	<Include file="Libs\lodash.wow\lodash.wow.xml"/>
 
 	<Script file="Libs\LibMoreEvents-1.0\LibMoreEvents-1.0.lua"/>
 	<!--@end-non-debug@-->

@@ -32,3 +32,32 @@ Utils.SetSolidColor = function(texture, r, g, b, a)
 		texture:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
 	end
 end
+
+-- Functional helpers (replaces lodash.wow dependency)
+
+-- Reduce an array to a single value using an accumulator function.
+Utils.reduce = function(tbl, fn, initial)
+	local acc = initial
+	for _, v in ipairs(tbl) do
+		acc = fn(acc, v)
+	end
+	return acc
+end
+
+-- Return first N elements of an array.
+Utils.take = function(tbl, n)
+	local result = {}
+	for i = 1, math.min(n, #tbl) do
+		result[i] = tbl[i]
+	end
+	return result
+end
+
+-- Return array without first N elements.
+Utils.drop = function(tbl, n)
+	local result = {}
+	for i = n + 1, #tbl do
+		result[#result + 1] = tbl[i]
+	end
+	return result
+end

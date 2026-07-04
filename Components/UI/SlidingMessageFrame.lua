@@ -16,8 +16,9 @@ local function GetCleanerChat()
 end
 
 local LibEasing = Core.Libs.LibEasing
-local lodash = Core.Libs.lodash
-local drop, reduce, take = lodash.drop, lodash.reduce, lodash.take
+
+-- Functional helpers (replaces lodash.wow)
+local drop, reduce, take = Utils.drop, Utils.reduce, Utils.take
 
 -- Solid colour texture helper (shared; SetColorTexture polyfilled in compat).
 local SetSolidColor = Utils.SetSolidColor

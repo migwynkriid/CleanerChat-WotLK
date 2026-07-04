@@ -13,7 +13,7 @@ comments, etc. The CI lints against the `lua51` standard.
 
 ```
 CleanerChat.toc          Manifest + load order
-Embeds.xml               Bundled libraries (Ace3, LibSharedMedia, lodash, ...)
+Embeds.xml               Bundled libraries (Ace3, LibSharedMedia, LibEasing, ...)
 Core/
   Common/                Compatibility shims, Constants, Colors
   API/                   Output format strings + shared helpers (Utils.lua)

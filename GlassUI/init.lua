@@ -23,7 +23,6 @@ Core.Libs = {
 	AceHook = _G.LibStub("AceHook-3.0"),
 	LSM = _G.LibStub("LibSharedMedia-3.0"),
 	LibEasing = _G.LibStub("LibEasing-1.0"),
-	lodash = _G.LibStub("lodash.wow"),
 }
 Core.Components = {}
 Core.Version = "1.7.0-wotlk"
@@ -233,9 +232,12 @@ function Core:Subscribe(messageType, listener)
 	listeners[index] = listener
 
 	return function()
-		self.Libs.lodash.remove(listeners, function(val)
-			return val == listener
-		end)
+		for i = #listeners, 1, -1 do
+			if listeners[i] == listener then
+				table.remove(listeners, i)
+				break
+			end
+		end
 	end
 end
 

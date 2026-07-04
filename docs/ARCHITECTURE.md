@@ -14,7 +14,7 @@ They each register their own AceAddon object and saved variables
 flowchart TD
     subgraph Boot["Load order (CleanerChat.toc)"]
         Compat["Compatibility shims<br/>Core/Common/Compatibility.lua + GlassUI/compat.lua"]
-        Libs["Embeds.xml (Ace3, LSM, lodash, ...)"]
+        Libs["Embeds.xml (Ace3, LSM, LibEasing, ...)"]
     end
     subgraph CC["ChatCleaner (filtering)"]
         Priv["Private.lua — protected namespace"]
