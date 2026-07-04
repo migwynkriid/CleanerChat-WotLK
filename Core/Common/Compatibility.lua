@@ -86,7 +86,7 @@ end
 
 -- 3.3.5 Compatibility: C_Timer doesn't exist
 -- Create a timer implementation that:
--- 1. Provides global _G.C_Timer for libraries like AceTimer-3.0 that require it
+-- 1. Provides global _G.C_Timer for addon code that expects it
 -- 2. Uses pcall to protect against buggy callbacks from other addons (e.g. MRT)
 -- 3. Also stores in ns.Timer for internal use
 if not _G.C_Timer then
@@ -145,7 +145,7 @@ if not _G.C_Timer then
 	end)
 	timerFrame:Hide()
 
-	-- Create global C_Timer (required by AceTimer-3.0 and other libraries)
+	-- Create global C_Timer (used by addon code)
 	_G.C_Timer = {}
 
 	-- C_Timer.After(seconds, callback)
