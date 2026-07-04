@@ -262,12 +262,15 @@ L["The message filtering is based on ChatCleaner by Lars Norberg (Goldpaw). Back
 	"메시지 필터링은 Lars Norberg(Goldpaw)의 ChatCleaner를 기반으로 합니다. 3.3.5로 백포트되었습니다."
 -- Channel abbreviations (match slash commands)
 L["Channel Notices"] = "채널 알림"
-L["Hide channel join, leave, and change notifications (works during gameplay, not on initial login)."] = "채널 입장, 퇴장, 변경 알림을 숨깁니다 (게임 중에만 작동하며 최초 로그인 시에는 작동하지 않습니다)."
+L["Hide channel join, leave, and change notifications (works during gameplay, not on initial login)."] =
+	"채널 입장, 퇴장, 변경 알림을 숨깁니다 (게임 중에만 작동하며 최초 로그인 시에는 작동하지 않습니다)."
 L["Hide Combat Log tab"] = "전투 기록 탭 숨기기"
-L["Hides the Combat Log tab from the chat dock. Requires a UI reload."] = "대화 도크에서 전투 기록 탭을 숨깁니다. UI 새로고침이 필요합니다."
+L["Hides the Combat Log tab from the chat dock. Requires a UI reload."] =
+	"대화 도크에서 전투 기록 탭을 숨깁니다. UI 새로고침이 필요합니다."
 L["Horizontal padding"] = "가로 여백"
 L["Restore chat on reload"] = "새로고침 시 대화 복원"
-L["Restores recent chat messages after a UI reload."] = "UI 새로고침 후 최근 대화 메시지를 복원합니다."
+L["Restores recent chat messages after a UI reload."] =
+	"UI 새로고침 후 최근 대화 메시지를 복원합니다."
 L["BGL"] = "BGL"
 L["BG"] = "BG"
 L["PL"] = "PL"

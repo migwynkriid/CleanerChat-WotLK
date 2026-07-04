@@ -263,12 +263,15 @@ L["The message filtering is based on ChatCleaner by Lars Norberg (Goldpaw). Back
 	"Le filtrage des messages est basé sur ChatCleaner de Lars Norberg (Goldpaw). Rétroportage vers 3.3.5."
 -- Channel abbreviations (match slash commands)
 L["Channel Notices"] = "Notifications de canal"
-L["Hide channel join, leave, and change notifications (works during gameplay, not on initial login)."] = "Masque les notifications d'arrivée, de départ et de changement de canal (fonctionne en jeu, pas à la connexion initiale)."
+L["Hide channel join, leave, and change notifications (works during gameplay, not on initial login)."] =
+	"Masque les notifications d'arrivée, de départ et de changement de canal (fonctionne en jeu, pas à la connexion initiale)."
 L["Hide Combat Log tab"] = "Masquer l'onglet Journal de combat"
-L["Hides the Combat Log tab from the chat dock. Requires a UI reload."] = "Masque l'onglet Journal de combat de la barre de chat. Nécessite un rechargement de l'interface."
+L["Hides the Combat Log tab from the chat dock. Requires a UI reload."] =
+	"Masque l'onglet Journal de combat de la barre de chat. Nécessite un rechargement de l'interface."
 L["Horizontal padding"] = "Marge horizontale"
 L["Restore chat on reload"] = "Restaurer le chat au rechargement"
-L["Restores recent chat messages after a UI reload."] = "Restaure les messages de chat récents après un rechargement de l'interface."
+L["Restores recent chat messages after a UI reload."] =
+	"Restaure les messages de chat récents après un rechargement de l'interface."
 L["BGL"] = "BGL"
 L["BG"] = "BG"
 L["PL"] = "PL"

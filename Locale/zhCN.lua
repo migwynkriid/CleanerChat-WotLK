@@ -249,9 +249,11 @@ L["The message filtering is based on ChatCleaner by Lars Norberg (Goldpaw). Back
 	"消息过滤基于Lars Norberg (Goldpaw)的ChatCleaner。已移植到3.3.5。"
 -- Channel abbreviations (match slash commands)
 L["Channel Notices"] = "频道通知"
-L["Hide channel join, leave, and change notifications (works during gameplay, not on initial login)."] = "隐藏加入、离开和切换频道的通知（仅在游戏中有效，首次登录时无效）。"
+L["Hide channel join, leave, and change notifications (works during gameplay, not on initial login)."] =
+	"隐藏加入、离开和切换频道的通知（仅在游戏中有效，首次登录时无效）。"
 L["Hide Combat Log tab"] = "隐藏战斗记录标签"
-L["Hides the Combat Log tab from the chat dock. Requires a UI reload."] = "从聊天栏中隐藏战斗记录标签。需要重载界面。"
+L["Hides the Combat Log tab from the chat dock. Requires a UI reload."] =
+	"从聊天栏中隐藏战斗记录标签。需要重载界面。"
 L["Horizontal padding"] = "水平边距"
 L["Restore chat on reload"] = "重载时恢复聊天"
 L["Restores recent chat messages after a UI reload."] = "在界面重载后恢复最近的聊天消息。"
