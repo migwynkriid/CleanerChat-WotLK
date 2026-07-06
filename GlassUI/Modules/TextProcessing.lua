@@ -97,7 +97,8 @@ end
 
 ---
 -- Adds item icons next to item links if enabled in settings.
--- Uses the exact same approach as ChatLootIcons addon.
+-- Places icon INSIDE the color code so it stays attached during line wrapping.
+-- This processor runs AFTER textureProcessor to avoid Y offset adjustments.
 local function itemIconProcessor(text, profile)
 	local p = profile or Core.db.profile
 	if not p.showItemIcons then
@@ -111,18 +112,24 @@ local function itemIconProcessor(text, profile)
 		iconSize = 10
 	end
 
-	-- Icon function - exactly like ChatLootIcons
-	local function addIcon(link)
-		local texture = GetItemIcon(link)
+	-- Insert icon after the color code but before the hyperlink
+	-- This keeps icon+item together during line wrapping
+	-- Pattern: |cXXXXXXXX|Hitem:...|h[Name]|h|r
+	-- Result:  |cXXXXXXXX[icon]|Hitem:...|h[Name]|h|r
+	local function addIcon(colorCode, itemLink)
+		local fullLink = colorCode .. itemLink
+		local texture = GetItemIcon(fullLink)
 		if texture then
-			return "|T" .. texture .. ":" .. iconSize .. "|t" .. link
+			-- Put icon after color code: |cXXX + icon + |Hitem...
+			return colorCode .. "|T" .. texture .. ":" .. iconSize .. "|t" .. itemLink
 		end
-		return link
+		return fullLink
 	end
 
-	-- Use the exact ChatLootIcons pattern with escaped pipes
-	-- Pattern: |cXXXXXXXX|Hitem:...|h[name]|h|r
-	return string.gsub(text, "(\124c%x+\124Hitem:.-\124h.-\124h\124r)", addIcon)
+	-- Match color code separately from the rest of the item link
+	-- (\124c%x%x%x%x%x%x%x%x) = color code |cXXXXXXXX
+	-- (\124Hitem:.-\124h.-\124h\124r) = hyperlink |Hitem:...|h[Name]|h|r
+	return string.gsub(text, "(\124c%x%x%x%x%x%x%x%x)(\124Hitem:.-\124h.-\124h\124r)", addIcon)
 end
 
 ---
@@ -263,10 +270,12 @@ local SIMPLE_PROCESSORS = {
 }
 
 -- Processors that need profile context for per-window settings
+-- Order matters: textureProcessor adjusts existing icons' Y offset,
+-- itemIconProcessor adds new item icons AFTER so they don't get modified
 local PROFILE_PROCESSORS = {
 	timestampProcessor,
-	itemIconProcessor,
 	textureProcessor,
+	itemIconProcessor,
 }
 
 function TP:ProcessText(text, profile)
