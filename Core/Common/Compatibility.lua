@@ -42,7 +42,7 @@ if not _G.UnitNameUnmodified then
 	end
 end
 
--- Create an alias for the classics.
+-- 3.3.5 Compatibility: UnitEffectiveLevel doesn't exist
 if not _G.UnitEffectiveLevel then
 	_G.UnitEffectiveLevel = UnitLevel
 end
