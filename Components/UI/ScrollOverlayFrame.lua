@@ -56,13 +56,14 @@ function ScrollOverlayFrame:Init()
 
 	-- Position indicator at the edit box location (outside the chat frame)
 	local mainContainer = self:GetParent():GetParent() -- SlidingMessageFrame's parent is MainContainerFrame
+	-- Offset by -1 to align with the edit box and messages
 	if self.profile.editBoxAnchor.position == "ABOVE" then
 		-- Edit box is above the chat, so indicator is above the main container
-		self:SetPoint("BOTTOMLEFT", mainContainer, "TOPLEFT", 0, self.profile.editBoxAnchor.yOfs or 5)
+		self:SetPoint("BOTTOMLEFT", mainContainer, "TOPLEFT", -1, self.profile.editBoxAnchor.yOfs or 5)
 		self:SetPoint("BOTTOMRIGHT", mainContainer, "TOPRIGHT", 0, self.profile.editBoxAnchor.yOfs or 5)
 	else
 		-- Edit box is below the chat (default), so indicator is below the main container
-		self:SetPoint("TOPLEFT", mainContainer, "BOTTOMLEFT", 0, self.profile.editBoxAnchor.yOfs or -5)
+		self:SetPoint("TOPLEFT", mainContainer, "BOTTOMLEFT", -1, self.profile.editBoxAnchor.yOfs or -5)
 		self:SetPoint("TOPRIGHT", mainContainer, "BOTTOMRIGHT", 0, self.profile.editBoxAnchor.yOfs or -5)
 	end
 
@@ -129,13 +130,14 @@ function ScrollOverlayFrame:UpdatePosition()
 	self:ClearAllPoints()
 
 	local mainContainer = self:GetParent():GetParent()
+	-- Offset by -1 to align with the edit box and messages
 	if self.profile.editBoxAnchor.position == "ABOVE" then
 		-- Edit box is above the chat, so indicator is above the main container
-		self:SetPoint("BOTTOMLEFT", mainContainer, "TOPLEFT", 0, self.profile.editBoxAnchor.yOfs or 5)
+		self:SetPoint("BOTTOMLEFT", mainContainer, "TOPLEFT", -1, self.profile.editBoxAnchor.yOfs or 5)
 		self:SetPoint("BOTTOMRIGHT", mainContainer, "TOPRIGHT", 0, self.profile.editBoxAnchor.yOfs or 5)
 	else
 		-- Edit box is below the chat (default), so indicator is below the main container
-		self:SetPoint("TOPLEFT", mainContainer, "BOTTOMLEFT", 0, self.profile.editBoxAnchor.yOfs or -5)
+		self:SetPoint("TOPLEFT", mainContainer, "BOTTOMLEFT", -1, self.profile.editBoxAnchor.yOfs or -5)
 		self:SetPoint("TOPRIGHT", mainContainer, "BOTTOMRIGHT", 0, self.profile.editBoxAnchor.yOfs or -5)
 	end
 end
