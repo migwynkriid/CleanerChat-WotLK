@@ -174,14 +174,17 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 			-- If scrolled to the bottom, the height of the scroll frame should
 			-- include overflow to account for slide up animations
 			self:SetHeight(self.config.height + self.config.overflowHeight)
+			-- Fade the overlay out with whatever label it's currently showing (e.g.
+			-- the unread alert). Don't swap in the "Bring me to the present" hint
+			-- here, or it briefly flashes over the fading alert. The label is chosen
+			-- fresh the next time the overlay is shown (ShowScrollOverlay).
 			self.overlay:Hide()
-			self.overlay:HideNewMessageAlert()
 			self.state.unreadMessages = false
 		else
 			-- If not, the height should fit the frame exactly so messages don't spill
 			-- under the edit box area
 			self:SetHeight(self.config.height)
-			self.overlay:Show()
+			self:ShowScrollOverlay()
 		end
 
 		-- Show hidden messages
@@ -266,7 +269,7 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 				self.state.mouseOver = true
 
 				if not self.state.scrollAtBottom then
-					self.overlay:Show()
+					self:ShowScrollOverlay()
 				end
 
 				-- Cancel all hide timers when mouse enters
@@ -370,17 +373,11 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 							message:HideDelay(self.profile.chatHoldTime)
 						end
 					end
-				elseif self.overlay and (self.state.unreadMessages or not self.state.scrollAtBottom) then
+				elseif self.state.unreadMessages or not self.state.scrollAtBottom then
 					-- The overlay was only hidden to avoid overlapping the edit box;
-					-- restore the indicator now that typing is done and the user is
-					-- still scrolled up / has unread messages. We explicitly hid the
-					-- label on focus, so re-show the correct one for the state.
-					self.overlay:Show()
-					if self.state.unreadMessages then
-						self.overlay:ShowNewMessageAlert()
-					else
-						self.overlay:HideNewMessageAlert()
-					end
+					-- restore the correct indicator now that typing is done and the user
+					-- is still scrolled up / has unread messages.
+					self:ShowScrollOverlay()
 				end
 			end),
 			Core:Subscribe(UPDATE_CONFIG, function(payload)
@@ -392,7 +389,22 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 		}
 	end
 end
-
+-- Show the scroll overlay with the label that matches the current state: the
+-- "Unread messages" alert if there are unread messages, otherwise the passive
+-- "Bring me to the present" hint. Centralizing this keeps the label in sync
+-- whenever the overlay is shown, so hiding it (e.g. on scroll-to-bottom) never
+-- has to pre-swap the label and flash the wrong one during the fade-out.
+function SlidingMessageFrameMixin:ShowScrollOverlay()
+	if not self.overlay then
+		return
+	end
+	self.overlay:Show()
+	if self.state.unreadMessages then
+		self.overlay:ShowNewMessageAlert()
+	else
+		self.overlay:HideNewMessageAlert()
+	end
+end
 -- Smoothly scroll to the newest message, clearing the unread state and overlay.
 -- Shared by the scroll-overlay click and the edit-focus reveal.
 function SlidingMessageFrameMixin:SnapToBottom()

@@ -183,7 +183,11 @@ function ScrollOverlayFrame:ShowNewMessageAlert()
 end
 
 function ScrollOverlayFrame:HideNewMessageAlert()
-	self.newMessageAlertFrame:Hide()
+	-- Hide the alert INSTANTLY (not its fade-out) so it can't remain visible on
+	-- top of the "Bring me to the present" hint we show below -- otherwise both
+	-- labels overlap while the alert fades, especially when scrolling up/down
+	-- quickly.
+	self.newMessageAlertFrame:QuickHide()
 	-- Don't show the default hint if edit box is focused
 	if self.editBoxFocused then
 		return
