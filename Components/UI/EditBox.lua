@@ -45,17 +45,18 @@ function EditBoxMixin:Init(parent)
 
 	-- New styling
 	self:ClearAllPoints()
+	-- WoW 3.3.5: explicitly set width to match the container (dual anchors may not work reliably on native edit boxes)
+	self:SetWidth(self.profile.frameWidth)
 
-	local Xpadding = self.profile.editBoxHorizontalPadding or Constants.EDITBOX_HORIZONTAL_PADDING
-	self:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", Xpadding, self.profile.editBoxAnchor.yOfs)
+	-- Offset by -1 to compensate for native ChatFrame1EditBox's inherent left offset
+	self:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", -1, self.profile.editBoxAnchor.yOfs)
 
 	if self.profile.editBoxAnchor.position == "ABOVE" then
 		self:ClearAllPoints()
-		self:SetPoint("BOTTOMLEFT", parent, "TOPLEFT", Xpadding, self.profile.editBoxAnchor.yOfs)
+		self:SetPoint("BOTTOMLEFT", parent, "TOPLEFT", -1, self.profile.editBoxAnchor.yOfs)
 	end
 
 	self:SetFontObject("GlassEditBoxFont")
-	self:SetWidth(self.profile.frameWidth - Xpadding)
 	self.header:SetFontObject("GlassEditBoxFont")
 	self.header:SetPoint("LEFT", 8, 0)
 
@@ -171,18 +172,8 @@ function EditBoxMixin:Init(parent)
 			self:SetTextInsets()
 		end
 
-		if key == "frameWidth" or key == "editBoxHorizontalPadding" then
-			local xPad = self.profile.editBoxHorizontalPadding or Constants.EDITBOX_HORIZONTAL_PADDING
-			self:SetWidth(self.profile.frameWidth - xPad)
-			-- Re-anchor with new padding
-			local anchorParent = self:GetParent() or parent
-			if self.profile.editBoxAnchor.position == "ABOVE" then
-				self:ClearAllPoints()
-				self:SetPoint("BOTTOMLEFT", anchorParent, "TOPLEFT", xPad, self.profile.editBoxAnchor.yOfs)
-			else
-				self:ClearAllPoints()
-				self:SetPoint("TOPLEFT", anchorParent, "BOTTOMLEFT", xPad, self.profile.editBoxAnchor.yOfs)
-			end
+		if key == "frameWidth" then
+			self:SetWidth(self.profile.frameWidth)
 		end
 
 		if key == "editBoxBackgroundOpacity" or key == "editBoxBackgroundColor" then
@@ -193,13 +184,13 @@ function EditBoxMixin:Init(parent)
 			-- Anchor relative to whichever window container the box is currently
 			-- attached to (it follows the active window), not the original parent.
 			local anchorParent = self:GetParent() or parent
-			local xPad = self.profile.editBoxHorizontalPadding or Constants.EDITBOX_HORIZONTAL_PADDING
+			self:ClearAllPoints()
+			self:SetWidth(self.profile.frameWidth)
+			-- Offset by -1 to compensate for native ChatFrame1EditBox's inherent left offset
 			if self.profile.editBoxAnchor.position == "ABOVE" then
-				self:ClearAllPoints()
-				self:SetPoint("BOTTOMLEFT", anchorParent, "TOPLEFT", xPad, self.profile.editBoxAnchor.yOfs)
+				self:SetPoint("BOTTOMLEFT", anchorParent, "TOPLEFT", -1, self.profile.editBoxAnchor.yOfs)
 			else
-				self:ClearAllPoints()
-				self:SetPoint("TOPLEFT", anchorParent, "BOTTOMLEFT", xPad, self.profile.editBoxAnchor.yOfs)
+				self:SetPoint("TOPLEFT", anchorParent, "BOTTOMLEFT", -1, self.profile.editBoxAnchor.yOfs)
 			end
 		end
 	end)
@@ -212,15 +203,15 @@ function EditBoxMixin:AttachToWindow(parent, profile, window)
 	self.profile = profile or self.profile
 	self.window = window
 
-	local Xpadding = self.profile.editBoxHorizontalPadding or Constants.EDITBOX_HORIZONTAL_PADDING
 	self:SetParent(parent)
 	self:ClearAllPoints()
+	self:SetWidth(self.profile.frameWidth)
+	-- Offset by -1 to compensate for native ChatFrame1EditBox's inherent left offset
 	if self.profile.editBoxAnchor.position == "ABOVE" then
-		self:SetPoint("BOTTOMLEFT", parent, "TOPLEFT", Xpadding, self.profile.editBoxAnchor.yOfs)
+		self:SetPoint("BOTTOMLEFT", parent, "TOPLEFT", -1, self.profile.editBoxAnchor.yOfs)
 	else
-		self:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", Xpadding, self.profile.editBoxAnchor.yOfs)
+		self:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", -1, self.profile.editBoxAnchor.yOfs)
 	end
-	self:SetWidth(self.profile.frameWidth - Xpadding)
 	self.header:SetPoint("LEFT", 8, 0)
 	self:SetTextInsets()
 
@@ -264,7 +255,8 @@ end
 
 Core.Components.CreateEditBox = function(parent, profile)
 	local object = Mixin(_G.ChatFrame1EditBox, EditBoxMixin)
-	AceHook:Embed(object)
+	-- Do NOT embed AceHook here -- use the module-level Hooker table instead.
+	-- See comment at top of file for rationale.
 	object.profile = profile or Core.db.profile
 	object:Init(parent)
 	return object

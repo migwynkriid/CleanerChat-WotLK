@@ -51,8 +51,8 @@ the engine) populates `ns`.
 
 ### Data + API tiers
 
-- `Core/Common/Colors.lua` — interface-version detection (`ns.Private.Is335`)
-  and the color table (`ns.Colors`) with `colorCode` markup helpers.
+- `Core/Common/Colors.lua` — the color table (`ns.Colors`) with `colorCode`
+  markup helpers.
 - `Core/API/Output.lua` — **all** output format strings (`ns.out.*`), using a
   `*tag*` color-markup mini-syntax expanded from `ns.Colors`. Filters never
   hard-code color codes; they format `ns.out.*` templates.

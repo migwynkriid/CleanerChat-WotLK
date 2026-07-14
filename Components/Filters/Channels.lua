@@ -35,9 +35,11 @@ local formatChannelTag = function(channel, number, displaynum, name)
 	end
 
 	-- "none" mode: show only the number, no channel name
-	-- Use no trailing space since the original message has a space after the bracket
+	-- If showNumber is also off, we MUST still show the number as fallback
+	-- (otherwise the channel link becomes empty/broken)
 	if mode == "none" then
-		local nonePrefix = showNumber and displaynum and (displaynum .. ".") or ""
+		-- Always show number in "none" mode - it makes no sense to show nothing
+		local nonePrefix = displaynum and (displaynum .. ".") or ""
 		return "|Hchannel:" .. channel .. ":" .. number .. "|h" .. nonePrefix .. "|h"
 	end
 

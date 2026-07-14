@@ -24,7 +24,7 @@ local type = _G.type
 local band = _G.bit.band
 local table_sort = _G.table.sort
 
-local RESTRICTED_FILE_ACCESS = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE -- starting with 8.2, some rules for file access have changed; classic still uses the old way
+local RESTRICTED_FILE_ACCESS = false -- 3.3.5 uses the old file access rules
 
 local locale = GetLocale()
 local locale_is_western

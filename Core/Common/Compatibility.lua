@@ -1,19 +1,5 @@
 local _, ns = ...
 
--- 3.3.5 Compatibility: WOW_PROJECT constants don't exist
-if not _G.WOW_PROJECT_ID then
-	_G.WOW_PROJECT_ID = 1
-	_G.WOW_PROJECT_MAINLINE = 1
-	_G.WOW_PROJECT_CLASSIC = 2
-	_G.WOW_PROJECT_BURNING_CRUSADE_CLASSIC = 5
-	_G.WOW_PROJECT_WRATH_CLASSIC = 11
-	-- For 3.3.5, we'll mark it as Wrath
-	local _, _, _, interface = GetBuildInfo()
-	if interface and interface >= 30000 and interface < 40000 then
-		_G.WOW_PROJECT_ID = 11 -- WOW_PROJECT_WRATH_CLASSIC
-	end
-end
-
 -- 3.3.5 Compatibility: CreateFromMixins doesn't exist
 if not _G.CreateFromMixins then
 	_G.CreateFromMixins = function(...)
@@ -56,7 +42,7 @@ if not _G.UnitNameUnmodified then
 	end
 end
 
--- Create an alias for the classics.
+-- 3.3.5 Compatibility: UnitEffectiveLevel doesn't exist
 if not _G.UnitEffectiveLevel then
 	_G.UnitEffectiveLevel = UnitLevel
 end

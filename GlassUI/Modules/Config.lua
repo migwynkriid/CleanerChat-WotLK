@@ -467,17 +467,6 @@ function C:OnEnable()
 										Core:Dispatch(UpdateConfig("editBoxAnchor", WindowIdFor(info)))
 									end,
 								},
-								editBoxHorizontalPadding = rangeOption({
-									key = "editBoxHorizontalPadding",
-									name = L["Horizontal padding"],
-									desc = "Default: " .. Core.defaults.profile.editBoxHorizontalPadding,
-									order = 2.3,
-									min = 0,
-									max = 100,
-									softMin = 0,
-									softMax = 50,
-									step = 1,
-								}),
 							},
 						},
 						section3 = {
@@ -859,6 +848,23 @@ function C:OnEnable()
 										Core:Dispatch(UpdateConfig("hideScrollIndicator", WindowIdFor(info)))
 									end,
 								},
+								useOverlayMask = {
+									name = L["Use overlay mask texture"],
+									desc = L["Use a decorative mask texture for the scroll indicator instead of a solid background."],
+									type = "toggle",
+									width = "full",
+									order = 3.56,
+									disabled = function(info)
+										return ProfileFor(info).hideScrollIndicator
+									end,
+									get = function(info)
+										return ProfileFor(info).useOverlayMask
+									end,
+									set = function(info, input)
+										ProfileFor(info).useOverlayMask = input
+										Core:Dispatch(UpdateConfig("useOverlayMask", WindowIdFor(info)))
+									end,
+								},
 								scrollIndicatorColor = {
 									name = L["Indicator text color"],
 									desc = L['Color of the "Unread messages" and "Bring me to the present" text.'],
@@ -910,7 +916,8 @@ function C:OnEnable()
 									width = 1,
 									order = 3.7,
 									disabled = function(info)
-										return ProfileFor(info).hideScrollIndicator
+										local p = ProfileFor(info)
+										return p.hideScrollIndicator or p.useOverlayMask
 									end,
 									get = function(info)
 										local c = ProfileFor(info).scrollIndicatorBgColor
@@ -932,7 +939,8 @@ function C:OnEnable()
 									width = 1.5,
 									order = 3.75,
 									disabled = function(info)
-										return ProfileFor(info).hideScrollIndicator
+										local p = ProfileFor(info)
+										return p.hideScrollIndicator or p.useOverlayMask
 									end,
 									min = 0,
 									max = 1,

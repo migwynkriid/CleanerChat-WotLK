@@ -28,14 +28,14 @@ local P = ns.MakePatternCache()
 -- Safe pattern match that tolerates a nil pattern (shared helper).
 local safeMatch = ns.SafeMatch
 
--- Anchored patterns for "<player> creates <item>." craft broadcasts.
+-- Anchored patterns for "<name> creates <item>." craft broadcasts.
 -- On Ascension these are printed DIRECTLY to the chat frame (no CHAT_MSG_*
 -- event fires), so they are matched at the AddMessage-replacement layer in
--- OnReplacementSet below. The name is %S+ (character names have no spaces),
+-- OnReplacementSet below. The name can contain spaces (e.g. "Innkeeper Farley"),
 -- the colon is optional ("creates" or "creates:"), and the whole line is
 -- anchored to limit false positives on normal chat.
-local CREATE_MULTIPLE_PATTERN = "^(%S+) creates:? (.+)x(%d+)%.$"
-local CREATE_SINGLE_PATTERN = "^(%S+) creates:? (.+)%.$"
+local CREATE_MULTIPLE_PATTERN = "^(.+) creates:? (.+)x(%d+)%.$"
+local CREATE_SINGLE_PATTERN = "^(.+) creates:? (.+)%.$"
 
 -- Best-effort class colour for a crafter's name. There is no API to look up an
 -- arbitrary player's class in 3.3.5, but we can read it from any unit that

@@ -7,8 +7,6 @@ Constants.TEXT_XPADDING = 15
 Constants.MESSAGE_DOCK_GAP = 5
 -- Edit box vertical padding as a fraction of the font height (top and bottom).
 Constants.EDITBOX_PADDING_RATIO = 0.66
--- Edit box horizontal padding (px) on left and right.
-Constants.EDITBOX_HORIZONTAL_PADDING = 1
 
 -- Colors
 local function createColor(r, g, b)
