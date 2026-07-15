@@ -5,6 +5,7 @@
 	<Script file="Filters\Auctions.lua"/>
 	<Script file="Filters\Blacklist.lua"/>
 	<Script file="Filters\BossMessages.lua"/>
+	<Script file="Filters\Bubbles.lua"/>
 	<Script file="Filters\ChannelJoin.lua"/>
 	<Script file="Filters\Channels.lua"/>
 	<Script file="Filters\ColorFilters.lua"/>

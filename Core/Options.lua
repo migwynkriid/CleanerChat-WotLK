@@ -450,6 +450,34 @@ Options.GenerateOptionsMenu = function(self)
 		type = "group",
 		args = {
 			cleanerchat = ccGroup,
+			bubbles = {
+				name = L["Bubbles"],
+				type = "group",
+				order = 6,
+				args = {
+					activateBubbles = {
+						name = L["Activate bubbles"],
+						desc = L["Strip the default black background from SAY and YELL chat bubbles (the speech balloons shown over a player's or NPC's head), leaving only the message text."],
+						type = "toggle",
+						width = "full",
+						order = 1,
+						get = function()
+							return ns.db.activateBubbles
+						end,
+						set = function(info, val)
+							ns.db.activateBubbles = val
+							local module = ns:GetModule("Bubbles", true)
+							if module then
+								if val and not module:IsEnabled() then
+									module:Enable()
+								elseif not val and module:IsEnabled() then
+									module:Disable()
+								end
+							end
+						end,
+					},
+				},
+			},
 		},
 	}
 
