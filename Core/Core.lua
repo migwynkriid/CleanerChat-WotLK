@@ -218,6 +218,9 @@ local defaults = {
 	channelCapitalize = true, -- capitalize the channel name/initial
 	capitalizeNames = true, -- capitalize the first letter of player names
 	activateBubbles = false, -- strip the background from SAY/YELL chat bubbles, showing only the text
+	bubbleShowName = true, -- show the speaker's name in front of chat bubble text
+	bubbleFont = false, -- LSM font name for bubble text; false = inherit the chat message font
+	bubbleFontFlags = false, -- outline flags for bubble text; false = inherit the chat message flags
 	forceClassColors = true, -- force enable class colors for all chat types
 	moneyPrettify = true, -- use spaces in large gold amounts (e.g. "1 234" instead of "1234")
 	hideOtherCrafts = false, -- hide other players' "<name> creates <item>" craft broadcasts

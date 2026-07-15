@@ -58,18 +58,22 @@ local stripped = {}
 -- bubbles showing a new message can still be reconciled.
 local known = {}
 
--- Resolve the chat message font (path, size, flags) from the Glass profile so
--- bubble text can match the chat. Read at call time because the Glass addon
--- and its saved profile are only available after login.
-local function GetMessageFont()
+-- Resolve the bubble text font (path, flags). Uses the Bubbles font/outline
+-- overrides from the profile when set, otherwise inherits the chat message
+-- font/outline from the Glass profile. Read at call time because the Glass addon
+-- and the saved settings are only available after login.
+local function GetBubbleFontConfig()
 	local glass = _G.Glass
-	if not (glass and glass.db and glass.db.profile) then
-		return
-	end
-	local p = glass.db.profile
+	local p = glass and glass.db and glass.db.profile
+	local db = ns.db
+
+	-- `false` (the default) means "inherit the chat message setting".
+	local fontName = (db and db.bubbleFont) or (p and p.messageFont)
+	local flags = (db and db.bubbleFontFlags) or (p and p.messageFontFlags)
+
 	local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
-	local path = LSM and LSM:Fetch(LSM.MediaType.FONT, p.messageFont)
-	return path, p.messageFontSize, p.messageFontFlags
+	local path = LSM and fontName and LSM:Fetch(LSM.MediaType.FONT, fontName)
+	return path, flags
 end
 
 -- Locate the bubble's message text. On the 3.3.5 client this is usually a direct
@@ -283,25 +287,27 @@ local function ReconcileBubble(frame)
 		return
 	end
 
-	-- Match the chat font (family + outline flags). Keep the bubble's native size
-	-- so it still scales correctly in the world.
-	local msgPath, _, msgFlags = GetMessageFont()
-	if msgPath then
+	-- Apply the bubble font (family + outline flags). Keep the bubble's native
+	-- size so it still scales correctly in the world.
+	local fontPath, fontFlags = GetBubbleFontConfig()
+	if fontPath then
 		local _, size = fs:GetFont()
-		fs:SetFont(msgPath, size or (record.font and record.font[2]) or 13, msgFlags or "")
+		fs:SetFont(fontPath, size or (record.font and record.font[2]) or 13, fontFlags or "")
 	end
 
 	-- Prefix the speaker's name, e.g. "Playername: HELLO", matched from the queued
-	-- SAY / YELL events by message text.
-	local name = ConsumeName(text)
-	if name then
-		-- The client sizes the FontString's width to the original (short) message,
-		-- which would wrap our longer text one character per line. Clear the width
-		-- so it lays out on a single line instead.
-		fs:SetWidth(0)
-		record.origText = text
-		record.namedText = name .. ": " .. text
-		fs:SetText(record.namedText)
+	-- SAY / YELL events by message text. Skipped when the name display is off.
+	if ns.db and ns.db.bubbleShowName ~= false then
+		local name = ConsumeName(text)
+		if name then
+			-- The client sizes the FontString's width to the original (short)
+			-- message, which would wrap our longer text one character per line.
+			-- Clear the width so it lays out on a single line instead.
+			fs:SetWidth(0)
+			record.origText = text
+			record.namedText = name .. ": " .. text
+			fs:SetText(record.namedText)
+		end
 	end
 end
 
