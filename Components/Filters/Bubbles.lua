@@ -48,6 +48,9 @@ local BUBBLE_BACKGROUND = "Interface\\Tooltips\\ChatBubble-Background"
 -- that count.
 local SCAN_THROTTLE = 0.1
 
+-- Seconds spent fading a bubble out at the end of its custom hold time.
+local BUBBLE_FADE = 0.5
+
 -- Per-bubble record of what we changed (stripped texture regions + original
 -- textures, and the message FontString + its original font), so everything can
 -- be restored to the default look when the feature is turned off.
@@ -280,10 +283,10 @@ local function ReconcileBubble(frame)
 	if not text or text == "" then
 		return
 	end
-	-- Already showing our named version -> nothing to do. This is what stops the
-	-- name being added twice: a reused bubble shows a plain message again, which
-	-- is not equal to namedText, so it gets processed afresh.
-	if text == record.namedText then
+	-- Already showing what we last applied for this message -> nothing to do. A
+	-- reused bubble shows a new (plain) message which differs from timedText, so it
+	-- gets processed afresh (re-stripped, re-named, timer restarted).
+	if text == record.timedText then
 		return
 	end
 
@@ -297,6 +300,7 @@ local function ReconcileBubble(frame)
 
 	-- Prefix the speaker's name, e.g. "Playername: HELLO", matched from the queued
 	-- SAY / YELL events by message text. Skipped when the name display is off.
+	local displayed = text
 	if ns.db and ns.db.bubbleShowName ~= false then
 		local name = ConsumeName(text)
 		if name then
@@ -305,9 +309,18 @@ local function ReconcileBubble(frame)
 			-- Clear the width so it lays out on a single line instead.
 			fs:SetWidth(0)
 			record.origText = text
-			record.namedText = name .. ": " .. text
-			fs:SetText(record.namedText)
+			displayed = name .. ": " .. text
+			fs:SetText(displayed)
 		end
+	end
+
+	record.namedText = (displayed ~= text) and displayed or nil
+	record.timedText = displayed
+
+	-- Start (or restart) the custom fade timer for this freshly shown message.
+	if ns.db and ns.db.bubbleCustomHold then
+		record.shownAt = GetTime()
+		record.expired = false
 	end
 end
 
@@ -325,7 +338,46 @@ local function RestoreAll()
 		if record.fs and record.namedText and record.fs:GetText() == record.namedText then
 			record.fs:SetText(record.origText)
 		end
+		frame:SetAlpha(1)
 		stripped[frame] = nil
+	end
+end
+
+-- Drive the custom fade timing. Runs every frame (not throttled) so the fade is
+-- smooth and can override the client's own fade. Holds the bubble at full alpha
+-- until its duration, fades it out over BUBBLE_FADE, then hides it. When the
+-- custom hold is off, alpha is handed straight back to the client.
+local function ManageHold()
+	local db = ns.db
+	local custom = db and db.activateBubbles and db.bubbleCustomHold
+	local holdTime = (db and db.bubbleHoldTime) or 10
+	local now = GetTime()
+
+	for frame, record in pairs(stripped) do
+		if record.shownAt then
+			if not custom then
+				frame:SetAlpha(1)
+				record.shownAt = nil
+				record.expired = nil
+			elseif not record.expired then
+				local elapsed = now - record.shownAt
+				if elapsed >= holdTime then
+					frame:SetAlpha(0)
+					frame:Hide()
+					record.expired = true
+				elseif elapsed > holdTime - BUBBLE_FADE then
+					frame:SetAlpha((holdTime - elapsed) / BUBBLE_FADE)
+					if not frame:IsShown() then
+						frame:Show()
+					end
+				else
+					frame:SetAlpha(1)
+					if not frame:IsShown() then
+						frame:Show()
+					end
+				end
+			end
+		end
 	end
 end
 
@@ -335,6 +387,10 @@ Module.OnEnable = function(self)
 		scanner.elapsed = 0
 		scanner.lastChildCount = 0
 		scanner:SetScript("OnUpdate", function(frame, elapsed)
+			-- Every frame: drive the custom bubble fade/hold timing so it stays
+			-- smooth and can override the client's own fade.
+			ManageHold()
+
 			frame.elapsed = frame.elapsed + elapsed
 			if frame.elapsed < SCAN_THROTTLE then
 				return

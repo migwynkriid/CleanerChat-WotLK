@@ -221,6 +221,8 @@ local defaults = {
 	bubbleShowName = true, -- show the speaker's name in front of chat bubble text
 	bubbleFont = false, -- LSM font name for bubble text; false = inherit the chat message font
 	bubbleFontFlags = false, -- outline flags for bubble text; false = inherit the chat message flags
+	bubbleCustomHold = false, -- override the game's chat bubble fade time with bubbleHoldTime
+	bubbleHoldTime = 10, -- seconds a chat bubble stays before fading (when bubbleCustomHold is on)
 	forceClassColors = true, -- force enable class colors for all chat types
 	moneyPrettify = true, -- use spaces in large gold amounts (e.g. "1 234" instead of "1234")
 	hideOtherCrafts = false, -- hide other players' "<name> creates <item>" craft broadcasts

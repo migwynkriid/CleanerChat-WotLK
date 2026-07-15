@@ -554,6 +554,40 @@ Options.GenerateOptionsMenu = function(self)
 							ns.db.bubbleFontFlags = val
 						end,
 					},
+					bubbleCustomHold = {
+						name = L["Custom fade delay"],
+						desc = L["Override the game's default chat bubble fade time with your own duration."],
+						type = "toggle",
+						width = "full",
+						order = 5,
+						disabled = function()
+							return not ns.db.activateBubbles
+						end,
+						get = function()
+							return ns.db.bubbleCustomHold
+						end,
+						set = function(_, val)
+							ns.db.bubbleCustomHold = val
+						end,
+					},
+					bubbleHoldTime = {
+						name = L["Message duration"],
+						desc = L["How long a chat bubble stays on screen before fading out, in seconds."],
+						type = "range",
+						min = 1,
+						max = 15,
+						step = 1,
+						order = 6,
+						disabled = function()
+							return not (ns.db.activateBubbles and ns.db.bubbleCustomHold)
+						end,
+						get = function()
+							return ns.db.bubbleHoldTime or 10
+						end,
+						set = function(_, val)
+							ns.db.bubbleHoldTime = val
+						end,
+					},
 				},
 			},
 		},
