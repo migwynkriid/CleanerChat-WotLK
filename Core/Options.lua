@@ -496,7 +496,7 @@ Options.GenerateOptionsMenu = function(self)
 					},
 					bubbleShowName = {
 						name = L["Display speaker name"],
-						desc = L["Show the speaker's name in front of the bubble text, class-coloured for players (e.g. \"Playername: Hello\")."],
+						desc = L['Show the speaker\'s name in front of the bubble text, class-coloured for players (e.g. "Playername: Hello").'],
 						type = "toggle",
 						width = "full",
 						order = 2,
