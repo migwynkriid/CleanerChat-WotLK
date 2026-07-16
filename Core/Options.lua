@@ -8,6 +8,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale((...))
 -- Libraries
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+local LSM = LibStub("LibSharedMedia-3.0", true)
 
 -- GLOBALS: CopyTable, ReloadUI
 
@@ -39,6 +40,23 @@ end
 
 local getter = function(info)
 	return ns.db.filters[info[#info]]
+end
+
+-- Chat bubble font outline choices, used by the Bubbles options below.
+local BUBBLE_FLAGS = {
+	[""] = L["None"],
+	["OUTLINE"] = L["Outline"],
+	["THICKOUTLINE"] = L["Thick Outline"],
+	["MONOCHROME"] = L["Monochrome"],
+	["MONOCHROME, OUTLINE"] = L["Monochrome Outline"],
+	["MONOCHROME, THICKOUTLINE"] = L["Monochrome Thick Outline"],
+}
+
+-- The live Glass message-font settings that the Bubbles options inherit from
+-- when they are left at their default ("follow chat").
+local function glassProfile()
+	local glass = _G.Glass
+	return glass and glass.db and glass.db.profile
 end
 
 -- OptionsDBs
@@ -450,6 +468,128 @@ Options.GenerateOptionsMenu = function(self)
 		type = "group",
 		args = {
 			cleanerchat = ccGroup,
+			bubbles = {
+				name = L["Bubbles"],
+				type = "group",
+				order = 6,
+				args = {
+					activateBubbles = {
+						name = L["Activate bubbles"],
+						desc = L["Strip the default black background from SAY and YELL chat bubbles (the speech balloons shown over a player's or NPC's head), leaving only the message text."],
+						type = "toggle",
+						width = "full",
+						order = 1,
+						get = function()
+							return ns.db.activateBubbles
+						end,
+						set = function(info, val)
+							ns.db.activateBubbles = val
+							local module = ns:GetModule("Bubbles", true)
+							if module then
+								if val and not module:IsEnabled() then
+									module:Enable()
+								elseif not val and module:IsEnabled() then
+									module:Disable()
+								end
+							end
+						end,
+					},
+					bubbleShowName = {
+						name = L["Display speaker name"],
+						desc = L['Show the speaker\'s name in front of the bubble text, class-coloured for players (e.g. "Playername: Hello").'],
+						type = "toggle",
+						width = "full",
+						order = 2,
+						disabled = function()
+							return not ns.db.activateBubbles
+						end,
+						get = function()
+							return ns.db.bubbleShowName ~= false
+						end,
+						set = function(_, val)
+							ns.db.bubbleShowName = val
+						end,
+					},
+					bubbleFont = {
+						name = L["Font"],
+						desc = L["Font used for the chat bubble text. Defaults to your chat message font."],
+						type = "select",
+						dialogControl = "LSM30_Font",
+						values = function()
+							return (LSM and LSM:HashTable("font")) or {}
+						end,
+						order = 3,
+						disabled = function()
+							return not ns.db.activateBubbles
+						end,
+						get = function()
+							if ns.db.bubbleFont then
+								return ns.db.bubbleFont
+							end
+							local p = glassProfile()
+							return (p and p.messageFont) or "Friz Quadrata TT"
+						end,
+						set = function(_, val)
+							ns.db.bubbleFont = val
+						end,
+					},
+					bubbleFontFlags = {
+						name = L["Outline"],
+						desc = L["Outline style for the chat bubble text. Defaults to your chat message outline."],
+						type = "select",
+						values = BUBBLE_FLAGS,
+						order = 4,
+						disabled = function()
+							return not ns.db.activateBubbles
+						end,
+						get = function()
+							local v = ns.db.bubbleFontFlags
+							if v ~= false and v ~= nil then
+								return v
+							end
+							local p = glassProfile()
+							return (p and p.messageFontFlags) or "OUTLINE"
+						end,
+						set = function(_, val)
+							ns.db.bubbleFontFlags = val
+						end,
+					},
+					bubbleCustomHold = {
+						name = L["Custom fade delay"],
+						desc = L["Override the game's default chat bubble fade time with your own duration."],
+						type = "toggle",
+						width = "full",
+						order = 5,
+						disabled = function()
+							return not ns.db.activateBubbles
+						end,
+						get = function()
+							return ns.db.bubbleCustomHold
+						end,
+						set = function(_, val)
+							ns.db.bubbleCustomHold = val
+						end,
+					},
+					bubbleHoldTime = {
+						name = L["Message duration"],
+						desc = L["How long a chat bubble stays on screen before fading out, in seconds."],
+						type = "range",
+						min = 1,
+						max = 15,
+						step = 1,
+						order = 6,
+						disabled = function()
+							return not (ns.db.activateBubbles and ns.db.bubbleCustomHold)
+						end,
+						get = function()
+							return ns.db.bubbleHoldTime or 10
+						end,
+						set = function(_, val)
+							ns.db.bubbleHoldTime = val
+						end,
+					},
+				},
+			},
 		},
 	}
 

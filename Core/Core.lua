@@ -218,6 +218,12 @@ local defaults = {
 	channelNumber = true, -- prefix the channel display with its number, e.g. "1. "
 	channelCapitalize = true, -- capitalize the channel name/initial
 	capitalizeNames = true, -- capitalize the first letter of player names
+	activateBubbles = false, -- strip the background from SAY/YELL chat bubbles, showing only the text
+	bubbleShowName = true, -- show the speaker's name in front of chat bubble text
+	bubbleFont = false, -- LSM font name for bubble text; false = inherit the chat message font
+	bubbleFontFlags = false, -- outline flags for bubble text; false = inherit the chat message flags
+	bubbleCustomHold = false, -- override the game's chat bubble fade time with bubbleHoldTime
+	bubbleHoldTime = 10, -- seconds a chat bubble stays before fading (when bubbleCustomHold is on)
 	forceClassColors = true, -- force enable class colors for all chat types
 	moneyPrettify = true, -- use spaces in large gold amounts (e.g. "1 234" instead of "1234")
 	hideOtherCrafts = true, -- hide other players' "<name> creates <item>" craft broadcasts
@@ -616,6 +622,14 @@ ns.OnEnable = function(self)
 			elseif not value and module:IsEnabled() then
 				module:Disable()
 			end
+		end
+	end
+
+	-- Chat bubble skinning (top-level option, not a message filter).
+	if self.db.activateBubbles then
+		local bubbles = self:GetModule("Bubbles", true)
+		if bubbles and not bubbles:IsEnabled() then
+			bubbles:Enable()
 		end
 	end
 
