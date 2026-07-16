@@ -236,6 +236,9 @@ read_globals = {
   "GetNumQuestLogChoices",
   "GetQuestLogChoiceInfo",
   "QuestLogFrame",
+  "GetTitleText",
+  "AcceptQuest",
+  "GetQuestReward",
 
   -- WoW API - Reputation Functions
   "GetNumFactions",

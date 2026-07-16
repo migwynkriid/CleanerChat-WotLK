@@ -23,7 +23,7 @@ L['Hide the "UI Error: an interface error occurred" notifications the server pri
 L["Show Startup Message"] = "Startnachricht anzeigen"
 L["Print a message on login showing how to open CleanerChat settings."] = "Zeigt beim Anmelden eine Nachricht an, wie die CleanerChat-Einstellungen geöffnet werden."
 L["Settings changed - the UI will reload when you close this window."] = "Einstellungen geändert – die Benutzeroberfläche wird neu geladen, wenn du dieses Fenster schließt."
-L["Filter Selection"] = "Filterauswahl"
+L["Chat Formatting"] = "Chat-Formatierung"
 L["Achievements"] = "Erfolge"
 L["Simplify Achievement messages."] = "Vereinfacht Erfolgsmeldungen."
 L["Auctions"] = "Auktionen"
