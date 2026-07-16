@@ -82,7 +82,12 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 			-- Check if we should buffer for one-line quest rewards
 			-- Only buffer unnamed XP (quest rewards), not named XP (mob kills)
 			if ns.db and ns.db.oneLineQuestRewards and chatFrame then
-				local rewardText = string_format("|cffffffff%s|r |cffffffff%s|r", value, G.XP)
+				-- Use the highlight white (fafafa), NOT pure "|cffffffff": pure
+				-- white is the Blizzard Priest class colour, so the ClassColors
+				-- replacement (run on every AddMessage line) would remap it to the
+				-- custom Priest tint and the XP would show gray-blue. Mob XP uses
+				-- the same highlight colour, so this keeps them consistent.
+				local rewardText = string_format("|cfffafafa%s|r |cfffafafa%s|r", value, G.XP)
 				if ns:AddQuestReward(chatFrame, "xp", rewardText) then
 					return true -- Suppress, will be output with combined rewards
 				end
