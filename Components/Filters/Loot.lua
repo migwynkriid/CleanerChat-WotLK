@@ -63,6 +63,18 @@ local P = ns.MakePatternCache()
 -- Safe pattern match that tolerates a nil pattern (shared helper).
 local safeMatch = ns.SafeMatch
 
+-- Format a buffered quest-reward item's count as " (N)": the brackets stay white
+-- (fafafa -- NOT pure "|cffffffff", which the Priest class-colour replacement
+-- would recolour) while the number inherits the item's own quality colour, taken
+-- from the leading |cAARRGGBB of the item link. Falls back to white if the item
+-- carries no colour code.
+local WHITE_CODE = "|cfffafafa"
+local formatRewardCount = function(item, count)
+	local color = string_match(item, "^|c(%x%x%x%x%x%x%x%x)")
+	local numCode = color and ("|c" .. color) or WHITE_CODE
+	return string_format("%s %s(%s%d%s)|r", item, WHITE_CODE, numCode, count, WHITE_CODE)
+end
+
 -- Loot roll lines, evaluated in order. "self" entries capture only the item;
 -- "other" entries capture the player name + item. The output arg order for
 -- "other" lines varies (the won line is name-first; the rest are item-first),
@@ -144,7 +156,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 					if ns.db and ns.db.oneLineQuestRewards and chatFrame then
 						local rewardText
 						if count and (count > 1) then
-							rewardText = string_format("%s |cff9d9d9d(%d)|r", item, count)
+							rewardText = formatRewardCount(item, count)
 						else
 							rewardText = item
 						end
@@ -232,7 +244,7 @@ Module.OnChatEvent = function(self, chatFrame, event, message, author, ...)
 					if (not parsedName) and (ns.db and ns.db.oneLineQuestRewards and chatFrame) then
 						local rewardText
 						if parsedCount and (parsedCount > 1) then
-							rewardText = string_format("%s |cff9d9d9d(%d)|r", parsedItem, parsedCount)
+							rewardText = formatRewardCount(parsedItem, parsedCount)
 						else
 							rewardText = parsedItem
 						end
