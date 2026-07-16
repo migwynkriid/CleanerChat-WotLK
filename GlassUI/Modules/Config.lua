@@ -1495,45 +1495,28 @@ function C:OnEnable()
 end
 
 function C:RefreshConfig()
-	-- Profile changed/copied: broadcast to ALL windows (nil = no filter)
-	-- General
-	Core:Dispatch(UpdateConfig("frameHeight", nil))
-	Core:Dispatch(UpdateConfig("frameWidth", nil))
-	Core:Dispatch(UpdateConfig("framePosition", nil))
-
-	-- Edit box
-	Core:Dispatch(UpdateConfig("editBoxFont", nil))
-	Core:Dispatch(UpdateConfig("editBoxFontSize", nil))
-	Core:Dispatch(UpdateConfig("editBoxFontFlags", nil))
-	Core:Dispatch(UpdateConfig("editBoxBackgroundOpacity", nil))
-	Core:Dispatch(UpdateConfig("editBoxBackgroundColor", nil))
-	Core:Dispatch(UpdateConfig("editBoxAnchor", nil))
-
-	-- Messages
-	Core:Dispatch(UpdateConfig("messageFont", nil))
-	Core:Dispatch(UpdateConfig("messageFontSize", nil))
-	Core:Dispatch(UpdateConfig("messageFontFlags", nil))
-	Core:Dispatch(UpdateConfig("messageAnimations", nil))
-	Core:Dispatch(UpdateConfig("messagesAlwaysVisible", nil))
-	Core:Dispatch(UpdateConfig("chatBackgroundOpacity", nil))
-	Core:Dispatch(UpdateConfig("chatBackgroundColor", nil))
-	Core:Dispatch(UpdateConfig("chatFadeInDuration", nil))
-	Core:Dispatch(UpdateConfig("chatFadeOutDuration", nil))
-	Core:Dispatch(UpdateConfig("scrollIndicatorColor", nil))
-	Core:Dispatch(UpdateConfig("scrollIndicatorOpacity", nil))
-	Core:Dispatch(UpdateConfig("scrollIndicatorBgColor", nil))
-	Core:Dispatch(UpdateConfig("scrollIndicatorBgOpacity", nil))
-	Core:Dispatch(UpdateConfig("hideScrollIndicator", nil))
-
-	-- Top bar (dock)
-	Core:Dispatch(UpdateConfig("dockFont", nil))
-	Core:Dispatch(UpdateConfig("dockFontSize", nil))
-	Core:Dispatch(UpdateConfig("dockFontFlags", nil))
-	Core:Dispatch(UpdateConfig("dockAnimations", nil))
-	Core:Dispatch(UpdateConfig("tabsAlwaysVisible", nil))
-	Core:Dispatch(UpdateConfig("dockBackgroundOpacity", nil))
-	Core:Dispatch(UpdateConfig("dockBackgroundColor", nil))
-	Core:Dispatch(UpdateConfig("tabsOnHover", nil))
+	-- A profile switch/copy/reset swaps the whole settings table, and AceDB strips
+	-- the previous profile's default-valued keys out of the old table -- which leaves
+	-- the live Glass frames holding stale references that error on next access
+	-- (e.g. editBoxAnchor, colors). Re-applying settings onto those stale frames is
+	-- unsafe, so prompt for a UI reload, which rebuilds everything cleanly from the
+	-- now-active profile. Only fires on an explicit user profile action (AceDB does
+	-- not fire these callbacks during normal login).
+	if not StaticPopupDialogs["CLEANERCHAT_PROFILE_RELOAD"] then
+		StaticPopupDialogs["CLEANERCHAT_PROFILE_RELOAD"] = {
+			text = "CleanerChat: chat profile changed. Reload the UI to apply it?",
+			button1 = "Reload UI",
+			button2 = "Cancel",
+			OnAccept = function()
+				ReloadUI()
+			end,
+			timeout = 0,
+			whileDead = true,
+			hideOnEscape = true,
+			preferredIndex = 3,
+		}
+	end
+	StaticPopup_Show("CLEANERCHAT_PROFILE_RELOAD")
 end
 
 function C:OnProfileReset()

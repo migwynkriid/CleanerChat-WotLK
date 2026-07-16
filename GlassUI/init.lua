@@ -173,6 +173,15 @@ function Core:GetWindowProfile(windowId)
 	local windows = self.db.profile.windows
 	local w = windows and windows[windowId]
 	if w then
+		-- Heal window profiles saved by older versions (or created before a
+		-- setting existed): fill in any key present in the main profile but
+		-- missing here, so downstream reads (e.g. messageLinePadding) never hit
+		-- a nil value. Idempotent -- once complete, the loop is a no-op.
+		for key, value in pairs(self.db.profile) do
+			if key ~= "windows" and w[key] == nil then
+				w[key] = deepCopy(value)
+			end
+		end
 		return w
 	end
 

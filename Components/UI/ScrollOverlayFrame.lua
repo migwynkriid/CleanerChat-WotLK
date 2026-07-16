@@ -58,8 +58,9 @@ function ScrollOverlayFrame:Init()
 	local mainContainer = self:GetParent():GetParent() -- SlidingMessageFrame's parent is MainContainerFrame
 	-- Offset by -1 horizontally to align with the edit box and messages
 	-- Offset by +1 vertically to sit just above the edit box
-	local yOffset = (self.profile.editBoxAnchor.yOfs or -1) + 1
-	if self.profile.editBoxAnchor.position == "ABOVE" then
+	local anchor = self.profile.editBoxAnchor
+	local yOffset = ((anchor and anchor.yOfs) or -1) + 1
+	if anchor and anchor.position == "ABOVE" then
 		-- Edit box is above the chat, so indicator is above the main container
 		self:SetPoint("BOTTOMLEFT", mainContainer, "TOPLEFT", -1, yOffset)
 		self:SetPoint("BOTTOMRIGHT", mainContainer, "TOPRIGHT", -1, yOffset)
@@ -134,8 +135,9 @@ function ScrollOverlayFrame:UpdatePosition()
 	local mainContainer = self:GetParent():GetParent()
 	-- Offset by -1 horizontally to align with the edit box and messages
 	-- Offset by +1 vertically to sit just above the edit box
-	local yOffset = (self.profile.editBoxAnchor.yOfs or -1) + 1
-	if self.profile.editBoxAnchor.position == "ABOVE" then
+	local anchor = self.profile.editBoxAnchor
+	local yOffset = ((anchor and anchor.yOfs) or -1) + 1
+	if anchor and anchor.position == "ABOVE" then
 		-- Edit box is above the chat, so indicator is above the main container
 		self:SetPoint("BOTTOMLEFT", mainContainer, "TOPLEFT", -1, yOffset)
 		self:SetPoint("BOTTOMRIGHT", mainContainer, "TOPRIGHT", -1, yOffset)

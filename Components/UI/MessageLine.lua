@@ -366,7 +366,10 @@ function MessageLineMixin:UpdateFrame()
 		stringHeight = lineHeight
 	end
 
-	local Ypadding = lineHeight * self.profile.messageLinePadding
+	-- Fall back to the default if this (per-window) profile predates the setting,
+	-- so a missing value can never crash the render path.
+	local linePadding = self.profile.messageLinePadding or Core.defaults.profile.messageLinePadding
+	local Ypadding = lineHeight * linePadding
 	self:SetHeight(stringHeight + Ypadding * 2)
 
 	local rightBgWidth = math.min(250, self.profile.frameWidth - 50)
