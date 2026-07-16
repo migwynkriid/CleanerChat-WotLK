@@ -5,6 +5,7 @@ ns = LibStub("AceAddon-3.0"):NewAddon(ns, Addon, "LibMoreEvents-1.0", "AceConsol
 local L = LibStub("AceLocale-3.0"):GetLocale(Addon)
 
 -- GLOBALS: CHAT_FRAMES, FCF_GetCurrentChatFrame, GetChatTypeIndex
+-- Release trigger: rebuild with fixed release workflow.
 
 -- Lua API
 local _G = _G
