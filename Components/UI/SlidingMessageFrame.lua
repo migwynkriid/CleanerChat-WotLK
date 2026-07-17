@@ -35,6 +35,7 @@ local UPDATE_CONFIG = Constants.EVENTS.UPDATE_CONFIG
 -- luacheck: push ignore 113
 local CreateFrame = CreateFrame
 local CreateObjectPool = CreateObjectPool
+local GetTime = GetTime
 local Mixin = Mixin
 -- luacheck: pop
 
@@ -272,14 +273,6 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 					self:ShowScrollOverlay()
 				end
 
-				-- Cancel all hide timers when mouse enters
-				for _, message in ipairs(self.state.messages) do
-					if message.hideTimer then
-						message.hideTimer:Cancel()
-						message.hideTimer = nil
-					end
-				end
-
 				-- If messagesOnHover is enabled, fade in all messages
 				if self.profile.messagesOnHover then
 					local fadeDuration = (self.profile.messageAnimations ~= false)
@@ -299,10 +292,12 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 
 				self.overlay:HideDelay(self.profile.chatHoldTime)
 
-				-- Fade out messages when mouse leaves, unless messages are pinned.
+				-- Restart every line's fade countdown from now, so leaving the chat gives
+				-- a fresh hold time before lines fade (see UpdateMessageFades).
 				if not self.profile.messagesAlwaysVisible then
+					local deadline = GetTime() + self.profile.chatHoldTime
 					for _, message in ipairs(self.state.messages) do
-						message:HideDelay(self.profile.chatHoldTime)
+						message.fadeAfter = deadline
 					end
 				end
 			end),
@@ -330,14 +325,6 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 				end
 
 				self.state.mouseOver = true
-
-				-- Cancel all hide timers
-				for _, message in ipairs(self.state.messages) do
-					if message.hideTimer then
-						message.hideTimer:Cancel()
-						message.hideTimer = nil
-					end
-				end
 
 				-- Always show ALL messages with animation when edit box is focused
 				local fadeDuration = (self.profile.messageAnimations ~= false)
@@ -367,10 +354,11 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 
 					self.overlay:HideDelay(self.profile.chatHoldTime)
 
-					-- Start fade out timers for all messages, unless messages are pinned.
+					-- Restart every line's fade countdown from now (see UpdateMessageFades).
 					if not self.profile.messagesAlwaysVisible then
+						local deadline = GetTime() + self.profile.chatHoldTime
 						for _, message in ipairs(self.state.messages) do
-							message:HideDelay(self.profile.chatHoldTime)
+							message.fadeAfter = deadline
 						end
 					end
 				elseif self.state.unreadMessages or not self.state.scrollAtBottom then
@@ -495,18 +483,16 @@ function SlidingMessageFrameMixin:OnConfigChanged(key)
 
 	if key == "messagesAlwaysVisible" then
 		if self.profile.messagesAlwaysVisible then
-			-- Pin every message on screen and cancel any pending fade-out.
+			-- Pin every message on screen (UpdateMessageFades skips pinned frames).
 			for _, message in ipairs(self.state.messages) do
-				if message.hideTimer then
-					message.hideTimer:Cancel()
-					message.hideTimer = nil
-				end
+				message.fadeAfter = nil
 				message:Show()
 			end
 		elseif not self.state.mouseOver then
 			-- Resume the normal fade-out behaviour.
+			local deadline = GetTime() + self.profile.chatHoldTime
 			for _, message in ipairs(self.state.messages) do
-				message:HideDelay(self.profile.chatHoldTime)
+				message.fadeAfter = deadline
 			end
 		end
 	end
@@ -643,65 +629,71 @@ function SlidingMessageFrameMixin:OnFrame()
 		self:Update(incoming)
 	end
 
-	-- Safety net: about once a second, re-arm the fade-out for any message that
-	-- got stranded fully visible. OnFrame ticks every ~0.01s, so 100 ticks ~= 1s.
-	self.state.reapTick = (self.state.reapTick or 0) + 1
-	if self.state.reapTick >= 100 then
-		self.state.reapTick = 0
-		self:ReapStrandedMessages()
-	end
+	-- Fade out any message lines whose hold time has elapsed. Driven every frame
+	-- from a single deadline (see UpdateMessageFades) so lines fade oldest-first
+	-- and none can be stranded on screen.
+	self:UpdateMessageFades()
 end
 
--- A message line normally fades out chatHoldTime after it arrives (or after the
--- mouse leaves / edit box loses focus). That fade-out is edge-triggered: a hide
--- timer is scheduled once and cancelled whenever the line is revealed (hover,
--- scroll wheel, edit focus). If a reveal cancels the timer but the matching
--- "re-hide" event never arrives -- e.g. the shared mouse-over flag desyncs
--- between hover and edit-focus, or a Show() path forgets to reschedule -- the
--- line is left at full opacity with no pending fade and stays on screen forever.
--- This sweep finds those stranded lines and re-arms their fade so they catch up
--- with the rest. It deliberately ignores the frame's own (desync-prone)
--- mouseOver flag and instead checks the container's reliably-polled hover state.
-function SlidingMessageFrameMixin:ReapStrandedMessages()
+-- Single source of truth for fading message lines out. Each line records a
+-- `fadeAfter` timestamp when it arrives (and again whenever a reveal ends); once
+-- that time passes and nothing is revealing the chat, the line fades. Driving
+-- this from one polled deadline -- instead of per-line timers that get cancelled
+-- and rescheduled by hover / scroll / edit-focus -- guarantees lines fade oldest
+-- first and can never be left stranded at full opacity (the "some messages never
+-- fade / fade out of order" bug).
+function SlidingMessageFrameMixin:UpdateMessageFades()
 	if self.state.isCombatLog then
 		return
 	end
 
-	-- Pinned messages are meant to stay visible.
+	-- Pinned: never fade.
 	if self.profile.messagesAlwaysVisible then
 		return
 	end
 
-	-- Real hover state: MainContainerFrame polls MouseIsOver() every frame, so
-	-- its flag is authoritative (unlike this frame's mouseOver, which is shared
-	-- with the edit-focus reveal and is exactly what desyncs).
-	local container = self.window and self.window.container
-	if container and container.state and container.state.mouseOver then
+	-- Something is intentionally revealing the chat -> hold every line visible.
+	if self:AreMessagesRevealed() then
 		return
 	end
 
-	-- The edit box reveal (opt-in) intentionally keeps this window's messages up
-	-- while it is focused; don't fight it.
+	local now = GetTime()
+	for _, message in ipairs(self.state.messages) do
+		-- Only consider lines on screen at full opacity that aren't already
+		-- fading; skip hidden / mid-fade ones.
+		if message:IsVisible() and not message.fadeHandle and (message:GetAlpha() or 1) > 0.99 then
+			if not message.fadeAfter then
+				-- Shown but unarmed (e.g. revealed by a scroll then left idle): give
+				-- it a fresh hold so it can never linger on screen forever.
+				message.fadeAfter = now + self.profile.chatHoldTime
+			elseif now >= message.fadeAfter then
+				message.fadeAfter = nil
+				message:Hide()
+			end
+		end
+	end
+end
+
+-- True while the chat is being intentionally revealed and lines must stay up:
+-- the mouse is over this window, or its edit box is focused with the reveal
+-- option on. Uses the container's reliably-polled hover flag rather than this
+-- frame's own mouseOver (which is shared with the edit-focus path and can
+-- desync -- the original cause of stranded, never-fading lines).
+function SlidingMessageFrameMixin:AreMessagesRevealed()
+	local container = self.window and self.window.container
+	if container and container.state and container.state.mouseOver then
+		return true
+	end
+
 	if self.profile.showOnEditFocus then
 		local UIManager = Core:GetModule("UIManager", true)
 		local editBox = UIManager and UIManager.editBox
 		if editBox and editBox.window == self.window and editBox.HasFocus and editBox:HasFocus() then
-			return
+			return true
 		end
 	end
 
-	for _, message in ipairs(self.state.messages) do
-		-- Shown, at (near) full opacity, with no pending hide timer and no
-		-- in-flight fade == stranded. Re-arm its fade-out like a fresh arrival.
-		if
-			message:IsShown()
-			and not message.hideTimer
-			and not message.fadeHandle
-			and (message:GetAlpha() or 1) > 0.99
-		then
-			message:HideDelay(self.profile.chatHoldTime)
-		end
-	end
+	return false
 end
 
 function SlidingMessageFrameMixin:Update(incoming)
@@ -792,11 +784,12 @@ function SlidingMessageFrameMixin:Update(incoming)
 
 	for _, message in ipairs(newMessages) do
 		message:Show()
-		-- Fade out new messages when mouse is not over, unless messages are pinned.
-		-- Each message fades chatHoldTime after its OWN arrival (per-message), so a
-		-- newer message does not reset older messages' timers.
-		if not self.state.mouseOver and not self.profile.messagesAlwaysVisible then
-			message:HideDelay(self.profile.chatHoldTime)
+		-- Arm this line's fade countdown. UpdateMessageFades (run every OnFrame) fades
+		-- it once chatHoldTime elapses and nothing is revealing the chat. Deadline-
+		-- based instead of a per-line timer, so lines always fade in arrival order and
+		-- can never be stranded on screen by a cancelled/lost timer.
+		if not self.profile.messagesAlwaysVisible then
+			message.fadeAfter = GetTime() + self.profile.chatHoldTime
 		end
 		table.insert(self.state.messages, message)
 
