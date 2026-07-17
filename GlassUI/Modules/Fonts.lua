@@ -11,9 +11,23 @@ local CreateFont = CreateFont
 
 function Fonts:OnInitialize()
 	self.fonts = {}
+	-- Create the shared font objects during initialization so they exist before
+	-- ANY module's OnEnable builds frames that inherit them. Module enable order is
+	-- not guaranteed: when a higher-versioned AceAddon from another addon (e.g. DBM)
+	-- wins the LibStub race, it can enable UIManager before Fonts, which previously
+	-- crashed with "Couldn't find inherited node GlassMessageFont".
+	self:SetupFonts()
 end
 
-function Fonts:OnEnable()
+-- Create the shared FontObjects the chat frames inherit from. Idempotent: once
+-- the objects exist the call is a no-op, so OnInitialize and OnEnable can both
+-- call it safely regardless of which runs first.
+function Fonts:SetupFonts()
+	self.fonts = self.fonts or {}
+	if self.fonts.GlassMessageFont then
+		return
+	end
+
 	-- GlassMessageFont
 	self.fonts.GlassMessageFont = CreateFont("GlassMessageFont")
 	self.fonts.GlassMessageFont:SetFont(
@@ -52,6 +66,12 @@ function Fonts:OnEnable()
 	self.fonts.GlassEditBoxFont:SetJustifyH("LEFT")
 	self.fonts.GlassEditBoxFont:SetJustifyV("MIDDLE")
 	self.fonts.GlassEditBoxFont:SetSpacing(3)
+end
+
+function Fonts:OnEnable()
+	-- Fonts are created in OnInitialize; ensure they exist in case OnEnable runs
+	-- first under an unexpected module lifecycle.
+	self:SetupFonts()
 
 	Core:Subscribe(UPDATE_CONFIG, function(_)
 		-- Note: All fonts (Message, EditBox, Dock) are now set directly per-window

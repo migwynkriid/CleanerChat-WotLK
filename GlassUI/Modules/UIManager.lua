@@ -35,6 +35,15 @@ function UIManager:OnInitialize()
 end
 
 function UIManager:OnEnable()
+	-- Guarantee the shared font objects (GlassMessageFont, etc.) exist before we
+	-- build any window frames that inherit them. Module enable order isn't
+	-- guaranteed when another addon's AceAddon wins the LibStub race, so create
+	-- them defensively here instead of relying on Fonts:OnEnable running first.
+	local Fonts = Core:GetModule("Fonts", true)
+	if Fonts and Fonts.SetupFonts then
+		Fonts:SetupFonts()
+	end
+
 	self.tickerFrame = CreateFrame("Frame", "GlassUpdaterFrame", UIParent)
 
 	self:HideCombatLogQuickButtons()
