@@ -41,6 +41,34 @@ local getter = function(info)
 	return ns.db.filters[info[#info]]
 end
 
+-- The bundled AceConfig-3.0 (older Ace3, pulled in for 3.3.5 library
+-- compatibility) only accepts STRING control widths -- its ValidateOptionsTable
+-- rejects numeric widths and aborts the ENTIRE options window. Newer/retail
+-- AceConfig supports numbers, but whichever shared copy wins the LibStub race
+-- decides which rules apply. To stay compatible with every version, walk the
+-- merged table once before registration and map each numeric width down to the
+-- nearest supported string ("half"/"normal"/"double").
+local function normalizeWidths(node)
+	if type(node) ~= "table" then
+		return
+	end
+	if type(node.width) == "number" then
+		local w = node.width
+		if w <= 0.5 then
+			node.width = "half"
+		elseif w >= 1.25 then
+			node.width = "double"
+		else
+			node.width = "normal"
+		end
+	end
+	if type(node.args) == "table" then
+		for _, child in next, node.args do
+			normalizeWidths(child)
+		end
+	end
+end
+
 -- OptionsDBs
 -------------------------------------------------------
 local formattingDB = {
@@ -519,6 +547,10 @@ Options.GenerateOptionsMenu = function(self)
 			},
 		}
 	end
+
+	-- Numeric control widths break the older bundled AceConfig; map them to the
+	-- supported string widths across the whole merged table before registering.
+	normalizeWidths(options)
 
 	AceConfigRegistry:RegisterOptionsTable(Addon, options)
 	AceConfigDialog:SetDefaultSize(Addon, 900, 650)
