@@ -31,7 +31,7 @@ function Fonts:SetupFonts()
 	end
 
 	-- GlassMessageFont
-	self.fonts.GlassMessageFont = CreateFont("GlassMessageFont")
+	self.fonts.GlassMessageFont = _G.GlassMessageFont or CreateFont("GlassMessageFont")
 	self.fonts.GlassMessageFont:SetFont(
 		LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.messageFont),
 		Core.db.profile.messageFontSize,
@@ -44,7 +44,7 @@ function Fonts:SetupFonts()
 	self.fonts.GlassMessageFont:SetSpacing(Core.db.profile.messageLeading)
 
 	-- GlassChatDockFont
-	self.fonts.GlassChatDockFont = CreateFont("GlassChatDockFont")
+	self.fonts.GlassChatDockFont = _G.GlassChatDockFont or CreateFont("GlassChatDockFont")
 	self.fonts.GlassChatDockFont:SetFont(
 		LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.dockFont),
 		Core.db.profile.dockFontSize,
@@ -57,7 +57,7 @@ function Fonts:SetupFonts()
 	self.fonts.GlassChatDockFont:SetSpacing(3)
 
 	-- GlassEditBoxFont
-	self.fonts.GlassEditBoxFont = CreateFont("GlassEditBoxFont")
+	self.fonts.GlassEditBoxFont = _G.GlassEditBoxFont or CreateFont("GlassEditBoxFont")
 	self.fonts.GlassEditBoxFont:SetFont(
 		LSM:Fetch(LSM.MediaType.FONT, Core.db.profile.editBoxFont),
 		Core.db.profile.editBoxFontSize,
@@ -81,4 +81,25 @@ function Fonts:OnEnable()
 		-- The global FontObjects are still used as templates for initial creation,
 		-- but we don't update them here to avoid affecting all windows at once.
 	end)
+end
+
+-- Register the shared FontObjects the instant this file loads -- before ANY Ace
+-- lifecycle (OnInitialize/OnEnable) runs -- so their NAMES always exist and a
+-- frame that inherits them can never fail with "Couldn't find inherited node
+-- GlassMessageFont". This is the last line of defence for the module-enable-order
+-- race: another addon's higher-versioned AceAddon (DBM, CooldownCount,
+-- ThreatPlates, ...) can win the shared LibStub and enable our UIManager module
+-- before Fonts. The real font face/size/spacing are applied later in SetupFonts()
+-- once the saved settings exist; here we only guarantee the objects exist with a
+-- safe placeholder so frame creation can never crash.
+do
+	local placeholder = _G.STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"
+	for _, fontName in ipairs({ "GlassMessageFont", "GlassChatDockFont", "GlassEditBoxFont" }) do
+		if not _G[fontName] then
+			local fontObject = CreateFont(fontName)
+			if fontObject then
+				fontObject:SetFont(placeholder, 14)
+			end
+		end
+	end
 end
