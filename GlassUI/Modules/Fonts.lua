@@ -26,7 +26,10 @@ end
 -- call it safely regardless of which runs first.
 function Fonts:SetupFonts()
 	self.fonts = self.fonts or {}
-	if self.fonts.GlassMessageFont then
+	-- Only skip once ALL shared fonts are set. Returning as soon as the first one
+	-- exists could leave the others unconfigured if a previous call errored
+	-- mid-function, so they'd keep the file-load placeholder font.
+	if self.fonts.GlassMessageFont and self.fonts.GlassChatDockFont and self.fonts.GlassEditBoxFont then
 		return
 	end
 
