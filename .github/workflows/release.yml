@@ -51,11 +51,9 @@ jobs:
 
       - name: Update TOC version
         run: |
-          # Update the version in all TOC files for the release
-          for toc in CleanerChat.toc CleanerChat-WotLK.toc CleanerChat-WotLK-main.toc; do
-            sed -i "s/^## Version:.*/## Version: ${{ steps.version.outputs.version }}/" "$toc"
-          done
-          echo "Updated TOC versions to ${{ steps.version.outputs.version }}"
+          # Update the version in the TOC file for the release
+          sed -i "s/^## Version:.*/## Version: ${{ steps.version.outputs.version }}/" CleanerChat.toc
+          echo "Updated TOC version to ${{ steps.version.outputs.version }}"
           grep "## Version" CleanerChat.toc
 
       - name: Update README version badge
@@ -138,7 +136,6 @@ jobs:
                     --exclude='.luacheckrc' \
                     --exclude='.styluaignore' \
                     --exclude='stylua.toml' \
-                    --exclude='CleanerChat-WotLK*.toc' \
                     --exclude='APIDocumentation' \
                     --exclude='release' \
                     --exclude='*.zip' \
