@@ -246,6 +246,12 @@ local defaults = {
 		status = true,
 		systemmessages = false,
 		tradeskills = true,
+		linkHover = true,
+		urlCopy = true,
+		copyChat = true,
+		altNames = true,
+		highlight = true,
+		clickInvite = true,
 	},
 }
 
