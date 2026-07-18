@@ -644,7 +644,8 @@ files = {
   -- Options uses AceConfig callbacks with required `info` parameter
   ["Core/Options.lua"] = {
     ignore = { "212" },  -- AceConfig get/set callbacks require info arg
-    globals = { "StaticPopupDialogs" },  -- registers the reset-profile confirm dialog
+    -- Registers the reset dialog and wipes both saved-variable DBs on full reset.
+    globals = { "StaticPopupDialogs", "CleanerChat_DB", "GlassDB" },
   },
 
   -- Private.lua sets up shared state

@@ -687,26 +687,21 @@ Options.OnInitialize = function(self)
 		self:OpenOptionsMenu("")
 	end)
 
-	-- Reset Profile button (sits next to Open Settings). Restores CleanerChat's
-	-- filter settings and the Glass UI (visual) profile to their defaults, then
-	-- reloads so the fresh settings apply cleanly. Guarded by a confirm popup
-	-- since it discards all customisations.
-	if not StaticPopupDialogs["CLEANERCHAT_RESET_PROFILE"] then
-		StaticPopupDialogs["CLEANERCHAT_RESET_PROFILE"] = {
-			text = "CleanerChat: reset all settings to default?\nYour UI will reload.",
-			button1 = "Reset",
+	-- Wipe All Data button (sits next to Open Settings). Performs a FULL wipe:
+	-- clears both saved-variable databases so the addon rebuilds from scratch,
+	-- like a fresh install. Guarded by a confirm popup since it is irreversible.
+	if not StaticPopupDialogs["CLEANERCHAT_WIPE_ALL_DATA"] then
+		StaticPopupDialogs["CLEANERCHAT_WIPE_ALL_DATA"] = {
+			text = "CleanerChat: wipe ALL settings and reset to a fresh install?\n\nThis deletes every CleanerChat setting AND every saved Glass profile. It cannot be undone. Your UI will reload.",
+			button1 = "Wipe everything",
 			button2 = "Cancel",
 			OnAccept = function()
-				-- Reset CleanerChat filter settings.
-				if ns.ResetCleanerChatSettings then
-					ns:ResetCleanerChatSettings()
-				end
-				-- Reset the Glass UI (visual) profile. Resetting its AceDB profile also
-				-- fires the OnProfileReset callback wired up in Config.lua.
-				local Glass = _G.Glass
-				if Glass and Glass.db and Glass.db.ResetProfile then
-					Glass.db:ResetProfile()
-				end
+				-- Full wipe: clear BOTH saved-variable databases entirely. Nil-ing the
+				-- globals is exactly what WoW persists on the reload below, so nothing
+				-- survives -- every CleanerChat setting and every saved Glass profile is
+				-- gone, and both addons rebuild from their defaults on next load.
+				_G.CleanerChat_DB = nil
+				_G.GlassDB = nil
 				ReloadUI()
 			end,
 			timeout = 0,
@@ -719,9 +714,9 @@ Options.OnInitialize = function(self)
 	local resetButton = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
 	resetButton:SetSize(150, 25)
 	resetButton:SetPoint("LEFT", button, "RIGHT", 10, 0)
-	resetButton:SetText("Reset Profile")
+	resetButton:SetText("Wipe All Data")
 	resetButton:SetScript("OnClick", function()
-		StaticPopup_Show("CLEANERCHAT_RESET_PROFILE")
+		StaticPopup_Show("CLEANERCHAT_WIPE_ALL_DATA")
 	end)
 
 	-- Add to Interface Options
