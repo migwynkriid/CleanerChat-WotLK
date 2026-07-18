@@ -26,10 +26,12 @@ end
 -- call it safely regardless of which runs first.
 function Fonts:SetupFonts()
 	self.fonts = self.fonts or {}
-	-- Only skip once ALL shared fonts are set. Returning as soon as the first one
-	-- exists could leave the others unconfigured if a previous call errored
-	-- mid-function, so they'd keep the file-load placeholder font.
-	if self.fonts.GlassMessageFont and self.fonts.GlassChatDockFont and self.fonts.GlassEditBoxFont then
+	-- Skip only after a PREVIOUS call fully finished (flag set at the very end).
+	-- Gating on the font objects merely existing isn't enough: each object is
+	-- assigned before its SetFont args (Core.db.profile.*) are evaluated, so an
+	-- error partway could leave the objects created but NOT configured with the
+	-- real font -- and we'd then never re-apply it.
+	if self.fontsConfigured then
 		return
 	end
 
@@ -71,6 +73,10 @@ function Fonts:SetupFonts()
 	self.fonts.GlassEditBoxFont:SetJustifyH("LEFT")
 	self.fonts.GlassEditBoxFont:SetJustifyV("MIDDLE")
 	self.fonts.GlassEditBoxFont:SetSpacing(3)
+
+	-- Every font is now created AND fully configured -- only now is it safe for
+	-- future calls to skip the work above.
+	self.fontsConfigured = true
 end
 
 function Fonts:OnEnable()
