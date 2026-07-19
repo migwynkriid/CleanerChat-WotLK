@@ -357,11 +357,15 @@ function MessageLineMixin:UpdateFrame()
 	self.text:SetWidth(self.profile.frameWidth - leftPadding - Constants.TEXT_XPADDING)
 	self.text:SetIndentedWordWrap(self.profile.indentWordWrap)
 
-	-- WotLK quirk: GetStringHeight() can return 0 / a too-small value (especially
-	-- right after SetText), which collapses the frame and makes messages overlap.
-	-- Never let a line be shorter than a single text line.
+	-- Some 3.3.5 client builds report a stale or zero GetStringHeight() for
+	-- word-wrapped lines (especially right after SetText), which collapses the
+	-- frame so the next message overlaps it -- happens on some servers' clients
+	-- but not others. The FontString auto-sizes its own height to fit the rendered
+	-- (wrapped) text, so GetHeight() is the reliable measure where GetStringHeight
+	-- is not: take whichever is TALLER. Underestimating causes the overlap; a
+	-- slightly tall line only adds harmless spacing. Never shorter than one line.
 	local lineHeight = GetFontHeight(self.text)
-	local stringHeight = self.text:GetStringHeight() or 0
+	local stringHeight = math.max(self.text:GetStringHeight() or 0, self.text:GetHeight() or 0)
 	if stringHeight < lineHeight then
 		stringHeight = lineHeight
 	end

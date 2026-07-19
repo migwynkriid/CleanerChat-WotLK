@@ -614,9 +614,17 @@ function SlidingMessageFrameMixin:OnFrame()
 				changed = true
 			end
 		end
-		self.state.pendingMeasure = {}
 		if changed then
 			self:RecomputeContentHeight()
+		end
+		-- Some client builds lay wrapped text out over more than one frame, so a
+		-- single re-measure can still read a stale height and leave lines
+		-- overlapping. Keep re-measuring until a pass settles (no height change),
+		-- with a small cap so a steady stream of chat can't loop forever.
+		self.state.remeasurePasses = (self.state.remeasurePasses or 0) + 1
+		if not changed or self.state.remeasurePasses >= 6 then
+			self.state.pendingMeasure = {}
+			self.state.remeasurePasses = 0
 		end
 	end
 
