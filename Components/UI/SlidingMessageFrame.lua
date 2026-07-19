@@ -607,24 +607,28 @@ function SlidingMessageFrameMixin:OnFrame()
 	-- fix the layout if any height changed.
 	if self.state.pendingMeasure and #self.state.pendingMeasure > 0 then
 		local changed = false
+		local stillPending = {}
 		for _, message in ipairs(self.state.pendingMeasure) do
 			local before = message:GetHeight() or 0
 			message:UpdateFrame()
-			if math.abs((message:GetHeight() or 0) - before) > 0.5 then
+			local settled = math.abs((message:GetHeight() or 0) - before) <= 0.5
+			message.remeasurePasses = (message.remeasurePasses or 0) + 1
+			if not settled then
 				changed = true
 			end
+			-- Keep re-measuring THIS line until its own height settles (no change),
+			-- capped per-line so a slow multi-frame layout is covered while a steady
+			-- stream of chat can't evict a newer line before it has settled. A single
+			-- shared counter would clear the queue mid-settle for the newest lines.
+			if not settled and message.remeasurePasses < 6 then
+				stillPending[#stillPending + 1] = message
+			else
+				message.remeasurePasses = nil
+			end
 		end
+		self.state.pendingMeasure = stillPending
 		if changed then
 			self:RecomputeContentHeight()
-		end
-		-- Some client builds lay wrapped text out over more than one frame, so a
-		-- single re-measure can still read a stale height and leave lines
-		-- overlapping. Keep re-measuring until a pass settles (no height change),
-		-- with a small cap so a steady stream of chat can't loop forever.
-		self.state.remeasurePasses = (self.state.remeasurePasses or 0) + 1
-		if not changed or self.state.remeasurePasses >= 6 then
-			self.state.pendingMeasure = {}
-			self.state.remeasurePasses = 0
 		end
 	end
 
