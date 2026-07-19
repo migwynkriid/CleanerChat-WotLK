@@ -26,7 +26,7 @@
 	<Script file="Filters\VersionCheck.lua"/>
 	<Script file="Filters\_Debug.lua"/>
 
-	<!-- Interactive utility modules -->
+	<!-- Chatter feature modules -->
 	<Script file="Modules\LinkHover.lua"/>
 	<Script file="Modules\UrlCopy.lua"/>
 	<Script file="Modules\CopyChat.lua"/>
