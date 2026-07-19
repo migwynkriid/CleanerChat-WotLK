@@ -26,12 +26,4 @@
 	<Script file="Filters\VersionCheck.lua"/>
 	<Script file="Filters\_Debug.lua"/>
 
-	<!-- Chatter feature modules -->
-	<Script file="Modules\LinkHover.lua"/>
-	<Script file="Modules\UrlCopy.lua"/>
-	<Script file="Modules\CopyChat.lua"/>
-	<Script file="Modules\AltNames.lua"/>
-	<Script file="Modules\Highlight.lua"/>
-	<Script file="Modules\ClickInvite.lua"/>
-
 </Ui>
