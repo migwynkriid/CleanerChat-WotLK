@@ -1,19 +1,15 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 
-	<!-- ChatCleaner message filters -->
+	<!-- Message filters (toggleable) -->
 	<Script file="Filters\Achievements.lua"/>
 	<Script file="Filters\Auctions.lua"/>
-	<Script file="Filters\Blacklist.lua"/>
 	<Script file="Filters\BossMessages.lua"/>
 	<Script file="Filters\ChannelJoin.lua"/>
 	<Script file="Filters\Channels.lua"/>
-	<Script file="Filters\ColorFilters.lua"/>
-	<Script file="Filters\Empty.lua"/>
 	<Script file="Filters\Experience.lua"/>
 	<Script file="Filters\Honor.lua"/>
 	<Script file="Filters\Loot.lua"/>
 	<Script file="Filters\MiscInfo.lua"/>
-	<Script file="Filters\Money.lua"/>
 	<Script file="Filters\Opening.lua"/>
 	<Script file="Filters\PetInfo.lua"/>
 	<Script file="Filters\PlayerNames.lua"/>
@@ -23,10 +19,18 @@
 	<Script file="Filters\Status.lua"/>
 	<Script file="Filters\SystemMessages.lua"/>
 	<Script file="Filters\Tradeskills.lua"/>
+
+	<!-- Always-on filters & formatting -->
+	<Script file="Filters\Blacklist.lua"/>
+	<Script file="Filters\ColorFilters.lua"/>
+	<Script file="Filters\Empty.lua"/>
+	<Script file="Filters\Money.lua"/>
+
+	<!-- Version check & diagnostics -->
 	<Script file="Filters\VersionCheck.lua"/>
 	<Script file="Filters\_Debug.lua"/>
 
-	<!-- Interactive utility modules -->
+	<!-- Feature modules -->
 	<Script file="Modules\CopyChat.lua"/>
 	<Script file="Modules\Highlight.lua"/>
 
