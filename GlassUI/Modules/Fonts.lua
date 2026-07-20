@@ -68,7 +68,7 @@ function Fonts:SetupFonts()
 		Core.db.profile.editBoxFontSize,
 		Core.db.profile.editBoxFontFlags
 	)
-	self.fonts.GlassEditBoxFont:SetShadowColor(0, 0, 0, 0)
+	self.fonts.GlassEditBoxFont:SetShadowColor(0, 0, 0, 1)
 	self.fonts.GlassEditBoxFont:SetShadowOffset(1, -1)
 	self.fonts.GlassEditBoxFont:SetJustifyH("LEFT")
 	self.fonts.GlassEditBoxFont:SetJustifyV("MIDDLE")

@@ -229,8 +229,17 @@ function EditBoxMixin:UpdateFontFromProfile()
 
 	if fontPath and fontSize then
 		self:SetFont(fontPath, fontSize, fontFlags or "")
+		-- Match the chat messages' drop shadow. GlassEditBoxFont disables the
+		-- shadow (alpha 0), so an OUTLINE edit box looked much thinner/flatter
+		-- than OUTLINE chat text (GlassMessageFont pairs OUTLINE with a solid
+		-- black shadow). SetFont doesn't touch the shadow, so set it explicitly
+		-- here so the same font flags render consistently in both places.
+		self:SetShadowColor(0, 0, 0, 1)
+		self:SetShadowOffset(1, -1)
 		if self.header then
 			self.header:SetFont(fontPath, fontSize, fontFlags or "")
+			self.header:SetShadowColor(0, 0, 0, 1)
+			self.header:SetShadowOffset(1, -1)
 		end
 	end
 end

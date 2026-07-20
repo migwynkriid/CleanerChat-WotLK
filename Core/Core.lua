@@ -227,6 +227,7 @@ local defaults = {
 	showItemDestruction = true, -- show "- item" when destroying items
 	showVendorSales = true, -- show "- item" when selling to vendors
 	prettifyGuildStatus = true, -- prettify guild online/offline messages
+	highlightSound = false, -- play an alert sound when your own name is highlighted (requires the highlight filter)
 	filters = {
 		achievements = true,
 		auctions = true,
@@ -246,6 +247,9 @@ local defaults = {
 		status = true,
 		systemmessages = false,
 		tradeskills = true,
+		copyChat = true,
+		highlight = false,
+		clickInvite = true,
 	},
 }
 

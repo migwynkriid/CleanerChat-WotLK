@@ -2,6 +2,15 @@ local L = LibStub("AceLocale-3.0"):NewLocale((...), "itIT")
 if not L then
 	return
 end
+-- CleanerChat features: copy chat, keyword highlighting, shift-click invite
+L["Copy Chat History"] = "Copia cronologia chat"
+L["Enable the /copychat command and window for copying chat history."] = "Abilita il comando /copychat e una finestra per copiare la cronologia della chat."
+L["Keyword Highlighting"] = "Evidenziazione parole chiave"
+L["Highlight your name in chat with a colour and an alert sound."] = "Evidenzia il tuo nome nella chat con un colore e un suono di avviso."
+L["Keyword Highlighting Sound"] = "Suono evidenziazione parole chiave"
+L["Play an alert sound when your name is highlighted in chat. Requires Keyword Highlighting."] = "Riproduce un suono di avviso quando il tuo nome viene evidenziato nella chat. Richiede l'Evidenziazione parole chiave."
+L["Shift-Click Invite"] = "Invita con Maiusc+clic"
+L["Shift-click a player name in chat to send a group invite."] = "Maiusc+clic sul nome di un giocatore nella chat per inviare un invito al gruppo."
 -- CleanerChat multi-window menu / startup message
 L["New detached window"] = "Nuova finestra separata"
 L["Delete window"] = "Elimina finestra"

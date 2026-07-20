@@ -413,6 +413,48 @@ local filterDB = {
 		set = setter,
 		get = getter,
 	},
+	copyChat = {
+		name = L["Copy Chat History"],
+		desc = L["Enable the /copychat command and window for copying chat history."],
+		width = 1.5,
+		type = "toggle",
+		set = setter,
+		get = getter,
+	},
+	highlight = {
+		name = L["Keyword Highlighting"],
+		desc = L["Highlight your name in chat with a colour and an alert sound."],
+		width = 1.5,
+		type = "toggle",
+		set = setter,
+		get = getter,
+	},
+	-- Sub-option of the highlight filter. The name sorts it directly beneath
+	-- "Keyword Highlighting" in the alphabetically-ordered filter list, and it is
+	-- wired to the top-level ns.db.highlightSound flag (not a module of its own).
+	highlightSound = {
+		name = L["Keyword Highlighting Sound"],
+		desc = L["Play an alert sound when your name is highlighted in chat. Requires Keyword Highlighting."],
+		width = 1.5,
+		type = "toggle",
+		disabled = function(info)
+			return not ns.db.filters.highlight
+		end,
+		set = function(info, value)
+			ns.db.highlightSound = value
+		end,
+		get = function(info)
+			return ns.db.highlightSound
+		end,
+	},
+	clickInvite = {
+		name = L["Shift-Click Invite"],
+		desc = L["Shift-click a player name in chat to send a group invite."],
+		width = 1.5,
+		type = "toggle",
+		set = setter,
+		get = getter,
+	},
 	systemmessages = {
 		name = L["System Messages"],
 		desc = L["Hide repetitive system messages like session started."],

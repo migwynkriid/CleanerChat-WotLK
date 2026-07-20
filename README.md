@@ -93,6 +93,18 @@ Finer-grained tweaks under `/cc → Filters`:
 
 ---
 
+## Extras
+
+A few standalone conveniences, each toggled under `/cc → Filters`:
+
+| Feature | What it does |
+| --- | --- |
+| **Keyword Highlighting** | Colors your name when it appears in chat, with an optional alert sound |
+| **Copy Chat History** | `/copychat` opens a window to select and copy recent chat history |
+| **Shift-Click Invite** | Shift-click a player's name in chat to send them a group invite |
+
+---
+
 ## Chat overhaul
 
 Beyond cleaning messages, CleanerChat **replaces the default chat UI** with an integrated, WotLK-backported build of the **Glass** immersive chat addon:
@@ -136,6 +148,7 @@ automatically — it's just a heads-up so you know when to grab the latest versi
 | --- | --- |
 | `/cc` &nbsp;·&nbsp; `/cleanerchat` | Open the options panel. Filters **and** chat-UI settings are organized into categories (Filters, General, Edit box, Messages, Top bar, Profiles). |
 | `/cc lock` | Unlock the chat frame to drag it; lock it again to save the position. |
+| `/copychat` &nbsp;·&nbsp; `/cccopy` | Open a window with recent chat history to select and copy (WotLK has no in-game clipboard). |
 | `/ccdebug` | Toggle raw chat / event capture for diagnosing filters (also a checkbox under **General**). |
 
 You can also **right-click any chat tab** for quick actions — open **CleanerChat settings**, spawn a **New detached window**, or **Delete window** (on added windows).

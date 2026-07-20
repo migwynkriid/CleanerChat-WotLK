@@ -2,6 +2,15 @@ local L = LibStub("AceLocale-3.0"):NewLocale((...), "koKR")
 if not L then
 	return
 end
+-- CleanerChat features: copy chat, keyword highlighting, shift-click invite
+L["Copy Chat History"] = "대화 기록 복사"
+L["Enable the /copychat command and window for copying chat history."] = "대화 기록을 복사하는 /copychat 명령어와 창을 활성화합니다."
+L["Keyword Highlighting"] = "키워드 강조"
+L["Highlight your name in chat with a colour and an alert sound."] = "대화에서 자신의 이름을 색상과 알림음으로 강조합니다."
+L["Keyword Highlighting Sound"] = "키워드 강조 알림음"
+L["Play an alert sound when your name is highlighted in chat. Requires Keyword Highlighting."] = "대화에서 자신의 이름이 강조될 때 알림음을 재생합니다. 키워드 강조가 필요합니다."
+L["Shift-Click Invite"] = "Shift-클릭 초대"
+L["Shift-click a player name in chat to send a group invite."] = "대화에서 플레이어 이름을 Shift-클릭하여 그룹 초대를 보냅니다."
 -- CleanerChat multi-window menu / startup message
 L["New detached window"] = "새 분리 창"
 L["Delete window"] = "창 삭제"
