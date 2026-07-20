@@ -15,6 +15,7 @@ local IsShiftKeyDown = IsShiftKeyDown
 local DressUpItemLink = DressUpItemLink
 local ChatEdit_InsertLink = ChatEdit_InsertLink
 local ChatEdit_GetActiveWindow = ChatEdit_GetActiveWindow
+local InviteUnit = InviteUnit
 -- luacheck: pop
 
 -- WotLK 3.3.5 supported link types
@@ -137,6 +138,22 @@ function Hyperlinks:OnEnable()
 		if IsControlKeyDown() and linkType == "item" then
 			DressUpItemLink(link)
 			return
+		end
+
+		-- Shift-click on a player link sends a group invite when CleanerChat's
+		-- "Shift-Click Invite" feature is enabled. Player links are not in
+		-- linkTypes, so without this they fall through to SetItemRef (no invite).
+		-- The flag is read live from the shared saved variable, which a settings
+		-- reset can briefly set to nil.
+		if IsShiftKeyDown() and linkType == "player" then
+			local ccdb = _G.CleanerChat_DB
+			if ccdb and ccdb.filters and ccdb.filters.clickInvite then
+				local inviteName = string.match(link, "^player:([^:]+)")
+				if inviteName and inviteName ~= "" then
+					InviteUnit(inviteName)
+					return
+				end
+			end
 		end
 
 		-- Shift-click inserts the link into the active chat editbox.

@@ -153,6 +153,8 @@ read_globals = {
   "IsInGroup",
   "IsInGuild",
   "GetGuildInfo",
+  "IsShiftKeyDown",
+  "InviteUnit",
 
   -- WoW API - Chat Functions
   "SendAddonMessage",

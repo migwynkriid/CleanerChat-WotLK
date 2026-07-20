@@ -26,4 +26,8 @@
 	<Script file="Filters\VersionCheck.lua"/>
 	<Script file="Filters\_Debug.lua"/>
 
+	<!-- Interactive utility modules -->
+	<Script file="Modules\CopyChat.lua"/>
+	<Script file="Modules\Highlight.lua"/>
+
 </Ui>
