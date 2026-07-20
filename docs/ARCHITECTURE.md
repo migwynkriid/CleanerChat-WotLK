@@ -2,8 +2,9 @@
 
 CleanerChat bundles two backported addons into one and wires them together:
 
-- **ChatCleaner** — filters and reformats chat messages. Lives in `Core/` and
-  `Components/Filters/`.
+- **ChatCleaner** — filters and reformats chat messages, plus a few standalone
+  feature modules. Lives in `Core/`, `Components/Filters/` and
+  `Components/Modules/`.
 - **Glass** — replaces the default chat frame with an immersive, animated UI.
   Lives in `GlassUI/` and `Components/UI/`.
 
@@ -22,6 +23,7 @@ flowchart TD
         API["API: Output.lua (ns.out.*)<br/>Utils.lua (shared helpers)"]
         Engine["Core.lua — blacklist + replacements<br/>AddMessage hook cache, FilterMessage()"]
         Filters["Components/Filters/*.lua"]
+        Modules["Components/Modules/*.lua — CopyChat, Highlight"]
         Final["Finalize.lua — locks namespace"]
     end
     subgraph GL["Glass (UI)"]
@@ -31,6 +33,7 @@ flowchart TD
         Cfg["Modules/Config.lua — /cc options"]
     end
     Compat --> Libs --> Priv --> Data --> API --> Engine --> Filters --> Final
+    Engine --> Modules
     Libs --> Init --> UIMgr --> UIComp
     Init --> Cfg
     Engine -. "FilterMessage() reused by" .-> UIComp
@@ -81,6 +84,16 @@ proxy function, and symmetric `OnEnable`/`OnDisable` register/unregister.
 
 Burst grouping (quest turn-ins, reputation gains) uses `ns.CreateFrameBuffer`,
 which batches events that fire in the same frame and flushes once on the next.
+
+### Feature modules (`Components/Modules/`)
+
+Standalone features that aren't message filters live here as their own
+self-registering modules: **CopyChat** (`/copychat` copy window) and **Highlight**
+(colors your name on a mention, with an optional alert sound). They load through
+the same `Components.xml`. Interactive hyperlink behaviour — tooltips on hover,
+URL-copy dialogs and shift-click-to-invite — instead lives on the Glass side in
+`GlassUI/Modules/Hyperlinks.lua`, because Glass renders its own message lines and
+routes clicks through its event bus rather than the native chat frames.
 
 ### Shared helpers (`ns.*`)
 
@@ -142,5 +155,6 @@ in `compat.lua`).
 
 Pure helpers (in `Core/API/Utils.lua`) are unit-tested with **busted** under
 `spec/`. The specs load `Utils.lua` with a fake namespace and a couple of global
-stubs — no WoW client required. CI runs `luacheck`, `busted spec`, a `luac`
-syntax pass, TOC validation, and locale-completeness checks on every PR.
+stubs — no WoW client required. CI runs StyLua, `luacheck`, `busted spec`, a
+`luac` syntax pass, TOC validation, and a suite of locale checks (completeness,
+real-translation, orphan/dead-key, empty-line and single-line) on every PR.

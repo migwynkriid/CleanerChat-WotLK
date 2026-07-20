@@ -22,8 +22,9 @@ Core/
   Private.lua / Finalize.lua   Protected namespace setup/teardown
 Components/
   Filters/               ChatCleaner message filters (one module per concern)
+  Modules/               Standalone feature modules (Copy Chat, Keyword Highlighting)
   UI/                    Glass chat-UI widgets (frames, tabs, edit box, ...)
-  Components.xml         Loads Components/Filters/*
+  Components.xml         Loads Components/Filters/* and Components/Modules/*
 GlassUI/
   init.lua / constants.lua / utils.lua / compat.lua
   Modules/               Config, Fonts, Hyperlinks, TextProcessing, UIManager
@@ -136,12 +137,19 @@ On the Glass side:
 ## Localization
 
 `Locale/enUS.lua` is the source of truth. Every `L["..."]` key used in code must
-exist there; CI verifies all other locales contain the same keys (missing keys
-fall back to enUS). When you add a user-facing string:
+exist there, and every other locale must define the same keys with a **real
+translation** — although AceLocale falls back to enUS at runtime, CI does not:
+`= true` placeholders are rejected (except a few fixed channel abbreviations).
+When you add a user-facing string:
 
 1. Add the key to `Locale/enUS.lua`.
-2. Add it (translated or copied) to the other `Locale/*.lua` files, or CI's
-   "Locale completeness" step will fail.
+2. Add a real translation to **every** other `Locale/*.lua` file.
+3. When you remove a string's last use in code, remove the key from **all**
+   locale files too.
+
+CI runs several locale checks: completeness (no missing keys), no `= true`
+fallbacks, no orphans (keys absent from enUS), no dead keys (defined but unused
+in code), no empty lines, and single-line entries only.
 
 ---
 
