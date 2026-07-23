@@ -68,6 +68,10 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 	}
 	self.chatFrame = chatFrame
 
+	-- Keep message rendering below Blizzard's UI panels (see MainContainerFrame).
+	-- Set here too so the slider/message frames created below inherit "LOW".
+	self:SetFrameStrata("LOW")
+
 	-- Combat Log (ChatFrame2) in WotLK uses a completely different rendering system
 	-- that doesn't go through AddMessage(). Rather than trying to hook it, we let
 	-- Blizzard's native Combat Log render and just toggle its visibility when the

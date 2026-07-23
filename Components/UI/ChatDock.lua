@@ -40,7 +40,10 @@ function ChatDockMixin:Init(parent)
 	self:SetHeight(Constants.DOCK_HEIGHT)
 	self:ClearAllPoints()
 	self:SetPoint("TOPLEFT", parent, "TOPLEFT")
-	self:SetFrameStrata("MEDIUM") -- Ensure dock is visible above chat frames
+	-- "LOW" strata keeps the dock below Blizzard's UI panels (Character, Spellbook,
+	-- etc. are "MEDIUM") -- same strata as the chat container so it never pokes
+	-- through an opened panel. FrameLevel keeps it above the message background.
+	self:SetFrameStrata("LOW")
 	self:SetFrameLevel(10)
 	self:SetFadeInDuration(0.6)
 	self:SetFadeOutDuration(0.6)

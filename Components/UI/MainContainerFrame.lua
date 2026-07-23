@@ -22,6 +22,12 @@ function MainContainerFrameMixin:Init()
 	self:SetWidth(self.profile.frameWidth)
 	self:SetHeight(self.profile.frameHeight)
 
+	-- Keep the whole Glass chat stack (this container and everything parented to
+	-- it -- message frames, dock, tabs, edit box) at "LOW" strata, below Blizzard's
+	-- UI panels (Character, Spellbook, etc. sit at "MEDIUM"). This matches the
+	-- default chat frame so opened panels always render OVER the chat, never under.
+	self:SetFrameStrata("LOW")
+
 	-- Enable mouse so clicking on the chat area sets focus to this window.
 	self:EnableMouse(true)
 	self:SetScript("OnMouseDown", function(frame, button)

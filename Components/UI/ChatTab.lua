@@ -827,7 +827,8 @@ Core.Components.UpdateTabPositions = function(tabs)
 		if tab then
 			-- Reparent to our dock
 			tab:SetParent(glassDock)
-			tab:SetFrameStrata("MEDIUM")
+			-- Match the chat stack's "LOW" strata so tabs stay below Blizzard UI panels.
+			tab:SetFrameStrata("LOW")
 			tab:SetFrameLevel(11) -- Above the dock background
 			tab:ClearAllPoints()
 			tab:SetPoint("BOTTOMLEFT", glassDock, "BOTTOMLEFT", xOffset, 0)
