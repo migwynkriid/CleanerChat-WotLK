@@ -197,8 +197,7 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 		-- Honors the animation settings (0 duration = instant when animations are
 		-- off), and refreshes each line's fade countdown so the scroll gives a
 		-- fresh hold time before the lines fade out again.
-		local fadeDuration = (self.profile.messageAnimations ~= false) and (self.profile.chatFadeInDuration or 0.3)
-			or 0
+		local fadeDuration = (self.profile.messageAnimations ~= false) and (self.profile.chatFadeInDuration or 0.3) or 0
 		local deadline = (not self.profile.messagesAlwaysVisible) and (GetTime() + self.profile.chatHoldTime) or nil
 		for _, message in ipairs(self.state.messages) do
 			message:FadeIn(fadeDuration)
