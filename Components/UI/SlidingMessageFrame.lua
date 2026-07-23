@@ -194,13 +194,25 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 
 		-- Reveal hidden messages with a fade-in (matching the hover reveal) so
 		-- scrolling up or down brings them in smoothly instead of popping in.
-		-- Honors the animation settings (0 duration = instant when animations are
-		-- off), and refreshes each line's fade countdown so the scroll gives a
-		-- fresh hold time before the lines fade out again.
+		-- Honors the animation settings (0 duration = instant when animations off).
+		--
+		-- OnMouseWheel fires once PER wheel notch, and FadeIn restarts a line's
+		-- animation from its current alpha on each call -- so scrolling several
+		-- notches kept resetting the fade and made it crawl (much slower than the
+		-- one-shot hover / edit-focus reveals). Kick the fade-in off only once per
+		-- fade cycle so it plays as a single clean animation like those do; always
+		-- refresh the hold deadline so the lines stay up for a fresh chatHoldTime.
 		local fadeDuration = (self.profile.messageAnimations ~= false) and (self.profile.chatFadeInDuration or 0.3) or 0
 		local deadline = (not self.profile.messagesAlwaysVisible) and (GetTime() + self.profile.chatHoldTime) or nil
+		local now = GetTime()
+		local reveal = (not self.state.scrollRevealUntil) or (now >= self.state.scrollRevealUntil)
+		if reveal then
+			self.state.scrollRevealUntil = now + fadeDuration
+		end
 		for _, message in ipairs(self.state.messages) do
-			message:FadeIn(fadeDuration)
+			if reveal then
+				message:FadeIn(fadeDuration)
+			end
 			message.fadeAfter = deadline
 		end
 	end)
