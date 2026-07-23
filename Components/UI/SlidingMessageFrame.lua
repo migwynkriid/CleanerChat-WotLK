@@ -192,9 +192,17 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 			self:ShowScrollOverlay()
 		end
 
-		-- Show hidden messages
+		-- Reveal hidden messages with a fade-in (matching the hover reveal) so
+		-- scrolling up or down brings them in smoothly instead of popping in.
+		-- Honors the animation settings (0 duration = instant when animations are
+		-- off), and refreshes each line's fade countdown so the scroll gives a
+		-- fresh hold time before the lines fade out again.
+		local fadeDuration = (self.profile.messageAnimations ~= false) and (self.profile.chatFadeInDuration or 0.3)
+			or 0
+		local deadline = (not self.profile.messagesAlwaysVisible) and (GetTime() + self.profile.chatHoldTime) or nil
 		for _, message in ipairs(self.state.messages) do
-			message:Show()
+			message:FadeIn(fadeDuration)
+			message.fadeAfter = deadline
 		end
 	end)
 
