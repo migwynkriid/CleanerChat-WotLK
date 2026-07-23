@@ -43,6 +43,10 @@ function EditBoxMixin:Init(parent)
 	-- returns DEFAULT_CHAT_FRAME.editBox, so sending is unaffected.
 	self:SetParent(parent)
 
+	-- Reparenting does not change strata, so pin the edit box to the same "LOW"
+	-- strata as the rest of the chat so it stays below Blizzard's UI panels.
+	self:SetFrameStrata("LOW")
+
 	-- New styling
 	self:ClearAllPoints()
 	-- WoW 3.3.5: explicitly set width to match the container (dual anchors may not work reliably on native edit boxes)

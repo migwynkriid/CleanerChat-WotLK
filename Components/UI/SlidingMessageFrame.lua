@@ -68,6 +68,10 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 	}
 	self.chatFrame = chatFrame
 
+	-- Keep message rendering below Blizzard's UI panels (see MainContainerFrame).
+	-- Set here too so the slider/message frames created below inherit "LOW".
+	self:SetFrameStrata("LOW")
+
 	-- Combat Log (ChatFrame2) in WotLK uses a completely different rendering system
 	-- that doesn't go through AddMessage(). Rather than trying to hook it, we let
 	-- Blizzard's native Combat Log render and just toggle its visibility when the
@@ -188,9 +192,28 @@ function SlidingMessageFrameMixin:Init(chatFrame)
 			self:ShowScrollOverlay()
 		end
 
-		-- Show hidden messages
+		-- Reveal hidden messages with a fade-in (matching the hover reveal) so
+		-- scrolling up or down brings them in smoothly instead of popping in.
+		-- Honors the animation settings (0 duration = instant when animations off).
+		--
+		-- OnMouseWheel fires once PER wheel notch, and FadeIn restarts a line's
+		-- animation from its current alpha on each call -- so scrolling several
+		-- notches kept resetting the fade and made it crawl (much slower than the
+		-- one-shot hover / edit-focus reveals). Kick the fade-in off only once per
+		-- fade cycle so it plays as a single clean animation like those do; always
+		-- refresh the hold deadline so the lines stay up for a fresh chatHoldTime.
+		local fadeDuration = (self.profile.messageAnimations ~= false) and (self.profile.chatFadeInDuration or 0.3) or 0
+		local deadline = (not self.profile.messagesAlwaysVisible) and (GetTime() + self.profile.chatHoldTime) or nil
+		local now = GetTime()
+		local reveal = (not self.state.scrollRevealUntil) or (now >= self.state.scrollRevealUntil)
+		if reveal then
+			self.state.scrollRevealUntil = now + fadeDuration
+		end
 		for _, message in ipairs(self.state.messages) do
-			message:Show()
+			if reveal then
+				message:FadeIn(fadeDuration)
+			end
+			message.fadeAfter = deadline
 		end
 	end)
 

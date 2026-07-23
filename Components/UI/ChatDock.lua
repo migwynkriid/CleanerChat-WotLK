@@ -8,6 +8,7 @@ local Colors = Constants.COLORS
 local MOUSE_ENTER = Constants.EVENTS.MOUSE_ENTER
 local MOUSE_LEAVE = Constants.EVENTS.MOUSE_LEAVE
 local UPDATE_CONFIG = Constants.EVENTS.UPDATE_CONFIG
+local LOCK_MOVER = Constants.EVENTS.LOCK_MOVER
 
 -- luacheck: push ignore 113
 local Mixin = Mixin
@@ -39,7 +40,10 @@ function ChatDockMixin:Init(parent)
 	self:SetHeight(Constants.DOCK_HEIGHT)
 	self:ClearAllPoints()
 	self:SetPoint("TOPLEFT", parent, "TOPLEFT")
-	self:SetFrameStrata("MEDIUM") -- Ensure dock is visible above chat frames
+	-- "LOW" strata keeps the dock below Blizzard's UI panels (Character, Spellbook,
+	-- etc. are "MEDIUM") -- same strata as the chat container so it never pokes
+	-- through an opened panel. FrameLevel keeps it above the message background.
+	self:SetFrameStrata("LOW")
 	self:SetFrameLevel(10)
 	self:SetFadeInDuration(0.6)
 	self:SetFadeOutDuration(0.6)
@@ -97,6 +101,15 @@ function ChatDockMixin:Init(parent)
 				end
 				-- Fade the tabs out after the configured delay
 				self.state.mouseOver = false
+				if self.profile.tabsOnHover then
+					self:FadeOutTabs()
+				end
+			end),
+			-- Locking the frames is the natural end of the create/position flow. A
+			-- freshly spawned window is auto-unlocked and centered under the cursor,
+			-- which disrupts the hover-driven fade; re-arm the countdown on lock so the
+			-- top bar fades afterwards exactly like a reloaded (already-locked) window.
+			Core:Subscribe(LOCK_MOVER, function()
 				if self.profile.tabsOnHover then
 					self:FadeOutTabs()
 				end
@@ -194,7 +207,23 @@ function ChatDockMixin:FadeOutTabs()
 
 	self.fadeOutTimer = C_Timer.NewTimer(self.profile.dockHoldTime or 10, function()
 		self.fadeOutTimer = nil
+
+		-- Still hovered when the hold time elapsed: re-arm and check again instead
+		-- of abandoning the fade. self.state.mouseOver is only a shadow of the real
+		-- hover state, kept in sync by the MOUSE_ENTER/MOUSE_LEAVE events, so prefer
+		-- the container's live, per-frame value as the source of truth (and re-sync
+		-- our shadow from it). A freshly spawned window appears centered under the
+		-- cursor with its mover unlocked, so this timer can fire while the pointer
+		-- is over it; abandoning here left the top bar stuck on screen until a
+		-- MOUSE_LEAVE that the create/unlock flow may never deliver. Re-arming makes
+		-- the dock fade as soon as the mouse is idle. (A /reload rebuilds the window
+		-- already locked and unhovered, which is why it faded fine after a reload.)
+		local container = self.window and self.window.container
+		if container and container.state then
+			self.state.mouseOver = container.state.mouseOver
+		end
 		if self.state.mouseOver then
+			self:FadeOutTabs()
 			return
 		end
 

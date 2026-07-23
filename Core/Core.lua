@@ -121,15 +121,28 @@ for _, index in ipairs({
 	end
 end
 
-local blacklist = setmetatable({}, {
-	__call = function(self, ...)
-		for _, func in next, self do
-			if func(...) then
-				return true
+-- Factory for a callable blacklist container. Invoking it runs `...` through
+-- every registered predicate; the first truthy result means "drop this message".
+-- Both the normal and the unconditional (ignoredIDs-bypassing) groups are built
+-- from this so their iteration logic can never drift apart.
+local function makeBlacklistSet()
+	return setmetatable({}, {
+		__call = function(self, ...)
+			for _, func in next, self do
+				if func(...) then
+					return true
+				end
 			end
-		end
-	end,
-})
+		end,
+	})
+end
+
+local blacklist = makeBlacklistSet()
+-- Unconditional blacklist: like `blacklist`, but consulted for EVERY message,
+-- even those whose chatID is in `ignoredIDs`. Channel join/leave/change notices
+-- are delivered with the channel's own (ignored) chatID, so the normal blacklist
+-- never sees them; the ChannelJoin filter registers here so it can still drop them.
+local specialblacklist = makeBlacklistSet()
 
 -- Factory for a callable replacement-set container. Invoking the returned table
 -- runs `msg` through every registered set, where a set is either a table of
@@ -194,6 +207,22 @@ local modulePrototype = {
 	UnregisterBlacklistFilter = function(self, method)
 		local func = (type(method) == "string") and self[method]
 		ns:RemoveBlacklistMethod(func or method)
+	end,
+
+	-- Like RegisterBlacklistFilter, but the predicate is consulted for EVERY
+	-- message regardless of chatID (see ns.FilterMessage). Use for system notices
+	-- whose chatID falls in the ignored set (e.g. channel join/leave/change
+	-- notices, which carry the channel's own ignored chatID).
+	-- @input set <table,func>
+	RegisterUnconditionalBlacklistFilter = function(self, method)
+		local func = (type(method) == "string") and self[method]
+		ns:AddSpecialBlacklistMethod(func or method)
+	end,
+
+	-- @input set <table,func>
+	UnregisterUnconditionalBlacklistFilter = function(self, method)
+		local func = (type(method) == "string") and self[method]
+		ns:RemoveSpecialBlacklistMethod(func or method)
 	end,
 
 	-- @input set <table,func>
@@ -306,6 +335,17 @@ ns.FilterMessage = function(self, chatFrame, msg, r, g, b, chatID, ...)
 	-- *Encode Questie links, parse encoded string, decode Questie link.
 	--  This will ensure their links is uncorrupted but the line parsed in full.
 	if not ns:IsProtectedMessage(msg) then
+		-- Unconditional blacklist: consulted for EVERY message, even those whose
+		-- chatID is in ignoredIDs. Channel join/leave/change notices carry the
+		-- channel's own (ignored) chatID, so the gated blacklist below never sees
+		-- them. Run it BEFORE the replacements so a notice is dropped before the
+		-- Channel Names filter reshapes (and, for "Changed Channel", strips) it.
+		if next(specialblacklist) then
+			if specialblacklist(chatFrame, msg, r, g, b, chatID, ...) then
+				return nil
+			end
+		end
+
 		-- Parse replacements that ignore the blacklists.
 		if next(specialreplacements) then
 			msg = specialreplacements(msg, r, g, b, chatID, ...)
@@ -375,6 +415,26 @@ ns.RemoveBlacklistMethod = function(self, func)
 	for k = #blacklist, 1, -1 do
 		if blacklist[k] == func then
 			table_remove(blacklist, k)
+			break
+		end
+	end
+end
+
+-- Unconditional (ignoredIDs-bypassing) blacklist registration. See the
+-- specialblacklist note above and ns.FilterMessage.
+ns.AddSpecialBlacklistMethod = function(self, func)
+	for _, infunc in next, specialblacklist do
+		if infunc == func then
+			return
+		end
+	end
+	table_insert(specialblacklist, func)
+end
+
+ns.RemoveSpecialBlacklistMethod = function(self, func)
+	for k = #specialblacklist, 1, -1 do
+		if specialblacklist[k] == func then
+			table_remove(specialblacklist, k)
 			break
 		end
 	end
